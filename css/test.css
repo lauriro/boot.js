@@ -1,0 +1,23 @@
+@import url(common.css);
+
+aside{
+	width:30%;
+	float:right;
+	margin:0 5%;
+	border:1px solid red;
+	overflow:auto;
+}
+aside header,aside footer{
+	padding:5px 10px;
+	background:#999;
+	clear:both;
+}
+aside nav{
+	background:#aaa;
+	padding:10px;
+	width:30%;
+	float:right;
+}
+aside footer{
+	font-size:10px;
+}

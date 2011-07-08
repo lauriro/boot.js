@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="x-dns-prefetch-control" content="off">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<!--[if IE]>
+		<meta http-equiv="imagetoolbar" content="no">
+		<![if lt IE 9]>
+			<script type="text/javascript" src="ie6.js"></script>
+			<link type="text/css" rel="stylesheet" href="css/ie6.css">
+		<![endif]>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="css/test.css">
+	<link rel="alternate stylesheet" type="text/css" href="css/theme.ios/style.css" title="iOS">
+	<title>Test</title>
+</head><body>
+
+<header>
+<h1>Browser test</h1>
+</header>
+<aside>
+	<header>Header</header>
+	<nav>nav</nav>
+	<section>
+	section
+	</section>
+	<footer>footer</footer>
+</aside>
+
+<script type="text/javascript" src="test.js"></script>
+<script type="text/javascript" src="min.js">
+
+var box = El("section", null, document.body)
+
+El("div","click",box).on("click",function(){
+	this.innerHTML="click "+ (++this.id)
+});
+
+El("div","click once",box).on("click",function(){
+	Event.remove(this, "click", arguments.callee);
+	this.innerHTML="click once "+ (++this.id)
+});
+
+/*
+mousewheel don't work in IE5.5
+*/
+El("div","mousewheel",box).on("mousewheel",function(e, delta){Event.stop(e);this.innerHTML="mousewheel "+delta});
+
+
+var modules = ["base64.js","sha.js","xml.js","succinct_trie.js","cookie.js"]
+
+load( modules, function(){
+
+		TestCase.read( "boot.js" )
+		TestCase.read( modules )
+		var i = 0, test;
+		while (test = _tests[i++]) {
+			El("div", ""+test,box )
+		}
+
+	}
+)
+</script>
+
+
+</body></html>
