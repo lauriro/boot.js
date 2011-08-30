@@ -1,11 +1,7 @@
-!function boot_init(w,d,p,undef){
-var A=Array[p],D=Date[p],F=Function[p],N=Number[p],O=Object[p],S=String[p]
-,pad=function(n){return n>9?n:"0"+n}
-,pad2=function(n){return(n>99?n:(n>9?"0":"00")+n)}
-,jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
-,no=[]
-"DOMParser"in w||no.push("w.DOMParser=function(){};w.DOMParser.prototype.parseFromString=function(s,m) {var r=new XMLHttpRequest;r.open('GET','data:'+(m||'application/xml')+';charset=utf-8,'+encodeURIComponent(s),false);m&&'overrideMimeType'in r&&r.overrideMimeType(m);r.send();return r.responseXML}")
-"hasOwnProperty"in O||no.push("O.hasOwnProperty=function(n){try{var p=this.constructor;while(p=p.prototype)if(p[n]==this[n])return false}catch(e){}return true}")
+!function boot_init(w,d,P,undef){
+var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],pad=function(n){return n>9?n:"0"+n},pad2=function(n){return(n>99?n:(n>9?"0":"00")+n)},jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},no=[]
+"DOMParser"in w||no.push("w.DOMParser=function(){};w.DOMParser[P].parseFromString=function(s,m) {var r=new XMLHttpRequest;r.open('GET','data:'+(m||'application/xml')+';charset=utf-8,'+encodeURIComponent(s),false);m&&'overrideMimeType'in r&&r.overrideMimeType(m);r.send();return r.responseXML}")
+"hasOwnProperty"in O||no.push("O.hasOwnProperty=function(n){try{var p=this.constructor;while(p=p[P])if(p[n]===this[n])return false}catch(e){}return true}")
 "execScript"in w||no.push("w.execScript=function(s){!function(){w.eval.call(w,s)}()}")
 "trim"in S||no.push("S.trim=function(){return this.replace(/^[\\s\\r\\n\\u2028\\u2029]+|[\\s\\r\\n\\u2028\\u2029]+$/g,'')}")
 "filter"in A||no.push("A.filter=function(f,s){var i=-1,l=this.length,r=[];while(++i<l)if(i in this&&f.call(s,this[i],i,this))r.push(this[i]);return r}")
@@ -14,13 +10,6 @@ var A=Array[p],D=Date[p],F=Function[p],N=Number[p],O=Object[p],S=String[p]
 "lastIndexOf"in A||no.push("A.lastIndexOf=function(e,s){var l=this.length-1,i=(s|0)||l;i>l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)if(this[i]===e)return i;return -1}")
 "bind"in F||no.push("var s=A.slice;F.bind=function(t){var f=this,a=s.call(arguments,1);return function(){return f.apply(t,a.concat(s.call(arguments)))}}")
 "toISOString"in D||no.push("D.toISOString=function(){return this.format('isoUtcDateTime')}")
-"keys"in Object||no.push("Object.keys=function(o){var a=[];for(var k in o)o.hasOwnProperty(k)&&a.push(k);return a}")
-"JSON"in w||no.push("w.JSON={parse:function(t){return eval('('+t+')')},stringify:function json_encode(o){if(o===undef||o===null)return'null';var i,s=[];switch(O.toString.call(o)){case'[object String]':var c,a,m=jsonMap;for(i=o.length;c=o.charAt(--i);s[i]=m[c]||(c<' '?'\\\\u00'+((a=c.charCodeAt())|4)+(a%16).toString(16):c));return'\"'+s.join('')+'\"';case'[object Array]':for(i=o.length;i--;s[i]=json_encode(o[i]));return'['+s.join(',')+']';case'[object Object]':for(i in o)o.hasOwnProperty(i)&&s.push(json_encode(i)+':'+json_encode(o[i]));return'{'+s.join(',')+'}';case'[object Date]':return'\"'+o.toISOString()+'\"'}return''+o}}")
-no.length&&eval(no.join(";"))
-D.monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",
-"January","February","March","April","May","June","July","August","September","October","November","December"]
-D.dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat",
-"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 D.format=function(mask){
 var t=this,g="get",mask=D.format.masks[mask]||mask||D.format.masks["default"]
 if(mask.substr(0,4)==="UTC:"){mask=mask.substr(4);g="getUTC"}
@@ -46,23 +35,11 @@ a=="s"?t[g+"Seconds"]():
 a=="ss"?pad(t[g+"Seconds"]()):
 a=="S"?t[g+"Milliseconds"]():
 a=="SS"?pad2(t[g+"Milliseconds"]()):
-a=="u"?~~(t/1000):
+a=="u"?(t/1000)>>>0:
 a=="U"?t/1:
 a=="a"?t[g+"Hours"]()>11?"pm":"am":
 a=="A"?t[g+"Hours"]()>11?"PM":"AM":
-a=="Z"?"GMT "+(-t.getTimezoneOffset()/60):b?c:a
-})}
-D.format.masks={
-"default":"ddd mmm dd yyyy HH:MM:ss"
-,"fullDate":"dddd, mmmm d, yyyy"
-,"isoDate":"yyyy-mm-dd"
-,"isoTime":"HH:MM:ss"
-,"isoDateTime":"yyyy-mm-dd HH:MM:ss"
-,"isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'
-}
-D.daysInMonth=function(){
-return(new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()
-}
+a=="Z"?"GMT "+(-t.getTimezoneOffset()/60):b?c:a})}
 S.date=N.date=function(format){
 var d,n=Number(this)||Date.parse(this)
 if(isNaN(n)){
@@ -76,81 +53,73 @@ if(s.match(/pm/i)&&n[1]<12)n[1]+=12
 d.setHours(n[1],n[2],n[3]||0,n[4]||0)
 s.indexOf("Z")>-1&&d.setTime(d-(d.getTimezoneOffset()*60000))
 }else d=new Date((n<4294967296?n*1000:n))
-return format?d.format(format):d
-}
-var Event=w.Event||(w.Event={})
-,eventCache={}
+return format?d.format(format):d}
+D.daysInMonth=function(){
+return(new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()}
+D.startOfWeek=function(){
+var t=this
+return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
+D.format.masks={
+"default":"ddd mmm dd yyyy HH:MM:ss","fullDate":"dddd, mmmm d, yyyy","isoDate":"yyyy-mm-dd","isoTime":"HH:MM:ss","isoDateTime":"yyyy-mm-dd HH:MM:ss","isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'}
+D.monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",
+"January","February","March","April","May","June","July","August","September","October","November","December"]
+D.dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat",
+"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+"keys"in Object||no.push("Object.keys=function(o){var a=[],k;for(k in o)o.hasOwnProperty(k)&&a.push(k);return a}")
+"JSON"in w||no.push("w.JSON={parse:function(t){return eval('('+t+')')},stringify:function json_encode(o){if(o===undef||o===null)return'null';var i,s=[];switch(O.toString.call(o)){case'[object String]':var c,a,m=jsonMap;for(i=o.length;c=o.charAt(--i);s[i]=m[c]||(c<' '?'\\\\u00'+((a=c.charCodeAt())|4)+(a%16).toString(16):c));return'\"'+s.join('')+'\"';case'[object Array]':for(i=o.length;i--;s[i]=json_encode(o[i]));return'['+s.join(',')+']';case'[object Object]':for(i in o)o.hasOwnProperty(i)&&s.push(json_encode(i)+':'+json_encode(o[i]));return'{'+s.join(',')+'}';case'[object Date]':return'\"'+o.toISOString()+'\"'}return''+o}}")
+no.length&&eval(no.join(";"))
+var Event=w.Event||(w.Event={}),de=d.documentElement,db=d.body
 function cacheEvent(el,type,fn){
-var cache=eventCache[el]||(eventCache[el]={})
-type in cache||(cache[type]={})
-return(cache[type][fn]=type==="mousewheel"?
-function(e){
+var _e=el._e||(el._e={})
+type in _e||(_e[type]={})
+return(_e[type][fn]=type==="mousewheel"?function(e){
 e||(e=w.event)
 var delta="wheelDelta"in e?e.wheelDelta/120 : -e.detail/3
-if(delta!=0)fn.call(el,e,delta)
-}:("attachEvent"in el?function(){fn.call(el,w.event)}:fn)
-)}
+delta!=0&&fn.call(el,e,delta)}:("attachEvent"in el?function(){fn.call(el,w.event);}:fn))}
 function uncacheEvent(el,type,fn){
-var cache=eventCache
-if(el in cache&&type in cache[el]&&fn in cache[el][type]){
-var __fn=cache[el][type][fn]
-delete cache[el][type][fn]
-return __fn
-}
-return fn
-}
+var _e=el._e||{}
+if(type in _e&&fn in _e[type]){
+var __fn=_e[type][fn]
+delete _e[type][fn]
+return __fn}
+return fn}
 if("addEventListener"in w){
 Event.add=function(el,type,fn){
 var __fn=cacheEvent(el,type,fn)
 type==="mousewheel"&&el.addEventListener("DOMMouseScroll",__fn,false)
 el.addEventListener(type,__fn,false)
-return Event
-}
+return Event}
 Event.remove=function(el,type,fn){
 var __fn=uncacheEvent(el,type,fn)
 type==="mousewheel"&&el.removeEventListener("DOMMouseScroll",__fn,false)
 el.removeEventListener(type,__fn,false)
-return Event
-}
+return Event}
 }else{
 Event.add=function(el,type,fn){
 el.attachEvent("on"+type,cacheEvent(el,type,fn))
-return Event
-}
+return Event}
 Event.remove=function(el,type,fn){
 el.detachEvent("on"+type,uncacheEvent(el,type,fn))
-return Event
-}}
+return Event}}
 Event.stop=function(e){
-e.preventDefault&&e.preventDefault()
-e.stopPropagation&&e.stopPropagation()
-e.cancelBubble=true
-e.cancel=true
-e.returnValue=false
-return false
-}
-Event.removeAll=function(el){
-if(el in eventCache){
-var cache=eventCache[el]
-for(var type in cache)if(cache.hasOwnProperty(type)){
-var fnList=cache[type]
+"stopPropagation"in e&&e.stopPropagation()
+"preventDefault"in e&&e.preventDefault()
+e.cancelBubble=e.cancel=true
+return e.returnValue=false}
+Event.removeAll=function(el,type){
+var _e=el._e||{}
+for(var t in _e)if(_e.hasOwnProperty(t)&&(!type||type==t)){
+var fnList=_e[t]
 for(var fn in fnList){
-fnList.hasOwnProperty(fn)&&Event.remove(el,type,fn)
-}
-delete cache[type]
-}
-delete eventCache[el]
-}}
+fnList.hasOwnProperty(fn)&&Event.remove(el,t,fn)}
+delete _e[t]}}
 Event.pointerX=function(e){
-return e.pageX||e.clientX+(document.documentElement.scrollLeft||document.body.scrollLeft)||0
-}
+return e.pageX||e.clientX+(de.scrollLeft||db.scrollLeft)||0}
 Event.pointerY=function(e){
-return e.pageY||e.clientY+(document.documentElement.scrollTop||document.body.scrollTop)||0
-}
+return e.pageY||e.clientY+(de.scrollTop||db.scrollTop)||0}
 Event.pointer=function(e){
 var x=Event.pointerX(e),y=Event.pointerY(e)
-return{x:x,y:y,left:x,top:y}
-}
+return{x:x,y:y,left:x,top:y}}
 function touchHandler(e){
 Event.stop(e)
 var touch=e.changedTouches[0],ev=d.createEvent("MouseEvent")
@@ -159,28 +128,19 @@ e.type.replace("touch","mouse").replace("start","down").replace("end","up"),
 true,true,window,1,
 touch.screenX,touch.screenY,touch.clientX,touch.clientY,
 false,false,false,false,0,null)
-touch.target.dispatchEvent(ev)
-}
+touch.target.dispatchEvent(ev)}
 function touchStart(e){
 if(e.touches.length==1){
-Event.add(d,"touchend",touchEnd)
-.add(d,"touchcancel",touchEnd)
-.add(d,"touchmove",touchHandler)
-touchHandler(e)
-}}
+Event.add(d,"touchend",touchEnd).add(d,"touchcancel",touchEnd).add(d,"touchmove",touchHandler)
+touchHandler(e)}}
 function touchEnd(e){
-Event.remove(d,"touchend",touchEnd)
-.remove(d,"touchcancel",touchEnd)
-.remove(d,"touchmove",touchHandler)
-touchHandler(e)
-}
+Event.remove(d,"touchend",touchEnd).remove(d,"touchcancel",touchEnd).remove(d,"touchmove",touchHandler)
+touchHandler(e)}
 Event.touch_as_mouse=function(el){
-Event.add(el,"touchstart",touchStart)
-}
+Event.add(el,"touchstart",touchStart)}
 var kbMaps=[]
 function keyup(e){
-var key=e.keyCode||e.which
-,map=kbMaps[0]
+var key=e.keyCode||e.which,map=kbMaps[0]
 if(key in map)map[key](key)
 else if("num"in map&&key>47&&key<58)map.num(key-48)
 else if("_default"in map)map._default(key)
@@ -188,237 +148,218 @@ else{
 var i=0
 while("_bubble"in map&&(map=kbMaps[++i])){
 if(key in map)map[key](key)
-else if("_default"in map)map._default(key)
-}}}
+else if("_default"in map)map._default(key)}}}
 Event.setKeyMap=function(map){
 kbMaps.unshift(map)
-kbMaps.length==1&&Event.add(document,"keyup",keyup)
-}
+kbMaps.length==1&&Event.add(document,"keyup",keyup)}
 Event.removeKeyMap=function(map){
 if(kbMaps.length>0){
 var index=kbMaps.indexOf(map)
 kbMaps.splice(index==-1?0:index,1)
-kbMaps.length==0&&Event.remove(document,"keyup",keyup)
-}}
-var elCache={}
-,customExtend={}
-,parse=function(s,o){
+kbMaps.length==0&&Event.remove(document,"keyup",keyup)}}
+var elCache={},customExtend={},parse=function(s,o){
 for(var k in o)if(o.hasOwnProperty(k))s=s.split("{"+k+"}").join(""+o[k])
-return s
-}
-,camelCase=function(str){
-return str.replace(/[ _-]+([a-z])/g,function($0,$1){return $1.toUpperCase()})
-}
-,view=d.defaultView
-,getStyle=(view&&"getComputedStyle"in view?
+return s},dv=d.defaultView,getStyle=(dv&&"getComputedStyle"in dv?
 function(el,a){
-return el.style[a]||view.getComputedStyle(el,null)[a]||null
-}:
+return el.style[a]||dv.getComputedStyle(el,null)[a]||null}:
 function(el,a){
 if(a==="opacity"){
 var opacity=el.filters("alpha").opacity
-return isNaN(opacity)?1:(opacity?opacity/100:0)
-}
-a=camelCase(a)
-return el.style[a]||el.currentStyle[a]||null
-})
-,setStyle=function(el,name,val){
+return isNaN(opacity)?1:(opacity?opacity/100:0)}
+a=a.camelCase()
+return el.style[a]||el.currentStyle[a]||null}),setStyle=function(el,name,val){
 try{
 if(name=='float')name='cssFloat'
-return el.style[camelCase(name)]=val
+return el.style[name.camelCase()]=val
 }catch(e){
 if(val.indexOf('rgba')>-1)setStyle(el,name,val.repalce('rgba','rgb'))}}
 function __append(el,before){
+var t=this,i=0
 if(el){
 if(el instanceof Array){
-var i=0,len=el.length
+var len=el.length
 if("createDocumentFragment"in d){
 var frag=d.createDocumentFragment()
 for(;i<len;__append.call(frag,el[i++]));
-__append.call(this,frag,before)
+t.append(frag,before)
 }else{
-for(;i<len;__append.call(this,el[i++],before));
-}
+for(;i<len;t.append(el[i++],before));}
 }else{
-if(typeof(el)==="string"||typeof(el)==="number"){
-el=d.createTextNode(el)
-}
-if(before)this.insertBefore(el,(before===true?this.firstChild:before))
-else this.appendChild(el)
-"append_hook"in el&&el.append_hook()
-}}
-return this
-}
+if("string"===(i=typeof(el))||i==="number")el=d.createTextNode(el)
+before&&t.insertBefore(el,(before===true?t.firstChild:before))||t.appendChild(el)
+"append_hook"in el&&el.append_hook()}}
+return t}
 function __prepend(el){
-return __append.call(this,el,this.firstChild)
-}
+return this.append(el,true)}
 function __before(el){
 __append.call(el.parentNode,this,el)
-return this
-}
+return this}
 function __after(el){
 __append.call(el.parentNode,this,el.nextSibling)
-return this
-}
+return this}
+function __hasClass(name){
+return(" "+this.className+" ").indexOf(" "+name+" ")>-1}
 function __addClass(name){
-var s=this,c=s.className||""
-if(c=="")s.className=name
-else if((" "+c+" ").indexOf(" "+name+" ")===-1)s.className=c+" "+name
-return s
-}
+var t=this,c=t.className||""
+if(name){
+if(c=="")t.className=name
+else if(!t.hasClass(name))t.className=c+" "+name}
+return t}
 function __removeClass(name){
-var s=this,c=s.className||""
-s.className=c.replace(new RegExp("(^| )"+name+"( |$)","g")," ").replace(/(^ +| +$)/g,"")
-return s
-}
-function __toggleClass(name){
-if((" "+this.className+" ").indexOf(" "+name+" ")===-1){
-__addClass.call(this,name)
-return true
-}
-__removeClass.call(this,name)
-return false
-}
+var t=this
+t.className=(" "+t.className+" ").replace(" "+name+" "," ").trim()
+return t}
+function __toggleClass(name,status){
+if((status===undef&&!this.hasClass(name))||status){
+this.addClass(name)
+return true}
+this.rmClass(name)
+return false}
 function __empty(){
 var t=this
-while(t.firstChild)__kill.call(t.firstChild)
-return t
-}
+while(t.firstChild)__kill.call(t.firstChild);
+return t}
 function __kill(){
 var t=__empty.call(this)
 t.parentNode&&t.parentNode.removeChild(t)
 Event.removeAll(t)
 "kill_hook"in t&&t.kill_hook()
-return t
-}
+return t}
 function __css(atr,new_val){
+var t=this
 if(typeof(atr)=="object"){
-var s=this
-for(var style in atr)atr.hasOwnProperty(style)&&setStyle(s,style,atr[style]);
-return s
+for(var style in atr)atr.hasOwnProperty(style)&&setStyle(t,style,atr[style]);
+return t
 }else{
-return new_val?setStyle(this,atr,new_val):getStyle(this,atr)
-}}
+return new_val?setStyle(t,atr,new_val):getStyle(t,atr)}}
 function __on(type,fn){
-Event.add(this,type,fn)
-return this
-}
+var t=this
+type.replace(/\w+/g,function(w){Event.add(t,w,fn)})
+return t}
+function __set(args){
+var t=this
+if(args)switch(typeof(args)){
+case"object":
+if("nodeType"in args||args instanceof Array){
+t.append(args)
+}else{
+for(var arg in args)if(args.hasOwnProperty(arg)){
+var val=args[arg]
+switch(arg){
+case"append":
+if(typeof(val)==="object"){
+if("nodeType"in val||val instanceof Array){
+t.append(val)
+break}
+val=parse(t.innerHTML,val)}
+case"innerHTML":
+t.innerHTML=val||""
+break
+case"style":
+t.css(val)
+break
+case"class":
+case"className":
+val&&t.addClass(val)
+break
+case"autocorrect":
+case"autocomplete":
+case"autocapitalize":
+case"selected":
+case"type":
+if(val===false){
+t.removeAttribute(arg)
+}else{
+t.setAttribute(arg,val)}
+break
+default:
+t[arg]=val}}}
+break
+case"string":
+t.innerHTML=args
+break}
+return t}
 function __extend(el){
 el.append=__append
 el.prepend=__prepend
 el.before=__before
 el.after=__after
 el.addClass=__addClass
-el.removeClass=__removeClass
-el.rmClass=__removeClass
+el.removeClass=el.rmClass=__removeClass
 el.toggleClass=__toggleClass
+el.hasClass=__hasClass
 el.css=__css
 el.empty=__empty
 el.kill=__kill
 el.on=__on
-}
-"HTMLElement"in w&&__extend(HTMLElement.prototype)
+el.set=__set
+return el}
+if("HTMLElement"in w)__extend(HTMLElement[P])
+else if("Element"in w)__extend(Element[P])
+else{
+var create=d.createElement
+d.createElement=function(name){
+return __extend(create(name))}}
+var argsRe=/([.#:])(\w+)/g,argsMap={".":"className","#":"id"}
 w.El=function El(name,args,parent,before){
-name=name.toLowerCase()
-var el=(elCache[name]||(elCache[name]=d.createElement(name))).cloneNode(true)
-"append"in el||__extend(el)
-if(args){
-if(typeof(args)==="string"){
-el.innerHTML=args
-}else if("nodeType"in args||args instanceof Array){
-__append.call(el,args)
-}else{
-for(var arg in args)if(args.hasOwnProperty(arg)){
-var val=args[arg]
-switch(arg){
-case "append":
-if(typeof(val)==="object"){
-if("nodeType"in val||val instanceof Array){
-__append.call(el,val)
-break
-}
-val=parse(el.innerHTML,val)
-}
-case "innerHTML":
-el.innerHTML=val||""
-break
-case "style":
-__css.call(el,val)
-break
-case "class":
-case "className":
-val&&__addClass.call(el,val)
-break
-case "autocorrect":
-case "autocomplete":
-case "autocapitalize":
-case "selected":
-case "type":
-if(val===false){
-el.removeAttribute(arg)
-}else{
-el.setAttribute(arg,val)
-}
-break
-default:
-el[arg]=val
-}}}}
-if(name in customExtend){
-customExtend[name](el,args)
-}
+var pre={}
+name=name.replace(argsRe,function(m,m1,m2){
+pre[argsMap[m1]||m2]=m2
+return ""
+})||"div"
+var el=(elCache[name]||(elCache[name]=d.createElement(name))).cloneNode(true).set(pre).set(args)
+name in customExtend&&customExtend[name](el,args)
 if(typeof(parent)==="string")parent=El.get(parent)
 parent&&__append.call(parent,el,before)
-return el
-}
+return el}
 w.El.get=function(id){
 var el=(typeof id==="string")?d.getElementById(id):id
 el&&"append"in el===false&&__extend(el)
-return el
-}
+return el}
 w.El.cache=function(name,el,custom){
 elCache[name]=el
-custom&&(customExtend[name]=custom)
-}
+custom&&(customExtend[name]=custom)}
 F.ttl=function(ms,fun){
-var s=this,t=setTimeout(function(){ms=0;fun&&fun()},ms)
+var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
 return function(){
-clearTimeout(t)
-ms&&s.apply(null,arguments)
-}}
-F.once=function(ms){
-var s=this,t,args
+clearTimeout(s)
+ms&&t.apply(null,arguments)}}
+F.after=function(ms){
+var t=this,s,args
 return function(){
-clearTimeout(t)
+clearTimeout(s)
 args=arguments
-t=setTimeout(function(){s.apply(null,args)},ms)
-}}
-F.rate=function(ms,last_call){
-var s=this,t,args,next=0
+s=setTimeout(function(){t.apply(null,args)},ms)}}
+F.once=function(){
+var t=this,r,ran
 return function(){
-clearTimeout(t)
+return ran?r:(ran=true)&&(r=t.apply(null,arguments))}}
+F.rate=function(ms,last_call){
+var t=this,s,args,next=0
+return function(){
+clearTimeout(s)
 var now=(new Date()).getTime()
 if(now>next){
 next=now+ms
-s.apply(null,arguments)
+t.apply(null,arguments)
 }else if(last_call){
 args=arguments
-t=setTimeout(function(){s.apply(null,args)},next-now)
-}}}
+s=setTimeout(function(){t.apply(null,args)},next-now)}}}
 F.extend=function(superclass,proto){
 this.prototype=new superclass()
 if(proto){
-for(var i in proto)this.prototype[i]=proto[i];
-}}
+for(var i in proto)this.prototype[i]=proto[i];}}
 S.utf8_encode=function(){
-return unescape(encodeURIComponent(this))
-}
+return unescape(encodeURIComponent(this))}
 S.utf8_decode=function(){
-return decodeURIComponent(escape(this))
-}
+return decodeURIComponent(escape(this))}
+S.safe=function(){
+return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+S.camelCase=function(){
+return this.replace(/[ _-]+([a-z])/g,function($0,$1){return $1.toUpperCase()})}
 S.toAccuracy=N.toAccuracy=function(a){
 var x=(""+a).split("."),n=~~((this/a)+.5)*a
-return 1 in x?n.toFixed(x[1].length):n
-}
+return 1 in x?n.toFixed(x[1].length):n}
 var _required={}
 w.require=function(file){
 if(file in _required)return _required[file]
@@ -426,8 +367,7 @@ var req=new XMLHttpRequest(),exports={}
 req.open("GET",file.replace(/^[^\/]/,w.require.path+"$&"),false)
 req.send()
 eval(req.responseText)
-return _required[file]=exports
-}
+return _required[file]=exports}
 w.load=function(files,cb){
 files instanceof Array||(files=[files])
 var i=0,pos=0,len=files.length,source=[]
@@ -440,11 +380,9 @@ for(var str,e="";str=source[pos];++pos){e+=str}
 e&&w.execScript(e)
 if(pos==len){
 cb&&cb()
-source=null
-}}}
+source=null}}}
 req.send()
-}(new XMLHttpRequest(),i++)
-}
+}(new XMLHttpRequest(),i++)}
 no=d.getElementsByTagName("script")
 no=no[no.length-1]
 w.load.path=w.require.path=no.src.replace(/[^\/]+$/,"")

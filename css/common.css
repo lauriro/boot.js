@@ -9,6 +9,7 @@ html, body {
 body {
 	font-size:100%;
 	line-height:1.125em;
+	background: white;
 }
 
 address,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary {

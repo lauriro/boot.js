@@ -31,7 +31,8 @@
 <script type="text/javascript" src="test.js"></script>
 <script type="text/javascript" src="min.js">
 
-var box = El("section", null, document.body)
+var box = El("section#results",{}, document.body)
+
 
 El("div","click",box).on("click",function(){
 	this.innerHTML="click "+ (++this.id)
@@ -44,8 +45,15 @@ El("div","click once",box).on("click",function(){
 
 /*
 mousewheel don't work in IE5.5
+In firefox Event.stop doesn't work when innerHTML changed
 */
-El("div","mousewheel",box).on("mousewheel",function(e, delta){Event.stop(e);this.innerHTML="mousewheel "+delta});
+El("div","mousewheel",box).on("mousewheel",function(e, delta){
+	var self = this
+	setTimeout(function(){
+		self.innerHTML="mousewheel "+delta;
+	},10);
+	Event.stop(e);
+});
 
 
 var modules = ["base64.js","sha.js","xml.js","succinct_trie.js","cookie.js"]
@@ -61,6 +69,8 @@ load( modules, function(){
 
 	}
 )
+
+El("input:disabled", null, box)
 </script>
 
 

@@ -11,9 +11,9 @@
 
 
 
-;(function(S){
+!function(S){
 	function sha_init(data) {
-		var bin = [], i = 0, len
+		var bin = [], i = 0, len;
 		// input into 32 bit words
 		if (typeof(data) == "string") {
 			// encode_utf8
@@ -28,16 +28,16 @@
 		bin[len >> 2] |= 0x80 << (24 - (i & 31));
 
 		// append 0 bits to length  bits % 512 == 448
-		bin.push.apply(bin, [0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ))
+		bin.push.apply(bin, [0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ));
 
 		// append 64-bit source length
 		bin.push(0, i);
 		
-		return bin
+		return bin;
 	}
 
 	function sha_format(asBytes, arr){
-		var out = [],i=0, len=arr.length
+		var out = [],i=0, len=arr.length;
 		if (asBytes) {
 			// convert to byte array
 			for (;i<len;i++) out.push( (arr[i]>>>24)&0xff, (arr[i]>>>16)&0xff, (arr[i]>>>8)&0xff, arr[i]&0xff );
@@ -45,11 +45,11 @@
 		}
 		//for (;i<len;i++) out[i] = ("0000000" + (arr[i]>>>0).toString(16)).slice(-8)
 		for (;i<len;i++) {
-			var s = (arr[i]>>>0).toString(16)
-			out[i] = (s.length===8) ? s : ("0000000"+s).slice(-8)
+			var s = (arr[i]>>>0).toString(16);
+			out[i] = (s.length===8) ? s : ("0000000"+s).slice(-8);
 		}
 
-		return out.join("")
+		return out.join("");
 	}
 
 	function sha1(data, asBytes) {
@@ -91,11 +91,11 @@
 			h3 = (d + h3)>>>0
 			h4 = (e + h4)>>>0
 		}
-		return sha_format(asBytes, [h0, h1, h2, h3, h4])
+		return sha_format(asBytes, [h0, h1, h2, h3, h4]);
 	}
 
 	S.sha1 = function(asBytes){
-		return sha1(""+this, asBytes)
+		return sha1(""+this, asBytes);
 	}
 
 	function sha256(data, asBytes) {
@@ -158,16 +158,16 @@
 			h6 = (g + h6)>>>0
 			h7 = (h + h7)>>>0
 		}
-		return sha_format(asBytes, [h0, h1, h2, h3, h4, h5, h6, h7])
+		return sha_format(asBytes, [h0, h1, h2, h3, h4, h5, h6, h7]);
 	}
 
 	S.sha256 = function(asBytes){
-		return sha256(""+this, asBytes)
+		return sha256(""+this, asBytes);
 	}
 
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt) {
-		var i=0, j, ipad = [], opad = []
+		var i=0, j, ipad = [], opad = [];
 		if (key.length > blocksize) {
 			for(key=hasher(key,true); i<blocksize; ipad[i]=key[i]^0x36,opad[i]=key[i++]^0x5c);
 		} else {
@@ -175,17 +175,17 @@
 		}
 		for(; i<blocksize; ipad[i]=0x36,opad[i++]=0x5c);
 		for(i=0,j=txt.length; i<j; ipad.push(txt.charCodeAt(i++)) );
-		return hasher(opad.concat(hasher(ipad,true)))
+		return hasher(opad.concat(hasher(ipad,true)));
 	}
 	S.hmac_sha1 = function(key){
-		return hmac(sha1, 64, key, this)
+		return hmac(sha1, 64, key, this);
 	}
 	S.hmac_sha256 = function(key){
-		return hmac(sha256, 64, key, this)
+		return hmac(sha256, 64, key, this);
 	}
 	//*/
 
-})(String.prototype)
+}(String.prototype);
 
 
 /** Tests

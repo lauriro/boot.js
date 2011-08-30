@@ -20,14 +20,21 @@ function TestCase(name){
   t.tests = []
   t.pass = 0
   t.fail = []
+  t.unitCase = 0;
   _tests.push(t)
   return t
 }
 TestCase.prototype = {
   compare:function(test, expected, comment){
-    for (var i = 0, len = arguments.length-1; i<len;i+=2) {
+  	var i = 0, len = arguments.length-1;
+  	if (len%2 == 0) {
+  		this.unitName = arguments[len];
+  		this.unitCase = 0;
+		}
+    for (; i<len;i+=2) {
+    	this.unitCase++;
       if (arguments[i] === arguments[i+1]) this.pass++
-      else this.fail.push( (len%2 ? arguments[len] : "") + arguments[i] + " != "+arguments[i+1] )
+      else this.fail.push( ((this.unitName || "") + " #" + this.unitCase + " [" + arguments[i] + " != "+arguments[i+1] + "]").safe() )
     }
     return this
   }
@@ -40,9 +47,12 @@ TestCase.prototype = {
   }
 , done:function(){
     this.end = new Date()
+    this.status = this.fail.length == 0 ? 'OK' : 'Fail';
   }
 , toString:function(){
-    return this.name + " " + this.pass + " passed, " + this.fail.length + " failed"
+		var str = this.name + " " + this.pass + " passed, " + this.fail.length + " failed"
+		if (this.fail.length) str += this.fail.join("<br>")
+		return "<li>"+str+"</li>";
   }
 }
 TestCase.read = function(file){
