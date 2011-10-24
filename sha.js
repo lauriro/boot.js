@@ -94,9 +94,13 @@
 		return sha_format(asBytes, [h0, h1, h2, h3, h4]);
 	}
 
-	S.sha1 = function(asBytes){
-		return sha1(""+this, asBytes);
+
+
+	var s_sha1 = function(asBytes){
+		return S.sha1 === s_sha1 && sha1(""+this, asBytes);
 	}
+
+	S.sha1 = s_sha1;
 
 	function sha256(data, asBytes) {
 		var h0 = 0x6a09e667
@@ -161,9 +165,11 @@
 		return sha_format(asBytes, [h0, h1, h2, h3, h4, h5, h6, h7]);
 	}
 
-	S.sha256 = function(asBytes){
-		return sha256(""+this, asBytes);
+	var s_sha256 = function(asBytes){
+		return s_sha256 === S.sha256 && sha256(""+this, asBytes);
 	}
+	
+	S.sha256 = s_sha256;
 
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt) {
@@ -177,12 +183,16 @@
 		for(i=0,j=txt.length; i<j; ipad.push(txt.charCodeAt(i++)) );
 		return hasher(opad.concat(hasher(ipad,true)));
 	}
-	S.hmac_sha1 = function(key){
-		return hmac(sha1, 64, key, this);
-	}
-	S.hmac_sha256 = function(key){
-		return hmac(sha256, 64, key, this);
-	}
+
+	var s_hmac_sha1 = function(key){
+				return S.hmac_sha1 === s_hmac_sha1 && hmac(sha1, 64, key, this);
+			}
+	  , s_hmac_sha256 = function(key){
+	  		return S.hmac_sha256 === s_hmac_sha256 && hmac(sha256, 64, key, this);
+	  	}
+	
+	S.hmac_sha1 = s_hmac_sha1;
+	S.hmac_sha256 = s_hmac_sha256;
 	//*/
 
 }(String.prototype);

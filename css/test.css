@@ -1,5 +1,9 @@
 @import url(common.css);
 
+header {
+	background:#bbb;
+}
+
 aside{
 	width:30%;
 	float:right;
@@ -9,7 +13,6 @@ aside{
 }
 aside header,aside footer{
 	padding:5px 10px;
-	background:#999;
 	clear:both;
 }
 aside nav{
@@ -20,4 +23,11 @@ aside nav{
 }
 aside footer{
 	font-size:10px;
+}
+
+.pass {
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAwCAIAAABfUYfWAAAAU0lEQVR4nG2Oyw3DQBQCYVxemk0pbshvcti1rEg+IT4C8j0/6MVYtGhQmSzUkoQkzMzOiNPtdevSlggzQ3usnu0lLO7TqxL54/f+ZUkg94/pW+4HpbFh0T2EZ4wAAAAASUVORK5CYII=");
+}
+.fail {
+	background-color:red;	
 }

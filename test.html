@@ -1,41 +1,34 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta http-equiv="x-dns-prefetch-control" content="off">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<link rel="stylesheet" type="text/css" href="css/test.css">
 	<!--[if IE]>
 		<meta http-equiv="imagetoolbar" content="no">
-		<![if lt IE 9]>
-			<script type="text/javascript" src="ie6.js"></script>
-			<link type="text/css" rel="stylesheet" href="css/ie6.css">
-		<![endif]>
+		<![if lt IE 9]><link type="text/css" rel="stylesheet" href="css/ie6.css"><![endif]>
 	<![endif]-->
-	<link rel="stylesheet" type="text/css" href="css/test.css">
-	<link rel="alternate stylesheet" type="text/css" href="css/theme.ios/style.css" title="iOS">
 	<title>Test</title>
 </head><body>
 
-<header>
-<h1>Browser test</h1>
-</header>
-<aside>
-	<header>Header</header>
-	<nav>nav</nav>
-	<section>
-	section
-	</section>
-	<footer>footer</footer>
-</aside>
-
-<script type="text/javascript" src="test.js"></script>
 <script type="text/javascript" src="min.js">
 
-var box = El("section#results",{}, document.body)
+var focus = El("#focus",{}, document.body)
+var box = El("#results",{}, document.body)
+var footer = El("#footer",{}, document.body)
 
+//setInterval(function(){
+//	focus.innerHTML = window.outerHeight == window.innerHeight ? 'not focused' : 'focus'
+//},1000);
+
+function go(i){
+	history.pushState(i, document.title, i);
+}
 
 El("div","click",box).on("click",function(){
-	this.innerHTML="click "+ (++this.id)
+	go( this.innerHTML="click "+ (++this.id) )
 });
 
 El("div","click once",box).on("click",function(){
@@ -55,22 +48,73 @@ El("div","mousewheel",box).on("mousewheel",function(e, delta){
 	Event.stop(e);
 });
 
+load("test.js", function(){
+	var modules = ["base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js"]
 
-var modules = ["base64.js","sha.js","xml.js","succinct_trie.js","cookie.js"]
+	load( modules, function(){
 
-load( modules, function(){
+			TestCase.read( "boot.js" )
+			TestCase.read( modules )
+			var i = 0, test, count = 0, time = 0;
+			while (test = _tests[i++]) {
+				time += test.time;
+				count += test.pass;
+				El("div", ""+test,box )
+			}
+			El("div","Total "+count+" tests in "+time+" ms.", box)
 
-		TestCase.read( "boot.js" )
-		TestCase.read( modules )
-		var i = 0, test;
-		while (test = _tests[i++]) {
-			El("div", ""+test,box )
 		}
+	)
+});
 
-	}
-)
+/*
+window.blur & window.focus for ie6+, chrome
+window.pagehide & window.pageshow for ipfone 3+
+*/
 
-El("input:disabled", null, box)
+//"pageshow pagehide popstate focus blur offline online DOMFocusIn DOMFocusOut DOMActivate".replace(/\w+/g, function(name){
+//	Event.add(window, name, function(){ El("div", "window " + name + (new Date().format(" HH:MM:ss.SS")), box)})
+//	Event.add(document, name, function(){ El("div", "document " + name + (new Date().format(" HH:MM:ss.SS")), box)})
+//	Event.add(document.body, name, function(){ El("div", "document.body " + name + (new Date().format(" HH:MM:ss.SS")), box)})
+//})
+//
+//El("input:disabled", null, box);
+
+
+/*
+var start = new Date(), arr;
+
+footer.innerHTML="";
+arr = [];
+start = new Date();
+for (var i=0;i<1000;arr[i++]=El("div","tere"));
+footer.append(arr);
+El("div", "time1 "+(new Date() - start),box);
+
+footer.innerHTML="";
+arr = [];
+start = new Date();
+for (var i=0;i<1000;arr[i++]="<div>tere</div>");
+footer.innerHTML = arr.join("");
+El("div", "time2 "+(new Date() - start),box);
+
+footer.innerHTML="";
+arr = [];
+var str="";
+start = new Date();
+for (var i=0;i++<1000;str+="<div>tere</div>");
+footer.innerHTML = str
+El("div", "time3 "+(new Date() - start),box);
+
+footer.innerHTML="";
+arr = [];
+var str="";
+start = new Date();
+for (var i=0;i++<1000;footer.innerHTML+="<div>tere</div>");
+El("div", "time4 "+(new Date() - start),box);
+footer.innerHTML="";
+*/
+
 </script>
 
 

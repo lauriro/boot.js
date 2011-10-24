@@ -47,12 +47,13 @@ TestCase.prototype = {
   }
 , done:function(){
     this.end = new Date()
+    this.time = this.end - this.begin;
     this.status = this.fail.length == 0 ? 'OK' : 'Fail';
   }
 , toString:function(){
-		var str = this.name + " " + this.pass + " passed, " + this.fail.length + " failed"
+		var str = this.name + " " + this.pass + " passed, " + this.fail.length + " failed in "+this.time+" ms."
 		if (this.fail.length) str += this.fail.join("<br>")
-		return "<li>"+str+"</li>";
+		return "<li class='"+(this.fail.length?"fail":"pass")+"'>"+str+"</li>";
   }
 }
 TestCase.read = function(file){
@@ -62,8 +63,12 @@ TestCase.read = function(file){
     var req = new XMLHttpRequest(), exports = {}
     req.open("GET", file, false)
     req.send()
-    var q = req.responseText.split("\/** Tests")
-    q.length > 1 && eval(q[1])
+    var q = req.responseText
+    	//.replace(/\/\/.*$/gm,"")
+    	//.replace(/\/\*\* ?(Test[^s]|Tes[^t]|Te[^s]|T[^e]|[^T])*\n(([^*]\/|[^\/])*)\*\//mg,"")
+    	.replace(/\/\*\* Tests.*\n((:?[^*]\/|[^\/])*)\*\//mg,function(_,s){
+    	eval(s)
+    })
   }
 }
 

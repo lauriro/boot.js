@@ -12,37 +12,37 @@
 
 
 !function(w, S){
-	var arr
-	  , map = {"=":0}
-	  , init = function(){
-	    	arr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("")
-	    	for(var i=0;i<64;map[arr[i]]=i++);
-	    }
-	  , enc = w.btoa || function(s){
-	    	arr || init()
-	    	for(var a=arr,out=[],b,i=0,len=s.length;i<len;){
-	    		b = s.charCodeAt(i++)<<16 | s.charCodeAt(i++)<<8 | s.charCodeAt(i++)
-	    		out.push( a[b>>18&0x3f], a[b>>12&0x3f], a[b>>6&0x3f], a[b&0x3f])
-	    	}
-	    	if(len%=3){
-	    		out.length-=3-len
-	    		out.push(len==1?"==":"=")
-	    	}
-	    	return out.join("")
-	    }
-	  , dec = w.atob || function(s){
-	    	arr || init()
-	    	for(var m=map,out=[],b,s=s.split(""),o=0,i=0,len=s.length;i<len;){
-	    		b = m[s[i++]]<<18 | m[s[i++]]<<12 | m[s[i++]]<<6 | m[s[i++]]
-	    		out[o++] = String.fromCharCode(b>>16 & 0xff, b>>8 & 0xff, b & 0xff)
-	    	}
-	    	if (s[len-1] == "=") out[--o] = out[o].substr(0, s[len-2] == "=" ? 1 : 2 )
-	    	return out.join("")
-	    }
+	if (!("btoa" in w && "atob" in w)) {
+		var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("")
+		  , m = {"=":0}
+		  , i = 64;
 
-	S.base64_encode = function(){return enc(this)}
-	S.base64_decode = function(){return dec(this)}
-}(this, String.prototype)
+		while(m[a[i]]=i--);
+
+		w.btoa = function(s){
+			for (var out=[],b,i=0,len=s.length;i<len;) {
+				b = s.charCodeAt(i++)<<16 | s.charCodeAt(i++)<<8 | s.charCodeAt(i++);
+				out.push( a[b>>18&0x3f], a[b>>12&0x3f], a[b>>6&0x3f], a[b&0x3f]);
+			}
+			if (len%=3) {
+				out.length-=3-len;
+				out.push(len==1?"==":"=");
+			}
+			return out.join("");
+		}
+	  w.atob = function(s){
+			for (var out=[],b,i=0,o=0,s=s.split(""),len=s.length;i<len;) {
+				b = m[s[i++]]<<18 | m[s[i++]]<<12 | m[s[i++]]<<6 | m[s[i++]];
+				out[o++] = String.fromCharCode(b>>16 & 0xff, b>>8 & 0xff, b & 0xff);
+			}
+			if (s[len-1] == "=") out[--o] = out[o].substr(0, s[len-2] == "=" ? 1 : 2 );
+			return out.join("");
+		}
+	}
+
+	S.base64_encode = function(){return w.btoa(this)}
+	S.base64_decode = function(){return w.atob(this)}
+}(this, String.prototype);
 
 
 /** Tests
