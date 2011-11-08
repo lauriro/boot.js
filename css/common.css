@@ -10,14 +10,7 @@ body {
 	font-size:100%;
 	line-height:1.125em;
 	background: white;
-}
-
-address,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary {
-	display:block;
-}
-
-command,datalist,mark,meter,time,wbr {
-	display:inline;
+	-webkit-text-size-adjust: none;
 }
 
 button{
@@ -39,4 +32,37 @@ button::-moz-focus-inner {
 a img {border:0}
 
 
+/*
+global classes
+*/
+.hidden {
+	display:none !important;
+}
+.transparent{
+	opacity:0 !important;
+	filter:alpha(opacity=0) !important;
+}
+.abs {
+	position:absolute;
+	top:0px;
+}
+.rel {
+	position:relative;
+	height:100%;
+}
+.max {
+	width:100%;
+	height:100%;
+}
+.reset {
+	border:0;
+	margin:0;
+	padding:0;
+}
+.noselect {
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	user-select:none;
+}
 

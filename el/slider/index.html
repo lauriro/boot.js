@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html><head>
+	<title>Slider</title>
+	<meta charset="utf-8">
+	<meta http-equiv="imagetoolbar" content="no">
+	<meta name="robots" content="noindex, follow">
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" type="text/css" href="../../css/common.css">
+	<link rel="stylesheet" type="text/css" href="slider.css">
+</head><body>
+<style>
+body{
+	background:#ccc;
+}
+
+
+</style>
+<script type="text/javascript" src="../../boot.js">
+
+load(["el/app.js", "el/slider/slider.js"], function(){
+	function on_change(_val){
+		//console.log('on_change',_val);
+	}
+
+	var box=El('div',{style:{margin:'30px',height:'80%',background:'#888'}},document.body);
+	var maxLevel=El('slider',{
+		min:0,
+		max:3,
+		step:1,
+		//value:10,
+		on_change:on_change
+	});
+
+
+	var maxLevel3=El('slider',{
+		on_change:on_change,
+		on_moved:function(_val){
+			log(_val);
+		}
+	});
+
+	var maxLevel2=El('slider',{
+		className:"vertical",
+		step:5,
+		on_change:on_change,
+		on_moved:function(_val){
+			log(_val);
+		}
+	});
+
+
+	//maxLevel.reset(10)
+	box.append( [maxLevel,maxLevel2,maxLevel3] )
+	//maxLevel2.reset(90)
+
+})
+
+
+
+</script>
+</body></html>

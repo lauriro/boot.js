@@ -13,26 +13,38 @@
 
 !function(S/* String.prototype */){
 	function haml_compyle(str){
-		var out = [];
-		str.replace(/^(\s*)((?:[.#%][a-z_\-][a-z0-9_:\-]*)+)(.*)$/igm
-		,	function(all,indent,name,text){
-				var el = El(name.replace(/^[^%]/,"%div$&").substr(1));
+		var out = [], parent, i;
+		str.replace(/^( *)((?:[.#%][a-z_\-][a-z0-9_:\-]*)+)? ?(.*)$/igm,
+			function(all,indent,name,text){
+				if (all) {
 
-				if (name) el.innerHTML = text.trim();
-				el._i = indent.length;
+					if (name) {
+						var el = El(name.replace(/^[^%]/,"%div$&").substr(1));
 
-				if (indent=="") {
-					parent = el
-					out.push(el)
-				} else {
-					while (el._i <= parent._i) parent = parent.parentNode;
-					parent.append(el)
-					parent = el
+						if (text) el.innerHTML = text;
+					} else {
+						console.log('text',text)
+						var el = document.createTextNode( text )
+					}
+					i = indent.length;
+
+					if (indent=="") {
+						parent = el
+						out.push(el)
+					} else {
+						while (i <= parent._i) parent = parent.parentNode;
+						parent.append(el)
+						if (el.nodeType !== 3) {
+							el._i = i
+							parent = el
+						}
+					}
 				}
 				return ""
 			}
 		);
-		return out;
+		console.log('out',out)
+		return out.length === 1 ? out[0] : out;
 	}
 	S.haml = function(){
 		return haml_compyle(this);

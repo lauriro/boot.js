@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head>
+	<title>Scroll</title>
+	<meta charset="utf-8">
+	<meta http-equiv="imagetoolbar" content="no">
+	<meta name="robots" content="noindex, follow">
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" type="text/css" href="../../css/common.css">
+	<link rel="stylesheet" type="text/css" href="scroll.css">
+</head><body>
+<style>
+body{
+	background:#ccc;
+}
+
+.row {
+	padding:3px 0 3px 75px;
+	border:1px solid #ccc;
+	margin 0px;
+	height: 56px;
+}
+.row img {
+	float:left;
+	width: 50px;
+	height: 50px;
+	margin: 3px 0 0 -79px;
+	padding: 3px;
+	border: 1px solid #ddd;
+
+}
+.row h6 {
+	margin:0;
+	padding:1px 0;
+	
+}
+
+.anim {
+	-webkit-transition: all .4s cubic-bezier(.3, .6, .6, .999999999);
+	-moz-transition: all .4s ease-out;
+	-o-transition: all .4s ease-out;
+	transition: all .4s ease-out;
+}
+
+</style>
+<script type="text/javascript" src="../../boot.js">
+
+load(["el/app.js", "el/scroll/scroll.js"], function(){
+	var box=El('scroll',{style:{margin:'0px',height:'100%',background:'#fff'}},document.body);
+	var arr = [];
+
+	for(var i = 0; i++<50; arr.push(El("div.row",[El("img",{src:"../../css/avatar_xlarge.jpeg"}),El("h6","Some Name"),"row "+i])));
+
+	box.append(arr)
+
+})
+
+
+
+</script>
+</body></html>

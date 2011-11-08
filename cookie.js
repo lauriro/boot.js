@@ -11,24 +11,20 @@
 
 
 
-function Cookie (name) {
-	for (var a=document.cookie.split("; "),i=0,c,n=name+'=';c=a[i++];){
-		if (c.indexOf(n)===0) return unescape(c.substr(n.length));
-	}
-	return false;
+function Cookie (n/*ame*/) {
+	return (n = ("; "+document.cookie).split("; "+n+"=")[1]) ? unescape(n.split("; ")[0]) : false;
 }
-Cookie.set = function (name, value, expires /* in seconds*/, path, domain, secure) {
-	if (expires) {
-		var e = new Date();
-		e.setTime( e.getTime() + (expires*1000) );
-		expires = "; expires=" + e.toUTCString();
-	}
-	return document.cookie = name + "=" + escape(value||"") + (expires||"")
-		+ (path?"; path="+path:"") + (domain?"; domain="+domain:"") + (secure?"; secure":"");
+
+Cookie.set = function (n/*ame*/, v/*alue*/, e/*xpires in seconds*/, p/*ath*/, d/*omain*/, s/*ecure*/) {
+	return document.cookie = n + "=" + escape(v)
+		+ (e?"; expires=" + new Date(+new Date()+(1e3*e)).toUTCString():"")
+		+ (p?"; path="+p:"") + (d?"; domain="+d:"") + (s?"; secure":"");
 }
-Cookie.destroy = function (name) {
-	return Cookie.set(name, "", -1);
+
+Cookie.destroy = function (n/*ame*/) {
+	return Cookie.set(n, "", -9e4);
 }
+
 
 
 /** Tests
@@ -64,7 +60,6 @@ Cookie.destroy = function (name) {
 }()
 
 //*/
-
 
 
 
