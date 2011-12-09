@@ -13,14 +13,14 @@
 
 El.cache(
 	"scroll",
-	El(".scroll.rel"),
+	El.haml(".scroll.rel\n .scrollBox\n .scrollBar.absr.transparent"),
 	function(el){
 		var d = El.get(document)
-		  , body = El(".scrollBox")
-		  , bar = El(".scrollBar.abs.anim.transparent")
-		  , startY, lastMove, pos=0, maxPos, barMult, tick;
+		  , body = el.childNodes[0]
+		  , bar = el.childNodes[1]
+		  , startY, lastMove, pos=0, maxPos, barMult, tick
+		  , inmove;
 
-		el.append([body,bar]);
 
 		var scroll=function(){
 			clearTimeout(tick);
@@ -32,52 +32,51 @@ El.cache(
 		}
 		var move=function(e){
 			var move = startY-Event.pointerY(e);
-			if (!(move < 3 && move > -3)) {
+			if (inmove || (inmove = !(move < 10 && move > -10))) {
+				Event.stop(e);
 				pos-=(lastMove=startY-(startY=Event.pointerY(e)));
 				scroll();
 			}
 		}
 
 		var stop=function(){
-			if ( (lastMove<0?-lastMove:lastMove) > 5 ) {
-				pos-=lastMove*6;
-				//body.css("transition", "-vendor-transform .35s ease-out", true);
-				body.addClass("anim");
+			if (!(lastMove < 10 && lastMove >- 10)) {
+				pos-=lastMove*8;
+				el.addClass("inertia");
 				scroll();
 			}
 			tick = setTimeout(function(){
-				//body.css("transition", "-vendor-transform 0s linear", true);
-
-				//body.css("transition","none 0 ease",true);
-				body.rmClass("anim");
+				el.rmClass("inertia");
 				bar.addClass("transparent")
-			}, 600);
+			}, 800);
 
 			d.on("touchmove mousemove", move, false).on("touchend mouseup", stop, false);
 		}
 		el.append_hook = body.append_hook = function(){
-			lastMove = 0;
 			var barH = el.offsetHeight*el.offsetHeight/body.offsetHeight;
 			bar.style.height = (barH|0) + "px";
 			maxPos = el.offsetHeight-body.offsetHeight-50;
 			barMult = (el.offsetHeight-barH)/maxPos;
 		}
-		el.append = body.append.bind(body)
+		el.append = body.append.bind(body);
 
 		el.on("touchstart mousedown", function(e){
+			inmove = false;
+			lastMove = 0;
 			Event.stop(e);
 			startY = Event.pointerY(e);
+			el.rmClass("inertia");
 			el.append_hook();
-			body.rmClass("anim");
 			d.on("touchmove mousemove", move).on("touchend mouseup", stop);
 		}).on("mousewheel", function(e, delta){
 			Event.stop(e);
 			el.append_hook();
-			lastMove = -delta*10;
+			lastMove = -delta*11;
 			stop();
 		});
 
 		El.noselect(el);
+		El.fill(el);
 	}
 );
 

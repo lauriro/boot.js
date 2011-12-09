@@ -2,17 +2,26 @@
 .scroll{
 	overflow:hidden;
 }
-.scrollBox{
+.scrollBox, .scrollBar {
 	-webkit-transform: translate3d(0, 0, 0);
-	/*-webkit-transition: all 60ms linear;*/
+}
+.inertia .scrollBox, .inertia .scrollBar {
+	-webkit-transition: all .4s cubic-bezier(.3, .6, .6, .9);
+	transition: all .4s cubic-bezier(.3, .6, .6, .9);
+/*
+	-webkit-transition: all .5s ease-out;
+	transition: all .5s ease-out;
+*/
 }
 .scrollBar {
 	right: 2px;
-	width: 5px;
+	width: 6px;
 	background:#000;
 	opacity:.5;
 	filter:alpha(opacity=50);
 	-webkit-border-radius:3px;
 	-moz-border-radius:3px;
 	border-radius:3px;
+	-webkit-transition: opacity .4s ease-out;
+	transition: opacity .4s ease-out;
 }

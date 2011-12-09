@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><title>Haml</title></head><body>
+
+<script id="index" type="text/haml">
+%h1 Haml
+.page
+  %h2 Security hor home's
+  = template hello
+    %h3 Hello!
+  %fieldset
+    {% for product in products %}
+      %h3 {{ product.title | capitalize }} with {{ product.title.length }} letter.
+      %toggle{"secarea":"{{ product.title.length }}"}
+      {{ product.description }}
+    {% endfor %}
+  %h2 People at Home
+  %fieldset
+  {% for name in ['Bob','Joe','Jane','Jake'] limit:3 %}
+    .row {{ i }}. {{ name }} {{ name | upcase }} {{ name | downcase }}
+    %hello
+  {% endfor %}
+  .body
+    long long long text with long long long
+    long long long text with long long long
+    long long long text with long long long
+    long long long text with long long long
+    long long long text with long long long
+</script>
+
+<script type="text/javascript" src="boot.js"></script>
+<script type="text/javascript" src="fn.js"></script>
+<script type="text/javascript" src="haml.js"></script>
+<script>
+El.cache(
+	"toggle",
+	El("button.toggle"),
+	function(el){
+//		alert(el.tagName+':'+ el.className + el.on)
+		el.on("click", function(){
+			alert('klikk')
+		})
+
+	}
+);
+//load(["haml.js"], function(){
+	var data = {products:[{title:"esimene toode",description:"koos kirjeldusega"},{title:"teine toode"}]};
+
+	El.render("index");
+	document.body.append( El("index", data))
+//})
+</script>
+
+<noscript><h1>Warning!</h1>This application requires JavaScript to be enabled in your Browser.</noscript>
+
+</body></html>
+

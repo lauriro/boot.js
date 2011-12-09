@@ -18,14 +18,14 @@ body{
 
 
 </style>
-<script type="text/javascript" src="../../boot.js">
+<script type="text/javascript" src="../../min.js">
 
-load(["el/app.js", "el/slider/slider.js"], function(){
+load(["haml.js", "el/app.js", "el/slider/slider.js"], function(){
 	function on_change(_val){
 		//console.log('on_change',_val);
 	}
 
-	var box=El('div',{style:{margin:'30px',height:'80%',background:'#888'}},document.body);
+	var box=El('div').css({margin:'30px',height:'80%',background:'#888'}).to(document.body);
 	var maxLevel=El('slider',{
 		min:0,
 		max:3,
@@ -42,8 +42,7 @@ load(["el/app.js", "el/slider/slider.js"], function(){
 		}
 	});
 
-	var maxLevel2=El('slider',{
-		className:"vertical",
+	var maxLevel2=El('slider.vertical',{
 		step:5,
 		on_change:on_change,
 		on_moved:function(_val){

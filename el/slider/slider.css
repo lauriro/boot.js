@@ -15,7 +15,7 @@
 .slider.vertical .slider_track{
   height:200px;
   width:32px;
-  background:url(button_yblue_slider_vert.png) repeat-y 0px 0px;
+  background:url(button_yblue_slider_vert.png) repeat-y 0px 0px; /*! sprite */
 }
 
 .slider_fill{

@@ -1,65 +1,15 @@
 
-/* Class: Model
-   Model–view–controller (MVC)
-*/
 
-function Fn() {
-	var t = this;
-	"init" in t && t.init.apply(t, arguments);
-	return t;
-};
 
-Fn.True = function(){return true}
-Fn.False = function(){return false}
+/**
+ * THE BEER-WARE LICENSE
+ * <lauri@rooden.ee> wrote this file. As long as you retain this notice
+ * you can do whatever you want with this stuff. If we meet some day, and
+ * you think this stuff is worth it, you can buy me a beer in return.
+ * -- Lauri Rooden
+ */
 
-Fn.Events = {
-	bind: function(ev, fn, scope) {
-		var t = this, e = t._e || (t._e = {});
-		//(e[ev] || (e[ev] = [])).push([fn, scope]);
-		ev.replace(/\w+/g, function(ev){ (e[ev] || (e[ev] = [])).push([fn, scope]) });
-		//ev.split(" ").forEach(function(w){Event[a](t, w, fn)})
-		//for(a=ev.split(" "),i=0,b;b=a[i++];Event[a](t, w, fn))
-		return t;
-	},
-	unbind: function(ev, fn) {
-		var t = this;
-		if (ev) {
-			if ("_e" in t && ev in t._e) {
-				if (fn) t._e[ev].remove(fn);
-				else delete t._e[ev];
-			}
-		} else delete t._e;
-		return t;
-	},
-	trigger: function(ev) {
-		var t = this;
-		if ("_e" in t && ev in t._e) {
-			for (var i=0, e=t._e[ev], a=e.slice.call(arguments, 1); ev=e[i++];) ev[0].apply(ev[1]||t, a);
-		}
-		return t;
-	}
-};
 
-Fn.Lazy = {
-	wait: function() {
-		var t = this, k, hooks = [], hooked = [];
-
-		for (k in t) if (typeof t[k] == "function") !function(k){
-			hooked.push(k);
-			t[k] = function(){hooks.push([k, arguments]);return t}
-		}(k);
-
-		t.resume = function() {
-			delete t.resume;
-			var i = hooked.length, v;
-			while (i--) delete t[hooked[i]];
-			// i == -1 from previous loop
-			while (v=hooks[++i]) t[v[0]].apply(t,v[1]);
-			hooks = hooked = null;
-		}
-		return t;
-	}
-};
 
 var Model = Fn.extend(Fn.Events, {
 	init: function(name) {
@@ -71,9 +21,10 @@ var Model = Fn.extend(Fn.Events, {
 		var t = this;
 		item instanceof t.Item || (item = new t.Item(item));
 		if (item.models.indexOf(t) > -1) return false;
-		t.items.splice( pos != null ? pos : t.items.length, 0, item);
 		item.models.push(t);
-		t.trigger("add", item);
+		pos = pos === void 0 ? pos : t.items.indexFor(item, t.sortFn);
+		t.items.splice(pos , 0, item);
+		t.trigger("add", item, pos);
 		return t;
 	},
 	remove: function(item) {
@@ -84,60 +35,49 @@ var Model = Fn.extend(Fn.Events, {
 		}
 	},
 	first: function(fn) {
-		var t = this;
-		0 in t.items && fn(t.items[0].data);
-		return t;
+		var t = this, item = t.items[0];
+		return fn ? (item && fn(item), t) : item;
 	},
 	each: function(fn) {
-		var t = this, arr = t.items, i = 0, len = arr.length;
-		while (i<len) fn(arr[i].data, i++);
+		var t = this;
+		/*, arr = t.items, i = 0, len = arr.length;
+		while (i<len) fn(arr[i].data, i++);*/
+		t.items.forEach(fn, t);
 		return t;
 	},
 	on_empty: function(fn) {
-		this.items.length === 0 && fn();
+		0 in this.items || fn();
 		return this;
 	},
-	Item: Fn.extend({
-		init: function(data) {
-			this.data = data;
-			this.models = [];
-		},
-		set: function(args) {
-			var t = this, d = t.data, changed = [];
-			for (var arg in args) if ( args.hasOwnProperty(arg) ) {
-				if (arg in d && d[arg] === args[arg]) continue;
-				d[arg] = args[arg];
-				changed.push(arg);
-			}
-			return changed.length && changed;
-		},
-		get: function(name) {
-			return this.data[name];
-		},
-		updated: function(fields) {
-			var t = this, data = t.data, listeners = t.listeners.slice()
-
-			t.models.forEach(
-				function(model) {
-					listeners.push.apply(listeners, model.listeners)
-				}
-			)
-
-			listeners.length && listeners.forEach(
-				function(fn) {
-					if ("__listenKeys" in fn && t in fn.__listenKeys) {
-						if (fn.__listenKeys[t](fields)) fn(data, fields)
-					} else fn(data)
-				}
-			)
-		}
-	}),
 	toString: function() {
 		return "[Model: " + this.name +"]";
 	}
 });
 
 
+Model.Item = Model.prototype.Item = Fn.extend(Fn.Events, {
+	init: function(data) {
+		this.data = data;
+		this.previous = {};
+		this.models = [];
+	},
+	set: function(args) {
+		var t = this, d = t.data, changed = [];
+		for (var arg in args) if ( args.hasOwnProperty(arg) ) {
+			if (arg in d && d[arg] === args[arg]) continue;
+			previous[arg] = d[arg];
+			d[arg] = args[arg];
+			changed.push(arg);
+		}
+		if (changed.length) {
+			t.trigger("changed", changed);
+		}
+		return changed;
+	},
+	get: function(name) {
+		return this.data[name];
+	}
+});
 
 Model.Filter = Fn.extend({
 	init: function(str) {
@@ -179,7 +119,7 @@ Model.Filter = Fn.extend({
 				// Extract id=1
 				var pos = junk.indexOf("=");
 				if (pos !== -1) {
-					return "i." + junk.substr(0,pos) + "==" + slash( junk.substr(pos+1) ) + sep;
+					return "''+i." + junk.substr(0,pos) + "==''+" + slash( junk.substr(pos+1) ) + sep;
 				}
 
 				// Extract required fields /collection[id&name]

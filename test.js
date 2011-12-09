@@ -50,10 +50,10 @@ TestCase.prototype = {
     this.time = this.end - this.begin;
     this.status = this.fail.length == 0 ? 'OK' : 'Fail';
   }
-, toString:function(){
+, result:function(){
 		var str = this.name + " " + this.pass + " passed, " + this.fail.length + " failed in "+this.time+" ms."
 		if (this.fail.length) str += this.fail.join("<br>")
-		return "<li class='"+(this.fail.length?"fail":"pass")+"'>"+str+"</li>";
+		return El("li."+(this.fail.length?"fail":"pass"), str);
   }
 }
 TestCase.read = function(file){

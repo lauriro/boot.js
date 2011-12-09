@@ -15,9 +15,18 @@
 
 <script type="text/javascript" src="min.js">
 
-var focus = El("#focus",{}, document.body)
-var box = El("#results",{}, document.body)
-var footer = El("#footer",{}, document.body)
+function queryAll(selector){
+	return selector.replace(
+		/([#.])(\w+)/, function(_, sel, name){
+			if (sel == "#") return 'Array.from(this.getElementById("'+name+'"))'
+			
+		}
+	);	
+}
+
+var focus = El("#focus").to(document.body)
+var box = El("#results").to(document.body)
+var footer = El("#footer").to(document.body)
 
 //setInterval(function(){
 //	focus.innerHTML = window.outerHeight == window.innerHeight ? 'not focused' : 'focus'
@@ -27,11 +36,11 @@ function go(i){
 	history.pushState(i, document.title, i);
 }
 
-El("div","click",box).on("click",function(){
+El("div","click").to(box).on("click",function(){
 	go( this.innerHTML="click "+ (++this.id) )
 });
 
-El("div","click once",box).on("click",function(){
+El("div","click once").to(box).on("click",function(){
 	Event.remove(this, "click", arguments.callee);
 	this.innerHTML="click once "+ (++this.id)
 });
@@ -40,7 +49,7 @@ El("div","click once",box).on("click",function(){
 mousewheel don't work in IE5.5
 In firefox Event.stop doesn't work when innerHTML changed
 */
-El("div","mousewheel",box).on("mousewheel",function(e, delta){
+El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 	var self = this
 	setTimeout(function(){
 		self.innerHTML="mousewheel "+delta;
@@ -49,7 +58,7 @@ El("div","mousewheel",box).on("mousewheel",function(e, delta){
 });
 
 load("test.js", function(){
-	var modules = ["rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js"]
+	var modules = ["fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js"]
 
 	load( modules, function(){
 
@@ -59,9 +68,9 @@ load("test.js", function(){
 			while (test = _tests[i++]) {
 				time += test.time;
 				count += test.pass;
-				El("div", ""+test,box )
+				test.result().to(box);
 			}
-			El("div","Total "+count+" tests in "+time+" ms.", box)
+			El("div","Total "+count+" tests in "+time+" ms.").to( box)
 
 		}
 	)

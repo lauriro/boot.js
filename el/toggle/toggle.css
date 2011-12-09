@@ -1,0 +1,55 @@
+
+/* toggle begin */
+button.toggle {
+	background: transparent;
+	overflow: hidden;
+	height: 25px;
+	width: 100px;
+	border-radius: 4px;
+	border: 1px solid #7D7D7D;
+	overflow: hidden;
+	font-family: Helvetica;
+}
+
+button.toggle div {
+	line-height: 25px;
+	width: 180px;
+	margin-left: -60px;
+	font-size: 13px;
+	color: #8B8B8B;
+	text-transform: uppercase;
+}
+button.toggle.is_on div {
+	margin-left: 0px;
+}
+button.toggle b {
+	padding: 0 10px;
+	background-image: -moz-linear-gradient(#DEDEDE, #F9F9F9);
+	background-image: -webkit-linear-gradient(#DEDEDE, #F9F9F9);
+	display: block;
+	float: left;
+	height: 25px;
+	width: 60px;
+	text-align: right;
+}
+button.toggle .on {
+	color: white;
+	text-align: left;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+	background-image: -moz-linear-gradient(#3268AA, #82B3F4);
+	background-image: -webkit-linear-gradient(#3268AA, #82B3F4);
+}
+button.toggle .knob {
+	width: 18px;
+	margin: -1px 0 0 -101px;
+	border: 1px solid #7D7D7D;
+	border-width: 0 1px;
+	border-radius: 4px;
+}
+
+/* toggle end */
+
+
+
+
+

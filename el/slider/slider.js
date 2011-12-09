@@ -13,7 +13,7 @@
 
 El.cache(
 	"slider",
-	"%button.slider\n .slider_track\n  .slider_fill.anim\n   .slider_knob".haml(),
+	El.haml("%button.slider\n .slider_track\n  .slider_fill.anim\n   .slider_knob"),
 	function(el){
 		var drag = false, undef, doc = document, knobLen, offset, px, maxPx,
 			min, max, step, value = el.val || 0,

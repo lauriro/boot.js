@@ -9,11 +9,12 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="format-detection" content="telephone=no">
 	<link rel="stylesheet" type="text/css" href="../../css/common.css">
-	<link rel="stylesheet" type="text/css" href="scroll.css">
+	<link rel="stylesheet" type="text/css" href="toggle.css">
 </head><body>
 <style>
 body{
-	background:#ccc;
+	background:#fff;
+	padding:10px;
 }
 
 .row {
@@ -41,13 +42,8 @@ body{
 </style>
 <script type="text/javascript" src="../../min.js">
 
-load(["haml.js", "el/app.js", "el/scroll/scroll.js"], function(){
-	var box=El('scroll').css({margin:'0px',height:'100%',background:'#fff'}).to(document.body);
-	var arr = [];
-
-	for(var i = 0; i++<40; arr.push(El(".row",[El("img",{src:"../../css/avatar_xlarge.jpeg"}),El("h6","Some Name"),"row "+i])));
-
-	box.append(arr)
+load(["haml.js", "el/app.js", "el/toggle/toggle.js"], function(){
+	El("toggle").to(document.body);
 
 })
 

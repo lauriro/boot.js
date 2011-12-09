@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-	<title>Scroll</title>
+	<title>Tabs</title>
 	<meta charset="utf-8">
 	<meta http-equiv="imagetoolbar" content="no">
 	<meta name="robots" content="noindex, follow">
@@ -9,7 +9,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="format-detection" content="telephone=no">
 	<link rel="stylesheet" type="text/css" href="../../css/common.css">
-	<link rel="stylesheet" type="text/css" href="scroll.css">
+	<link rel="stylesheet" type="text/css" href="tabs.css">
 </head><body>
 <style>
 body{
@@ -37,18 +37,22 @@ body{
 	
 }
 
+.anim {
+	-webkit-transition: all .4s cubic-bezier(.3, .6, .6, .999999999);
+	-moz-transition: all .4s ease-out;
+	-o-transition: all .4s ease-out;
+	transition: all .4s ease-out;
+}
 
 </style>
-<script type="text/javascript" src="../../min.js">
+<script type="text/javascript" src="../../boot.js">
 
-load(["haml.js", "el/app.js", "el/scroll/scroll.js"], function(){
-	var box=El('scroll').css({margin:'0px',height:'100%',background:'#fff'}).to(document.body);
-	var arr = [];
-
-	for(var i = 0; i++<40; arr.push(El(".row",[El("img",{src:"../../css/avatar_xlarge.jpeg"}),El("h6","Some Name"),"row "+i])));
-
-	box.append(arr)
-
+load(["haml.js","el/app.js", "el/tabs/tabs.js"], function(){
+	var box=El('tabs',{style:{margin:'0px',height:'100%',background:'#fff'}},document.body);
+	box.append([
+		El('div', 'esimene'),
+		El('div', 'teine')
+	])
 })
 
 

@@ -13,21 +13,38 @@ body {
 	-webkit-text-size-adjust: none;
 }
 
-button{
- 	vertical-align:middle;
-	-webkit-user-select:none;
-	-moz-user-select:none;
-	-khtml-user-select:none;
-	user-select:none;
-	width:auto;overflow:visible; /* Fixes extra padding issue in IE */
+button {
+ 	vertical-align: middle;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	width:auto;overflow:visible; /* Fixes extra padding issue in IE6/7 */
 	cursor:pointer;*cursor:hand; /* Alternate cursor for IE */
 }
-button:active,
-button:focus,
-button::-moz-focus-inner { 
-	outline:none;
-	padding:0px;
+
+/* for IE8 */
+:focus {
+	outline: none;
 }
+
+/* for FireFox */
+::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
+
+/* Prevent the text contents of draggable elements from being selectable. */
+[draggable=true] {
+	-webkit-user-drag: element;
+	-khtml-user-drag: element;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
 
 a img {border:0}
 
@@ -43,8 +60,14 @@ global classes
 	filter:alpha(opacity=0) !important;
 }
 .abs {
-	position:absolute;
-	top:0px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+.absr {
+	position: absolute;
+	top: 0px;
+	right: 0px;
 }
 .rel {
 	position:relative;
@@ -66,3 +89,16 @@ global classes
 	user-select:none;
 }
 
+
+
+/* for slider knob */
+.anim {
+	-webkit-transition: all .2s ease-out;
+	-moz-transition: all .2s ease-out;
+	-o-transition: all .2s ease-out;
+	transition: all .2s ease-out;
+	transition: all .2s ease-out;
+	-o-transition: all .2s ease-out;
+	-moz-transition: all .2s ease-out;
+	-webkit-transition: all .2s ease-out;
+}
