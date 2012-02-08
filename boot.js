@@ -3,10 +3,10 @@
 
 /**
  * THE BEER-WARE LICENSE
- * <lauri@rooden.ee> wrote this file. As long as you retain this notice
- * you can do whatever you want with this stuff. If we meet some day, and
- * you think this stuff is worth it, you can buy me a beer in return.
- * -- Lauri Rooden
+ * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
+ * can do whatever you want with this stuff at your own risk. If we meet some 
+ * day, and you think this stuff is worth it, you can buy me a beer in return.
+ * -- Lauri Rooden -- https://github.com/lauriro/boot.js
  */
 
 
@@ -16,48 +16,74 @@
 	  , p2 = function(n){return n>9?n:"0"+n}
 	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
 	  , jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
-	  , de = d.documentElement
-	  , slice = A.slice
-	  , no = []
-	  , a = "XMLHttpRequest"; // Reusable
+	  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
+	  , a, b, c; // Reusable
 
 	/*@cc_on
 		// HTML5 elements suport for IE should be in head before stylesheets
 		// "address article aside canvas details figcaption figure footer header hgroup menu nav section summary command datalist mark meter time wbr".replace(/\w+/g, function(t){d.createElement(t)});
 
 		// XMLHttpRequest was unsupported in IE 5.x-6.x + remove background image flickers on hover
-		a in w || no.push("w."+a+"=function(){function a(n){n='Msxml2.XMLHTTP'+n;try{w."+a+"=function x(){return new ActiveXObject(n)};return new x}catch(e){}}return a('.6.0')||a('')};try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}");
+		I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
+		try{d.execCommand('BackgroundImageCache',false,true)}catch(e){};
 	@*/
 
 
 	/** hasOwnProperty
 	// hasOwnProperty was unsupported in Safari/WebKit until 2.0.2
-	"hasOwnProperty" in O || no.push("O.hasOwnProperty=function(n){try{var p=this.constructor;while(p=p[P])if(p[n]===this[n])return false}catch(e){}return true}");
+	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
-
-	// eval in a global context for non-IE & Chrome
-	"execScript" in w || no.push("w.execScript=function(s){!function(){w.eval.call(w,s)}()}");
-
 
 	/* ECMAScript 5 stuff */
 
-	"trim" in S || no.push("S.trim=function(){return this.replace(/^[\\s\\r\\n\\u2028\\u2029]+|[\\s\\r\\n\\u2028\\u2029]+$/g,'')}");
+	a = Array;
 
-	a = "=function(f,s){var t=this,l=t.length,";
+	I(a, "slice"  , "return x.apply(y,arguments)", [F.call, A.slice]);
+	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
+	// Non-standard
+	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
 
-	"filter"      in A || no.push("A.filter"     +a+"i=-1,a=[];while(++i<l)if(i in t&&f.call(s,t[i],i,t))a.push(t[i]);return a}");
-	"forEach"     in A || no.push("A.forEach"    +a+"i=-1;while(++i<l)if(i in t)f.call(s,t[i],i,t)}");
-	"indexOf"     in A || no.push("A.indexOf"    +a+"i=(s|0)-1;while(++i<l)if(t[i]===f)return i;return -1}");
-	"lastIndexOf" in A || no.push("A.lastIndexOf"+a+"i=(s|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)if(t[i]===f)return i;return -1}");
-	"map"         in A || no.push("A.map"        +a+"a=[];while(l--)a[l]=f.call(s,t[l],l,t);return a}");
-	"reduce"      in A || no.push("A.reduce"     +a+"i=0,a=arguments.length<2?t[i++]:s;while(i<l)a=f.call(null,a,t[i],i++,t);return a}");
+	a = Object;
+	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
+	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+	// Non-standard
+	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	
+	a = "var t=this,l=t.length,o=[],i=-1;";
+	c = "if(t[i]===a)return i;return -1";
 
-	"isArray" in Array || no.push("Array.isArray=function(a){return O.toString.call(a)=='[object Array]'}");
+	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
+	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
+
+	b = a+"if(arguments.length<2)b=t";
+	c = "b=a.call(null,b,t[i],i,t);return b";
+	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
+	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
+
+	b = a+"while(++i<l)if(i in t)";
+	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
+	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
+
+	c = ";return o";
+	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
+
+	b += "if(a.call(b,t[i],i,t))";
+	I(A, "filter",      b+"o.push(t[i])"+c);
+	I(A, "some",        b+"return!0;return!1");
 
 	// Non-standard
-	no.push("A.remove"+a+"a=slice.call(arguments);while(l--)if(a.indexOf(t[l])>-1)t.splice(l,1);return t}");
-	no.push("A.indexFor"+a+"i=s?0:l,m;while(i<l)s(f,t[m=(i+l)>>1])<0?l=m:i=m+1;return i}");
-	Array.from=function(l){for(var a=[],i=l.length;i--;a.unshift(l[i]));return a}
+	I(A, "remove",   a+"o=x.call(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [A.slice]);
+	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
+
+
+
+	A.unique = function(){
+  	//** lambda
+		return "s i a -> i == a.lastIndexOf(s)".filter(this);
+		/*/
+		return this.filter(function(s, i, a){ return i == a.lastIndexOf(s); });
+		//*/
+	}
 	/*
 	Array.flatten = function(arr){
 		for(var i=arr.length;i--;)
@@ -67,161 +93,63 @@
 	flat([1,2,[3,4,[5,6]],7]);
 	*/
 
-	"bind" in F || no.push("F.bind=function(t){var f=this,a=slice.call(arguments,1);return function(){return f.apply(t,a.concat(slice.call(arguments)))}}");
-
-	/** hasOwnProperty
-	a = "o.hasOwnProperty(i)&&";
-	/*/
-	a = "";
-	//*/
 	
-	"keys" in Object || no.push("Object.keys=function(o){var a=[],i;for(i in o)o.hasOwnProperty(i)&&a.push(i);return a}");
-	//"create" in Object || no.push("Object.create=function(o){function f(){};f[P]=o;return new f()}");
-	
-	"JSON" in w || no.push("w.JSON={parse:function(t){return eval('('+t+')')},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)"+a+"s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
-	
-
-	/** Date.now
-	// ECMA-262 5th edition, FF3, Chrome 5, IE9, Opera 10.5, Safari 4
-	// When using now to create timestamps or unique IDs, keep in mind that 
-	// the resolution may be 15 milliseconds on Windows (see bug 363258 ), 
-	// so you could end up with several equal values if now is called multiple 
-	// times within a short time span.
-	// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/now
-	"now" in Date || no.push("Date.now=function(){return +new Date()}");
-	//*/
-
-
-	//** Date.format
-
-	D.format = function(m/*ask */) {
-		var t = this
-		  , m = D.format.masks[m]||m||D.format.masks["default"]
-		  , g = "get" + (m.substr(0,4) == "UTC:" ? (m=m.substr(4), "UTC"):"")
-		return m.replace(/(\")([^\"]*)\"|\'([^\']*)\'|(yy(yy)?|m{1,4}|d{1,4}|([HhMsS])\6?|[uUaAZ])/g,
-			function(a, b, c) {
-				return a == "yy"   ? (""+t[g+"FullYear"]()).substr(2)
-				     : a == "yyyy" ? t[g+"FullYear"]()
-				     : a == "m"    ? t[g+"Month"]()+1
-				     : a == "mm"   ? p2(t[g+"Month"]()+1)
-				     : a == "mmm"  ? D.monthNames[ t[g+"Month"]() ]
-				     : a == "mmmm" ? D.monthNames[ t[g+"Month"]()+12 ]
-				     : a == "d"    ? t[g+"Date"]()
-				     : a == "dd"   ? p2(t[g+"Date"]())
-				     : a == "ddd"  ? D.dayNames[ t[g+"Day"]() ]
-				     : a == "dddd" ? D.dayNames[ t[g+"Day"]()+7 ]
-				     : a == "h"    ? (""+t[g+"Hours"]()%12||12)
-				     : a == "hh"   ? p2(t[g+"Hours"]()%12||12)
-				     : a == "H"    ? t[g+"Hours"]()
-				     : a == "HH"   ? p2(t[g+"Hours"]())
-				     : a == "M"    ? t[g+"Minutes"]()
-				     : a == "MM"   ? p2(t[g+"Minutes"]())
-				     : a == "s"    ? t[g+"Seconds"]()
-				     : a == "ss"   ? p2(t[g+"Seconds"]())
-				     : a == "S"    ? t[g+"Milliseconds"]()
-				     : a == "SS"   ? p3(t[g+"Milliseconds"]())
-				     : a == "u"    ? (""+(t/1000)>>>0)
-				     : a == "U"    ? +t
-				     : a == "a"    ? (t[g+"Hours"]() > 11 ? "pm" : "am")
-				     : a == "A"    ? (t[g+"Hours"]() > 11 ? "PM" : "AM")
-				     : a == "Z"    ? "GMT " + (-t.getTimezoneOffset()/60)
-				     : b           ? c
-				     : a;
-			}
-		)
-	}
-
-	D.format.masks = {"default":"ddd mmm dd yyyy HH:MM:ss","isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'};
-	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ");
-	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
-
-	"toISOString" in D || no.push("D.toISOString=function(){return this.format('isoUtcDateTime')}");
-	/*/
-	"toISOString" in D || no.push("D.toISOString=function(){var t=this;return t.getUTCFullYear()+'-'+p2(t.getUTCMonth()+1)+'-'+p2(t.getUTCDate())+'T'+p2(t.getUTCHours())+':'+p2(t.getUTCMinutes())+':'+p2(t.getUTCSeconds())+'.'+p3(t.getUTCMilliseconds())+'Z'}")
-	//*/
-	
-
-	//** Date helpers
-
-	S.date = N.date = function(format) {
-		var t = this, d = new Date(), m, n = Number(t) || Date.parse(t) || ""+t;
-		if (isNaN(n)) {
-			// Big endian date, starting with the year, eg. 2011-01-31
-			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3]);
-			// Little endian date, starting with the day, eg. 31.01.2011
-			else if (m = n.match(/(\d{2})\.(\d{2})\.(\d{4})/)) d.setFullYear(m[3], m[2]-1, m[1]);
-			// Middle endian date, starting with the month, eg. 01/31/2011
-			else if (m = n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)) d.setFullYear(m[3], m[1]-1, m[2]);
-			// Time
-			m = n.match(/(\d{1,2}):(\d{2}):?(\d{2})?\.?(\d{3})?/) || [0, 0, 0];
-			if (n.match(/pm/i) && m[1] < 12) m[1]+=12;
-			d.setHours(m[1], m[2], m[3]||0, m[4]||0);
-			// Timezone
-			n.indexOf("Z")>-1 && d.setTime(d-(d.getTimezoneOffset()*60000));
-		} else d.setTime( (n<4294967296?n*1000:n) );
-		return format?d.format(format):d;
-	}
-
-	D.daysInMonth = function() {
-		//return 32-new Date(this.getFullYear(),this.getMonth(),32).getDate();
-		return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate();
-	}
-
-	D.startOfWeek = function() {
-		var t = this;
-		return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1);
-	}
-	//*/
-
-
-	//** Date.pretty convert dates to human-readable
-
-	D.prettySteps = [8640000, 2592000, 604800, 86400, 3600,   60,       1];
-	D.prettyUnits = [         "month", "week", "day", "hour", "minute", "second"];
-	
-	D.prettyStrings={"default":"{0} {1} ago", "day":"Yesterday"};
-
-	D.pretty = function(format, custom) {
-		var d = (new Date() - this + 1) / 1000
-		  , a = D.prettySteps
-		  , i = a.length;
-
-		if (d<a[0]) {
-			while(d>a[--i]);d/=a[i+1];
-			return ((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0, i);
-		}
-		return this.format(format);
-	}
-	//*/
-
-
-	no.length && eval(no.join(";"));
-
-
 	//** Function extensions
 
+	F.curry = function() {
+		var t = this, a = Array.slice(arguments, 0);
+		return a.length ? function() {return t.apply(this, a.concat(Array.slice(arguments, 0)));} : t;
+	}
+
+	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
+	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
+
+	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c", [A.slice, P]);
+	
+
+	F.construct = function(a) {
+		return new(F.bind.apply(this, A.concat.apply([null], a)));
+	}  
+
+	F.clone = function() {
+		var a = this.toString().match(/\((.*)\)\s*{([\s\S]*)}$/);
+		return new Function(a[1].split(/[, ]+/), a[2]);
+	}
+
 	// Run function once and return cached value or cached instance
-	F.cache = function(instance) {
-		var t = this, c = {}, f = function() {
-			var a = arguments, l = a.length, i = !!instance || this instanceof f, k = i + ":" + l + ":" + A.join.call(a);
-			return k in c ? c[k] : (c[k] = i ? l ? eval("new t(a["+Object.keys(slice.call(a)).join("],a[")+"])") : new t() : t.apply(t, a));
+	F.cache = function(instance, keyFn, cache) {
+		var t = this, c = cache || {}, f = function() {
+			var a = arguments
+			  , i = !!instance || this instanceof f
+			  , k = keyFn ? keyFn(a, t) : i + ":" + a.length + ":" + A.join.call(a);
+
+			return k in c ? c[k] : (c[k] = i ? t.construct(a) : t.apply(this, a));
 		}
 		f.origin = t;
 		f.cached = c;
+		f.extend = function(){
+			return t.extend.apply(t, arguments).cache(instance, keyFn, c);
+		}
+		f[P] = t[P]; // prototype for better access on extending 
 		return f;
 	}
 
 	F.extend = function() {
-		var t = function(){}, Fn, i = 0, e;
-		eval("Fn="+this.toString());
-		t[P] = this[P];
-		Fn[P] = new t();
-		while (e = arguments[i++]) for (t in e) 
-		/** hasOwnProperty
-		if (e.hasOwnProperty(t)) 
-		//*/
-			Fn[P][t] = e[t];
-		return Fn;
+		var t = this, f = t.clone(), i = 0, e;
+		f[P] = Object.create(t[P]);
+		while (e = arguments[i++]) for (t in e) if (e.hasOwnProperty(t)) f[P][t] = e[t];
+		return f;
+	}
+	
+	F.guard = function(guard, otherwise) {
+		var t = this
+		  , f = guard.fn()
+		  , o = (otherwise||function(){}).fn();
+
+		return function() {
+			return (f.apply(this, arguments) ? t : o).apply(this, arguments);
+		}
 	}
 
 	F.byWords = function(i) {
@@ -229,16 +157,118 @@
 		i |= 0;
 		return function() {
 			var s = this, a = arguments, r;
-			a[i].replace(/\w+/g,function(w){a[i]=w;r=t.apply(s, a)});
+			a[i].replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
 			return r;
 		}
 	}
 
-	//function b(){
-	//	if (!(this instanceof b)) return b.apply( new b(), arguments );
-	//	if (!(this instanceof b)) return new b();
-	//	return this;
-	//}
+	/* THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
+	 *
+	 * Copyright: Copyright 2007 by Oliver Steele.  All rights reserved.
+	 * License: MIT License
+	 * Homepage: http://osteele.com/javascripts/functional
+	 * Created: 2007-07-11
+	 * Version: 1.0.2
+	 *
+	 * Modified by Lauri Rooden */
+
+	var lambda = function(s) {
+		var a = []
+			, t = s.split("->");
+		
+		if (t.length > 1) {
+			while (t.length) {
+				s = t.pop();
+				a = t.pop().trim().split(/[\s,]+/m);
+				t.length && t.push("(function("+a+"){return ("+s+")})");
+			}
+		} else {
+			// test whether an operator appears on the left (or right), respectively
+			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
+				a.push("$1");
+				s = "$1" + s;
+			}
+			// test whether an operator appears on the right
+			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
+				a.push("$2");
+				s += "$2";
+			} else if (!t) {
+				// `replace` removes symbols that are capitalized, follow '.',
+				// precede ':', are 'this' or 'arguments'; and also the insides of
+				// strings (by a crude test).  `match` extracts the remaining
+				// symbols.
+				a = a.concat( s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
+			}
+		}
+		return new Function(a, "return(" + s + ")");
+	}.cache();
+
+	S.fn = function(){
+		return lambda(this);
+	}
+
+	F.fn = function() {
+		return this;
+	}
+
+	!function(n){
+		F[n] = S[n] = function(){
+			var t = this, a = arguments, arr = a[0]
+			a[0] = t.fn();
+			return A[n].apply(arr, a);
+		}
+	}.byWords()("every filter forEach map reduce reduceRight some");
+	
+	F.each = S.each = F.forEach;
+	F.foldl = S.foldl = F.reduce;
+	F.foldr = S.foldr = F.reduceRight;
+	F.select = S.select = F.filter;
+	
+
+
+
+
+	F.compose = function(fn) {
+		var t = this;
+		return function() {
+			return t.call(this, fn.apply(this, arguments));
+		}
+	}
+
+	F.chain = function(f) {
+		var t = this;
+		return function() {
+			var s = this
+			  , a = arguments;
+
+			t.apply(s, a);
+			return f.apply(s, a);
+		}
+	}
+
+	F.flip = function() {
+		var t = this;
+		return function() {
+			var a = arguments, b = a[0];
+			a[0] = a[1]
+			a[1] = b
+			return t.apply(this, a);
+		}
+	}
+
+	F.byKeyValue = function() {
+		var t = this;
+		return function(o) {
+			var s = this, a = arguments, r;
+			if (typeof o == "object") Object.each(o, function(v, k){
+				a[0] = k;
+				a[1] = v;
+				r = t.apply(s, a);
+			})
+			else r = t.apply(s, a);
+			return r;
+		}
+	}
 
 
 	// Time to live - Run *fun* if Function not called on time
@@ -261,23 +291,38 @@
 	}
 
 	// Maximum call rate for Function
-	F.rate = function(ms, last_call) {
-		var t = this, s, args, next = 0;
+	F.rate = function(ms) {
+		var t = this, n = 0;
 		return function() {
-			clearTimeout(s);
-			var now = (new Date()).getTime();
-			if (now > next) {
-				next = now + ms;
+			var d = +new Date();
+			if (d > n) {
+				n = d + ms;
 				t.apply(null, arguments);
-			} else if (last_call) {
-				args = arguments;
-				s = setTimeout(function(){t.apply(null, args)}, next-now);
 			}
 		}
 	}
 	//*/
 
-
+	/**
+	 * Returns a function identical to this function except that
+	 * it prints its arguments on entry and its return value on exit.
+	 * This is useful for debugging function-level programs.
+	 */
+	
+	/** debug.trace
+	F.trace = function(n) {
+		var t = this;
+		n = n || t;
+		return "console" in w ?
+			function() {
+				console.info('[', n, 'apply(', this!=w && this, ',', arguments, ')');
+				var result = t.apply(this, arguments);
+				console.info(']', n, ' -> ', result);
+				return result;
+			} :
+			t;
+	}
+	//*/
 
 
 	//** String extensions
@@ -295,9 +340,8 @@
   		.replace(/\"/g, "&quot;");
 	}
 
-	S.camelCase = function() {
-		return this.replace(/[ _-]+([a-z])/g,function(_, a){return a.toUpperCase()});
-	}
+	//S.camelCase = function() { return this.replace(/[ _-]+([a-z])/g,function(_, a){return a.toUpperCase()}); }
+	S.camelCase = S.replace.curry(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
 
   S.toAccuracy = N.toAccuracy = function(a) {
     var x = (""+a).split("."), n = ~~((this/a)+.5) * a;
@@ -332,8 +376,131 @@
 	//*/
 
 
+	//** Date.format
+
+	D.format = function(_) {
+		var t = this
+		  , x = D.format.masks[_] || _ || D.format.masks["default"]
+		  , g = "get" + (x.slice(0,4) == "UTC:" ? (x=x.slice(4), "UTC"):"")
+		  , y = g + "FullYear"
+		  , m = g + "Month"
+		  , d = g + "Date"
+		  , w = g + "Day"
+		  , h = g + "Hours"
+		  , M = g + "Minutes"
+		  , s = g + "Seconds"
+		  , S = g + "Milliseconds";
+
+		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(yy(yy)?|m{1,4}|d{1,4}|([HhMsS])\5?|[uUaAZ])/g,
+			function(a, b, c) {
+				return a == "yy"   ? (""+t[y]()).slice(2)
+				     : a == "yyyy" ? t[y]()
+				     : a == "m"    ? t[m]()+1
+				     : a == "mm"   ? p2(t[m]()+1)
+				     : a == "mmm"  ? D.monthNames[ t[m]() ]
+				     : a == "mmmm" ? D.monthNames[ t[m]()+12 ]
+				     : a == "d"    ? t[d]()
+				     : a == "dd"   ? p2(t[d]())
+				     : a == "ddd"  ? D.dayNames[ t[w]() ]
+				     : a == "dddd" ? D.dayNames[ t[w]()+7 ]
+				     : a == "h"    ? (""+t[h]()%12||12)
+				     : a == "hh"   ? p2(t[h]()%12||12)
+				     : a == "H"    ? t[h]()
+				     : a == "HH"   ? p2(t[h]())
+				     : a == "M"    ? t[M]()
+				     : a == "MM"   ? p2(t[M]())
+				     : a == "s"    ? t[s]()
+				     : a == "ss"   ? p2(t[s]())
+				     : a == "S"    ? t[S]()
+				     : a == "SS"   ? p3(t[S]())
+				     : a == "u"    ? (""+(t/1000)>>>0)
+				     : a == "U"    ? +t
+				     : a == "a"    ? (t[h]() > 11 ? "pm" : "am")
+				     : a == "A"    ? (t[h]() > 11 ? "PM" : "AM")
+				     : a == "Z"    ? "GMT " + (-t.getTimezoneOffset()/60)
+				     : b           ? c
+				     : a;
+			}
+		)
+	}
+
+	D.format.masks = {"default":"ddd mmm dd yyyy HH:MM:ss","isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'};
+	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ");
+	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
+
+	I(D, "toISOString", "return this.format('isoUtcDateTime')");
+	/*/
+	I(D, "toISOString", "var t=this;return t.getUTCFullYear()+'-'+p2(t.getUTCMonth()+1)+'-'+p2(t.getUTCDate())+'T'+p2(t.getUTCHours())+':'+p2(t.getUTCMinutes())+':'+p2(t.getUTCSeconds())+'.'+p3(t.getUTCMilliseconds())+'Z'")
+	//*/
+	
+
+	//** Date helpers
+
+	S.date = N.date = function(format) {
+		var t = this, d = new Date(), m, n = +t || Date.parse(t) || ""+t;
+		if (isNaN(n)) {
+			// Big endian date, starting with the year, eg. 2011-01-31
+			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3]);
+			// Little endian date, starting with the day, eg. 31.01.2011
+			else if (m = n.match(/(\d{2})\.(\d{2})\.(\d{4})/)) d.setFullYear(m[3], m[2]-1, m[1]);
+			// Middle endian date, starting with the month, eg. 01/31/2011
+			else if (m = n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)) d.setFullYear(m[3], m[1]-1, m[2]);
+			// Time
+			m = n.match(/(\d{1,2}):(\d{2}):?(\d{2})?\.?(\d{3})?/) || [0, 0, 0];
+			if (n.match(/pm/i) && m[1] < 12) m[1]+=12;
+			d.setHours(m[1], m[2], m[3]||0, m[4]||0);
+			// Timezone
+			n.indexOf("Z")>-1 && d.setTime(d-(d.getTimezoneOffset()*60000));
+		} else d.setTime( (n<4294967296?n*1000:n) );
+		return format?d.format(format):d;
+	}
+	//*/
+
+	//** Date.daysInMonth
+	D.daysInMonth = function() {
+		//return 32-new Date(this.getFullYear(),this.getMonth(),32).getDate();
+		return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate();
+	}
+	//*/
+
+	//** Date.startOfWeek
+	D.startOfWeek = function() {
+		var t = this;
+		return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1);
+	}
+	//*/
 
 
+	N.human = function(steps, units){
+		
+	}
+
+
+	//** Date.pretty convert dates to human-readable
+
+	D.prettySteps = [8640000, 2592000, 604800, 86400, 3600,   60,       1];
+	D.prettyUnits = [         "month", "week", "day", "hour", "minute", "second"];
+	
+	D.prettyStrings={"default":"{0} {1} ago", "day":"Yesterday"};
+
+	D.pretty = function(format, custom) {
+		var d = (new Date() - this + 1) / 1000
+		  , a = D.prettySteps
+		  , i = a.length;
+
+		if (d<a[0]) {
+			while(d>a[--i]);d/=a[i+1];
+			return ((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0, i);
+		}
+		// use guard here
+		return this.format(format);
+	}
+	//*/
+
+
+
+
+	"JSON" in w || eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
 
 
 	//** Event handling
@@ -476,7 +643,7 @@
 			e.type.replace("touch", "mouse").replace("start", "down").replace("end", "up"),
 			true, true, window, 1, 
 			touch.screenX, touch.screenY, touch.clientX, touch.clientY,
-			false, false, false, false, 0/*left*/, null);
+			false, false, false, false, 0, null);
 		touch.target.dispatchEvent(ev);
 	};
 	
@@ -521,20 +688,19 @@
 	    		return el.style[a]||el.currentStyle[a]||null;
 	    	}
 	    )
+	  , el_re = /([.#:])(\w+)/g
+	  , El = function(n/*ame */, a/*rgs */) {
+				var pre = {};
+				n = n.replace(el_re, function(_, o, s) {
+					pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s;
+					return "";
+				}) || "div";
 
+				var el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre);
 
-
-	function El(n/*ame */, a/*rgs */) {
-		var pre = {};
-		n = n.replace(/([.#:])(\w+)/g, function(_, o, s) {
-			pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s;
-			return "";
-		}) || "div";
-
-		var el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre);
-
-		return n in fnCache && fnCache[n](el, a) || el.set(a);
-	}
+				return n in fnCache && fnCache[n](el, a) || el.set(a);
+			}
+		, css_map = {float: "cssFloat"}
 
 	function extend(e,p,k){
 		if(e){
@@ -557,92 +723,72 @@
 	}
 	El.cache.el = elCache;
 	El.cache.fn = fnCache;
-	El.css_supported = function(name) {
-		return name in de.style || (vendor_dom+name).camelCase() in de.style;
+	El.text = function(str){
+		return d.createTextNode(str);
 	}
 
-		/*
-		Browser proprietary CSS extensions and DOM node prefixes
-
-		Browser       CSS extension prefix	 DOM style extension prefix
-		Firefox             -moz-            Moz
-		Safari/Chrome       -webkit-         Webkit
-		Opera               -o-              O
-		Internet Explorer   -ms-             None: lower case initial
-		*/
-
-		var vendor, vendors = ["webkit","Moz","khtml","o","ms"], vendor_dom = "", vendor_css = "";
-		while (vendor = vendors.shift()) if (vendor+"Opacity" in de.style) {
-			vendor_dom = vendor+"-";
-			vendor_css = "-" + vendor_dom.toLowerCase();
-			break;
-		}
-
 	a = {
-		append: function(el, b/*efore*/) {
+		/*
+		e - element
+		b - before
+		*/
+		append: function(e, b/*efore*/) {
 			var t = this;
-			if (el) {
-				if (typeof el == "string" || typeof el == "number") el = d.createTextNode(el);
-				else if ( !("nodeType" in el) && "length" in el ) {
+			if (e) {
+				if (typeof e == "string" || typeof e == "number") e = El.text(e);
+				else if ( !("nodeType" in e) && "length" in e ) {
 					// document.createDocumentFragment is unsupported in IE5.5
-					var len = el.length, i = 0, f = "createDocumentFragment" in d ? d.createDocumentFragment() : El("div");
-					while (i<len) t.append.call(f, el[i++]);
-					el = f;
+					var len = e.length, i = 0, f = "createDocumentFragment" in d ? d.createDocumentFragment() : El("div");
+					while (i<len) t.append.call(f, e[i++]);
+					e = f;
 				}
 
-				if ("nodeType" in el) b ? t.insertBefore(el, b===true ? t.firstChild : b) : t.appendChild(el);
-				//else "to" in el && el.to(t, b);
-				"append_hook" in el && el.append_hook();
+				if ("nodeType" in e) b ? t.insertBefore(e, b===true ? t.firstChild : b) : t.appendChild(e);
+				//else "to" in e && e.to(t, b);
+				"append_hook" in e && e.append_hook();
 				//"child_hook" in t && t.child_hook();
 			}
 			return t;
 		},
 
-		after: function(el, before) {
+		after: function(e, b) {
+			e.parentNode.append(this, b ? e : e.nextSibling);
+			return this;
+		},
+
+		to: function(e, b) {
+			e.append(this, b);
+			return this;
+		},
+
+		hasClass: function(n) {
+			return (" "+this.className+" ").indexOf(" "+n+" ") > -1;
+		},
+
+		addClass: function(n) {
 			var t = this;
-			t.append.call(el.parentNode, t, before ? el : el.nextSibling);
+			t.className += t.className == "" ? n : t.hasClass(n) ? "" : " " + n;
 			return t;
-		},
+		}.byWords(),
 
-		to: function(el, before) {
+		rmClass: function(n) {
 			var t = this;
-			t.append.call(el, t, before);
+			t.className = (" "+t.className+" ").replace(" "+n+" "," ").trim();
 			return t;
-		},
+		}.byWords(),
 
-		hasClass: function(name) {
-			return (" "+this.className+" ").indexOf(" "+name+" ") > -1;
-		},
-
-		addClass: function(name) {
-			var t = this, c = t.className;
-			if (name) {
-				if (c == "") t.className = name;
-				else if (!t.hasClass(name)) t.className = c+" "+name;
-				//else name.replace(/\w+/g, function(n){if(!t.hasClass(n))t.className=c+" "+n});
-			}
-			return t;
-		},
-
-		rmClass: function(name) {
+		toggleClass: function(n, status) {
 			var t = this;
-			t.className = (" "+t.className+" ").replace(" "+name+" "," ").trim();
-			//t.className = (" "+t.className+" ").replace(new RegExp(" ("+name.replace(" ","|")+") ", "g")," ").trim();
-			return t;
-		},
-
-		toggleClass: function(name, status) {
-			var t = this;
-			//if ( (arguments.length == 1 && !t.hasClass(name)) || status ) {
-			if ( (status===void 0 && !t.hasClass(name)) || status ) {
-				t.addClass(name);
+			//if ( (arguments.length == 1 && !t.hasClass(n)) || status ) {
+			if ( (status===void 0 && !t.hasClass(n)) || status ) {
+				t.addClass(n);
 				return true;
 			}
-			t.rmClass(name);
+			t.rmClass(n);
 			return false;
 		},
 
-		empty: function _empty() {
+		empty: function() {
 			var t = this, n;
 			while (n = t.firstChild) t.kill.call(n);
 			return t;
@@ -657,38 +803,28 @@
 			return t;
 		},
 
-		css: function(atr, val, vendor) {
+		css: function(atr, val) {
 			var t = this;
-			if (typeof atr == "object") {
+			if (typeof atr == "object") 
 				for (var a in atr)
 				/** hasOwnProperty
 				if (atr.hasOwnProperty(a))
 				//*/
-				t.css(a, atr[a], vendor);
-			} else if (val) {
-				if (atr == 'float') atr = 'cssFloat'
-				try{
-					if (vendor) t.style[ (vendor_dom + atr).camelCase() ] = val.replace("-vendor-",vendor_css);
-					else t.style[ atr.camelCase() ] = val;
-				}catch(e){
-					/*
-					In most cases you don't need to use the rgba classes, as browsers can do the fallback naturally:
-					.my_container {
-						background-color: #ccc;
-						background-color: rgba(255,255,255, .5);
-					}
-					*/
-					if (val.indexOf('rgba')>-1) t.css(atr, val.repalce('rgba','rgb'), vendor);
-				}
-			} else getStyle(t,atr);
+				t.css(a, atr[a]);
+			else if (val) t.style[ (css_map[atr]||atr).camelCase() ] = val;
+			else getStyle(t, atr);
 			return t;
 		},
 
-		on: function(type, fn, set) {
-			var t = this, a = (set === false) ? "remove" : "add";
-			type.replace(/\w+/g,function(w){Event[a](t, w, fn)})
-			return t;
-		},
+		on: function(w, fn) {
+			Event.add(this, w, fn);
+			return this;
+		}.byWords(),
+
+		non: function(w, fn) {
+			Event.remove(this, w, fn);
+			return this;
+		}.byWords(),
 
 		set: function(args) {
 			var t = this, k, v;
@@ -700,15 +836,39 @@
 				//*/
 				{
 					v = args[k];
+					// there are bug in ie<9 where later changed 'name' param not accepted in form submit
+					/* cc_on
+					if (@_jscript_version < 9 && k == "name") {
+						//console.log(t.outerHTML.replace(/<\w+/, '$& name="'+v+'"'))
+						t = d.createElement( t.outerHTML.replace(/<\w+/, '$& name="'+v+'"'));
+					} else @*/ 
 					if (k == "class" || k == "className") t.addClass(v);
-					else if (k == "append") t.append(v);
 					else if (typeof v == "string") t.setAttribute(k, v);
 					else if (!v) t.removeAttribute(k);
 					else t[k] = v;
 				}
 			}
 			return t;
-		}
+		},
+
+		find: "querySelector" in d ?
+			function(sel){
+				// IE8 don't support :disabled
+				return this.querySelector(sel);
+			} :
+			function(sel) {
+				var rules = ["_"]
+					, tag = sel.replace(el_re, function(_, o, s) {
+							rules.push( o == "." ? "(' '+_.className+' ').indexOf(' "+s+" ')>-1" : o == "#" ? "_.id=='"+s+"'" : "_."+s );
+							return "";
+						}) || "*"
+					, fn = rules.join("&&").fn()
+					, el
+					, els = this.getElementsByTagName(tag)
+					, i = 0;
+
+				while (el = els[i++]) if (fn(el)) return "to" in el ? el : extend(el);
+			}
 	}
 
 	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {
@@ -724,15 +884,41 @@
 	}
 
 	w.El = El;
-	 
+	//*/
 
+	//** xhr
+	var xhrs = []
+	  , anon = function(){};
 
-
+	w.xhr = function(method, url, cb, sync){
+		var r = xhrs.shift() || new XMLHttpRequest();
+		r.open(method, url, !sync);
+		r.onreadystatechange = function(){
+			if (r.readyState == 4) {
+				cb && cb( r.responseText, r);
+				r.onreadystatechange = cb = anon;
+				xhrs.push(r);
+			}
+		}
+		return r;
+	};
+	//*/
 
 	a = d.getElementsByTagName("script");
-	a = a[a.length-1].src.replace(/[^\/]+$/,"");
+	// eval in a global context for non-IE & non-Chrome (removed form v8 on 2011-05-23: Version 3.3.9)
+	// THANKS: Juriy Zaytsev - Global eval [http://perfectionkills.com/global-eval-what-are-the-options/]
+	if (!("execScript" in w)) {
+		w.execScript = (function(o,Object){return(1,eval)("(Object)")===o})(Object,1) ? eval : function(s){
+			El("script", s).after(a);
+		}
+	}
 
-	//** CommonJS style module loader
+	//** loader - helpers
+	b = a[a.length-1].src.replace(/[^\/]+$/,"");
+	//*/
+
+
+	/** loader.CommonJS style modules
 	var _required = {}
 	w.require = function(file) {
 		if (file in _required) return _required[file];
@@ -742,32 +928,28 @@
 		eval(req.responseText);
 		return _required[file] = exports;
 	}
-	w.require.path = a;
+	w.require.path = b;
 	//*/
 
 
-	//** async loader
-	w.load = function(f/*iles */, cb) {
+	//** loader.async
+	w.load = function(f, cb) {
 		if (!Array.isArray(f)) f=[f];
 		var i=0, len=f.length, res = [];
-		while (i<len) !function(req, i) {
-			req.open("GET", f[i].replace(/^[^\/]/, w.load.path+"$&"), true);
-			req.onreadystatechange = function() {
-				if (req.readyState == 4) {
-					res[i] = req.responseText;
-					//for (var str,e="";str=res[loaded];++loaded){e+=str};
-					//e && execScript(e);
-					if (!--len) {
-						execScript( res.join(";") );
-						cb && cb();
-						res = null;
-					}
+		while (i<len) !function(i) {
+			xhr("GET", f[i].replace(/^[^\/]/, w.load.path+"$&"), function(str) {
+				res[i] = str;
+				//for (var str,e="";str=res[loaded];++loaded){e+=str};
+				//e && execScript(e);
+				if (!--len) {
+					execScript( res.join(";") );
+					cb && cb();
+					res = null;
 				}
-			}
-			req.send();
-		}(new XMLHttpRequest(), i++);
+			}).send();
+		}(i++);
 	}
-	w.load.path = a;
+	w.load.path = b;
 	//*/
 
 }(window, document, "prototype");
@@ -799,6 +981,9 @@
 }()
 //*/
 
+
+
+
 /** Tests for Array
 !function(){
 	var test = new TestCase("Array")
@@ -812,31 +997,55 @@
 	, "Array.filter()");
 
 	res = [];
-	arr.forEach(function(val, key){res.push(val)});
+	arr.forEach(function(val, key){res.push(val+key)});
 
 	test.compare(
 		res.length, 6
-	, res.join(), "1,2,3,4,2,5"
+	, res.join(), "1,3,5,7,6,10"
 	, "Array.foreach()");
 
+	res = arr.map(function(val, key){return (val+key)});
+
 	test.compare(
-		arr.indexOf(2) , 1
+		res.length, 6
+	, res.join(), "1,3,5,7,6,10"
+	, "Array.map()");
+
+	test.compare(
+		arr.indexOf(1)   , 0
+	, arr.indexOf(5)   , 5
+	, arr.indexOf(2)   , 1
+	, arr.indexOf(2,1) , 1
 	, arr.indexOf(2,2) , 4
+	, arr.indexOf(2,5) , -1
+	, arr.indexOf(6)   , -1
 	, "Array.indexOf()");
 
 	test.compare(
-		arr.lastIndexOf(2) , 4
-	, arr.lastIndexOf(6) , -1
+	  arr.lastIndexOf(1)    , 0
+	, arr.lastIndexOf(5)    , 5
+	, arr.lastIndexOf(2)    , 4
+	, arr.lastIndexOf(2,4)  , 4
+	, arr.lastIndexOf(2,3)  , 1
+	, arr.lastIndexOf(2,-1) , 4
 	, arr.lastIndexOf(2,-3) , 1
+	, arr.lastIndexOf(6)    , -1
 	, "Array.lastIndexOf()");
 
-	res = [1,2,3].map(function(i){return i+2});
+	test.compare(
+	  [2, 4, 6, 8].every(function(i){return !(i%2)})
+	, true
+	, [2, 5, 6, 8].every(function(i){return !(i%2)})
+	, false
+	, "Array.every()");
 
 	test.compare(
-		res[0] , 3
-	, res[1] , 4
-	, res[2] , 5
-	, "Array.map()");
+	  [2, 4, 6, 8].some(function(i){return i==4})
+	, true
+	, [2, 4, 6, 8].some(function(i){return i==5})
+	, false
+	, "Array.some()");
+
 
 	test.compare(
 		[0, 1, 2, 3].reduce(function(a, b){ return a + b; }), 6
@@ -861,10 +1070,11 @@
 	, [1,3,5].indexFor(6, sort), 3
 	, "Array.indexFor()");
 
-
 	test.done();
 }()
 //*/
+
+
 
 /** Tests
 !function(){
@@ -909,6 +1119,9 @@
 	test.done()
 }()
 //*/
+
+
+
 /** Tests for Date
 !function(){
 	var test = new TestCase("Date");
@@ -950,7 +1163,9 @@
 !function(){
 	var test_el = new TestCase("El");
 
-	var el = El("div");
+	var el = El("div")
+	  , select = El("select#id2.cl2:disabled")
+
 	var h1 = El("h1");
 	var h2 = El("h2");
 	var h3 = El("h3");
@@ -958,6 +1173,23 @@
 
 	el.append(h2);
 	test_el.compare(el.innerHTML.toLowerCase(), "<h2></h2>", "El.append");
+	h2.append(select)
+	test_el.compare(
+	  el.find("#id2"), select
+	, el.find(".cl2"), select
+	//, el.find("select:disabled"), select
+	, el.find("#id2.cl2"), select
+	//, el.find("#id2.cl2:disabled"), select
+	//, el.find("select#id2.cl2:disabled"), select
+	, el.find("select#id2.cl2"), select
+	, el.find("select#id2"), select
+	, el.find("select"), select
+	, el.find("h2"), h2
+	//, !!el.find("select:enabled"), false
+	, !!el.find("select.cl3"), false
+	, "El.find()");
+	select.kill();
+
 	el.append(h4, true);
 	test_el.compare(el.innerHTML.toLowerCase().replace(/[\s\t\n\r]+/g,""), "<h4></h4><h2></h2>", "El.append");
 	h4.kill();
@@ -1197,5 +1429,44 @@
 	test.done();
 }()
 //*/
+
+
+/** Tests for lambda
+!function(){
+	var test = new TestCase("lambda")
+
+	test.compare(
+		'->1'.fn()(), 1,
+		'x -> x + 1'.fn()(1), 2,
+		'x y -> x + 2*y'.fn()(1, 2), 5,
+		'x, y -> x + 2*y'.fn()(1, 2), 5,
+		'_ + 1'.fn()(1), 2,
+		'/2'.fn()(4), 2,
+		'2/'.fn()(4), 0.5,
+		'/'.fn()(2,4), 0.5,
+		'x + 1'.fn()(1), 2,
+		'x + 2*y'.fn()(1, 2), 5,
+		'y + 2*x'.fn()(1, 2), 5,
+		'Math.cos(angle)'.fn()(Math.PI), -1,
+		'point.x'.fn()({x:1, y:2}), 1,
+		'({x:1, y:2})[key]'.fn()('x'), 1,
+		'x -> y -> x + 2*y'.fn()(1)(2), 5,
+		'x -> y -> z -> x + 2*y+3*z'.fn()(1)(2)(3), 14,
+		
+    '1+'.map([1,2,3]).join(), [2, 3, 4].join(),
+    'x y -> 2*x+y'.reduce([1,0,1,0], 0), 10,
+    '%2'.select([1,2,3,4]).join(), [1, 3].join(),
+
+    '>2'.some([1,2,3]), true,
+    '>10'.some([1,2,3]), false
+      
+	);
+		//map('"im"+root', ["probable", "possible"]), ["improbable", "impossible"]
+    //["improbable", "impossible"], map('"im"+root', ["probable", "possible"]) ,
+
+	test.done();
+}()
+//*/
+
 
 

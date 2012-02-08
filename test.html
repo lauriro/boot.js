@@ -14,6 +14,27 @@
 </head><body>
 
 <script type="text/javascript" src="min.js">
+var a = {a:1,b:2,c:{cc:3}};
+var b = {a:1,b:3}
+
+Object.merge = function(main, a, str, changed) {
+
+	if (!str) str = "";
+	if (!changed) changed = [];
+
+	var e, o, i = 0;
+	for (e in a) {
+		o = a[e]
+		if (o === null) delete main[e];
+		else if (typeof o == "object" && typeof main[e] == "object") Object.merge(main[e], o, str+e+".", changed);
+		else if (o !== main[e]) {
+			main[e] = o;
+			changed.push(str+e)
+		}
+	}
+	return changed;
+}
+
 
 function queryAll(selector){
 	return selector.replace(
@@ -58,7 +79,7 @@ El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 });
 
 load("test.js", function(){
-	var modules = ["fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js"]
+	var modules = ["fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js", "jsonh.js"]
 
 	load( modules, function(){
 

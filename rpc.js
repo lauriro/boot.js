@@ -15,7 +15,7 @@ var rpc = function(){
 		req.open("POST", conf.api, true);
 		req.onreadystatechange = function(){
 			if (req.readyState === 4) {
-				cb && cb( req.status === 200 && JSON.parse(req.responseText) || null, req);
+				cb && cb( req.status === 200 && JSON.parse(req.responseText||"{}") || null, req);
 				xhr_pool.push(req);
 			}
 		}

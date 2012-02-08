@@ -3,10 +3,10 @@
 
 /**
  * THE BEER-WARE LICENSE
- * <lauri@rooden.ee> wrote this file. As long as you retain this notice
- * you can do whatever you want with this stuff. If we meet some day, and
- * you think this stuff is worth it, you can buy me a beer in return.
- * -- Lauri Rooden
+ * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
+ * can do whatever you want with this stuff at your own risk. If we meet some 
+ * day, and you think this stuff is worth it, you can buy me a beer in return.
+ * -- Lauri Rooden -- https://github.com/lauriro/boot.js
  */
 
 
@@ -15,13 +15,14 @@
 	var custom = El.cache.fn, rendering  = false;
 
 
-	function custom_init(el){
+	function custom_init(el, data){
+		/*@cc_on el=El.get(el);@*/
 		var template, node = el.firstChild;
-		for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node);
 		if (template = el.getAttribute("data-template")) {
-			El.cache.fn[template].call(el, el);
+			El.cache.fn[template].call(el, el, data);
 			rendering || el.removeAttribute("data-template");
 		}
+		for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data);
 	}
 	function template(id) {
 		var t = this;
@@ -54,7 +55,16 @@
 		parse: function(el, data) {
 			var t = this;
 			t.el.innerHTML = t.fn(data);
-			custom_init(t.el);
+			custom_init(t.el, data);
+/*
+			var node, nodes = t.el.getElementsByTagName("*"), i = 0, template, fn = El.cache.fn;
+			while (node = nodes[i++]) {
+				if (template = node.getAttribute("data-template")) {
+					fn[template].call(node, node, data);
+					rendering || node.removeAttribute("data-template");
+				}
+			}
+			*/
 			/*
 
 			var next, node = t.el, template, fn = El.cache.fn;
@@ -80,13 +90,38 @@
 	El.liquid = function(str) {
 		var s = "var _=[];with(o||{}){_.push('"
 		  + str.replace(/\s+/g, " ")
-		       .replace(/{{\s*((?:[^}]|}(?!}))+)\s*}}/g, function(_,$1){
-		       	 return "',("+$1.replace(/([^|])\|\s*([^|\s:]+)(?:\s*\:\s*([^|]+))?/g,"$1).$2($3")+"),'";
+		       .replace(/{{\s*((?:[^}]|}(?!}))+)\s*}}/g, function(_, a) {
+		       	 return "',(" + a.replace(/([^|])\|\s*([^|\s:]+)(?:\s*\:([^|]+))?/g, "$1).$2($3") + "),'";
 		       })
-		       .replace(/{%\s*if\s((?:[^%]|%(?!}))+)%}/g, "');if($1){_.push('")
-		       .replace(/{%\s*for\s*\(\s*(?:var)?\s*([^}]+)\)\s*%}/g, "');for (var $1) {_.push('")
-		       .replace(/{%\s*for\s(\w+)\sin\s([^}]*?)(?: limit:(\d))?(?: offset:(\d))?\s*%}/g, "');var _1=o.$2||{}, offset=$4+0, limit=$3+0, i=0; if(_1)for(var _2 in _1)if(_1.hasOwnProperty(_2)) {if(offset&&offset--)continue;i++;if(limit&&i>limit)break;var $1=_1[_2];_.push('")
-		       .replace(/{%\s*(endif|endfor)\s*%}/g, "')};_.push('")
+		       //.replace(/{%\s*for\s(\w+)\sin\s([^}]*?)(?: limit:(\d))?(?: offset:(\d))?\s*%}/g, "');var _1=o.$2||{}, offset=$4+0, limit=$3+0, i=0; if(_1)for(var _2 in _1)if(_1.hasOwnProperty(_2)) {if(offset&&offset--)continue;i++;if(limit&&i>limit)break;var $1=_1[_2];_.push('")
+		       .replace(/{%\s*(if|for)?\s*((?:[^%]|%(?!}))+)%}/g, function(_, a, b, m) {
+		       	 if (a) {
+		       	 	 if (m = b.match(/^(\w+) in (\w+)?/)) {
+		       	 	 	 a = "var limit,offset,i=0,w,q="+(m[2]?"o."+m[2]+"||{}":"")+b.slice(m[0].length).replace(/^ (limit|offset):(\d+)/ig, ";$1=$2")+";if(q)for";
+		       	 	 	 b = "w in q)if(q.hasOwnProperty(w)){if(offset&&offset--)continue;i++;if(limit&&i>limit)break;var "+m[1]+"=q[w];"
+		       	 	 	 m = "";
+
+		       	 	 	 /*
+
+		       	 	 	 a = "var limit,offset,i=0,w,q=";
+		       	 	 	 if(m[2])a += "o."+m[2]+"||{}";
+		       	 	 	 a += b.slice(m[0].length).replace(/^ (limit|offset):(\d+)/ig, ";$1=$2")+";if(q)for";
+		       	 	 	 b = "w in q)if(q.hasOwnProperty(w)){if(offset&&offset--)continue;i++;if(limit&&i>limit)break;var "+m[1]+"=q[w];"
+		       	 	 	 m = "";
+		       	 	 	 /*
+
+		       	 	 	 a = "";
+		       	 	 	 b = b.slice(m[0].length).replace(/^ (limit|offset):(\d+)/ig, function(_,n,v){a+=";"+n+"="+v;return""});
+		       	 	 	 a = "var limit,offset,i=0,w,q="+(m[2]?"o."+m[2]+"||{}":b)+a+";if(q)for";
+		       	 	 	 b = "w in q)if(q.hasOwnProperty(w)){if(offset&&offset--)continue;i++;if(limit&&i>limit)break;var "+m[1]+"=q[w];"
+		       	 	 	 m = "";
+		       	 	 	 */
+		       	 	 } else m = "){";
+		       	 }
+		       	 //if (a) return "');"+a+"("+b.replace(/^\s*\(|\)\s*$/g,"")+"){_.push('"
+		       	 //return "')};_.push('"
+		       	 return (a ? "');"+a+"("+b.replace(/^\(|\)\s*$/g,"")+m : "')};") + "_.push('";
+		       })
 		  + "')}return _.join('')";
 		
 		//console.log('str',s);
@@ -94,18 +129,18 @@
 	}
 
 	El.haml = function(str) {
-		var out = [], parent, i;
+		var root = El("div"), i, parent = root, stack = [-1];
+
 		str.replace(/^( *)((?:[.#%][\w:\-]+)+)?(\{.*\})? ?(.*)$/igm, function(all, indent, name, args, text) {
 			if (all) {
 				var el, m;
 				i = indent.length;
-					while (parent && i <= parent._i) {
-
-						//delete parent._i;
-
-						if ("haml_done" in parent) parent.haml_done();
-						parent = parent._parent || parent.parentNode;
-					}
+				while (i <= stack[0]) {
+					stack.shift();
+					
+					if ("haml_done" in parent) parent.haml_done();
+					parent = parent._parent || parent.parentNode;
+				}
 
 				if (name) {
 					args = args ? JSON.parse(args) : {};
@@ -118,32 +153,26 @@
 						case "template":
 							el = new template(m[2]).el;
 							el._parent = parent
-							el._i = i
-							parent = el
-							return
 						break;
 						case "markdown":
 							//TODO:2011-11-09:lauriro:Write markdown support for haml
 						break;
 						default:
-							el = document.createTextNode( args ? all : text )
+							el = El.text( args ? all : text )
 					}
 				}
 
-				if (indent=="") {
+				!el._parent && parent.append(el);
+				if (el.nodeType !== 3) {
 					parent = el;
-					"nodeType" in el && out.push(el);
-				} else {
-					parent.append(el);
-					if (el.nodeType !== 3) {
-						el._i = i;
-						parent = el;
-					}
+					stack.unshift(i)
 				}
 			}
 			return "";
 		});
-		return out.length === 1 ? out[0] : out;
+		//console.log("root",root)
+		i = root.childNodes;
+		return i.length == 1 ? i[0] : Array.from(i);
 	}
 
 	El.render = function(id, data, parent) {

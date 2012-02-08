@@ -1,0 +1,6 @@
+
+Thanks for acknowledgments (ordered by alphabet).
+
+  * Andrea Giammarchi, @WebReflection - JSONH [https://github.com/WebReflection/JSONH]  [jsonh.js:14]
+  * Juriy Zaytsev - Global eval [http://perfectionkills.com/global-eval-what-are-the-options/] [boot.js:854]
+  * Oliver Steele - String lambdas [http://osteele.com/javascripts/functional] [boot.js:359]

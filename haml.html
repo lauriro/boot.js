@@ -8,23 +8,23 @@
   = template hello
     %h3 Hello!
   %fieldset
-    {% for product in products %}
-      %h3 {{ product.title | capitalize }} with {{ product.title.length }} letter.
+    {% for product in products limit:2 %}
+      %h3 {{ product.title | capitalize | upcase }} with {{ product.title.length }} letter.
       %toggle{"secarea":"{{ product.title.length }}"}
-      {{ product.description }}
+      {{ product.description || "kirjelduseta" }}
+      {% if !product.description %}
+        %h6 a sa v6id kirjutada yhe
+      {% %}
     {% endfor %}
   %h2 People at Home
   %fieldset
-  {% for name in ['Bob','Joe','Jane','Jake'] limit:3 %}
-    .row {{ i }}. {{ name }} {{ name | upcase }} {{ name | downcase }}
-    %hello
-  {% endfor %}
+    {% for name in ["Pete", "Joe"] %}
+      .row {{ name | upcase }}
+    {% endfor %}
   .body
-    long long long text with long long long
-    long long long text with long long long
-    long long long text with long long long
-    long long long text with long long long
-    long long long text with long long long
+    {% for (var i = 50; i--;) %}
+      long long long text with long long long
+    {% %}
 </script>
 
 <script type="text/javascript" src="boot.js"></script>
@@ -43,7 +43,7 @@ El.cache(
 	}
 );
 //load(["haml.js"], function(){
-	var data = {products:[{title:"esimene toode",description:"koos kirjeldusega"},{title:"teine toode"}]};
+	var data = {products:[{title:"esimene toode",description:"koos kirjeldusega"},{title:"teine toode"},{title:"kolmas"}]};
 
 	El.render("index");
 	document.body.append( El("index", data))

@@ -42,7 +42,8 @@ body{
 <script type="text/javascript" src="../../min.js">
 
 load(["haml.js", "el/app.js", "el/scroll/scroll.js"], function(){
-	var box=El('scroll').css({margin:'0px',height:'100%',background:'#fff'}).to(document.body);
+	var box=El('scroll');
+	document.body.append(box)
 	var arr = [];
 
 	for(var i = 0; i++<40; arr.push(El(".row",[El("img",{src:"../../css/avatar_xlarge.jpeg"}),El("h6","Some Name"),"row "+i])));

@@ -3,10 +3,10 @@
 
 /**
  * THE BEER-WARE LICENSE
- * <lauri@rooden.ee> wrote this file. As long as you retain this notice
- * you can do whatever you want with this stuff. If we meet some day, and
- * you think this stuff is worth it, you can buy me a beer in return.
- * -- Lauri Rooden
+ * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
+ * can do whatever you want with this stuff at your own risk. If we meet some 
+ * day, and you think this stuff is worth it, you can buy me a beer in return.
+ * -- Lauri Rooden -- https://github.com/lauriro/boot.js
  */
 
 
@@ -15,9 +15,10 @@ El.cache(
 	"scroll",
 	El.haml(".scroll.rel\n .scrollBox\n .scrollBar.absr.transparent"),
 	function(el){
-		var d = El.get(document)
-		  , body = el.childNodes[0]
-		  , bar = el.childNodes[1]
+		console.log(el)
+		var d = document
+		  , body = el.firstChild
+		  , bar = el.lastChild
 		  , startY, lastMove, pos=0, maxPos, barMult, tick
 		  , inmove;
 
@@ -50,7 +51,10 @@ El.cache(
 				bar.addClass("transparent")
 			}, 800);
 
-			d.on("touchmove mousemove", move, false).on("touchend mouseup", stop, false);
+			Event.remove(d,"mousemove", move)
+			Event.remove(d,"touchmove", move)
+			Event.remove(d,"mouseup", stop);
+			Event.remove(d,"touchend", stop);
 		}
 		el.append_hook = body.append_hook = function(){
 			var barH = el.offsetHeight*el.offsetHeight/body.offsetHeight;
@@ -67,7 +71,10 @@ El.cache(
 			startY = Event.pointerY(e);
 			el.rmClass("inertia");
 			el.append_hook();
-			d.on("touchmove mousemove", move).on("touchend mouseup", stop);
+			Event.add(d, "mousemove", move)
+			Event.add(d, "touchmove", move)
+			Event.add(d, "mouseup", stop);
+			Event.add(d, "touchend", stop);
 		}).on("mousewheel", function(e, delta){
 			Event.stop(e);
 			el.append_hook();
@@ -76,7 +83,7 @@ El.cache(
 		});
 
 		El.noselect(el);
-		El.fill(el);
+		//El.fill(el);
 	}
 );
 

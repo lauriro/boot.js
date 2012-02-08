@@ -3,85 +3,72 @@
 
 /**
  * THE BEER-WARE LICENSE
- * <lauri@rooden.ee> wrote this file. As long as you retain this notice
- * you can do whatever you want with this stuff. If we meet some day, and
- * you think this stuff is worth it, you can buy me a beer in return.
- * -- Lauri Rooden
+ * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
+ * can do whatever you want with this stuff at your own risk. If we meet some 
+ * day, and you think this stuff is worth it, you can buy me a beer in return.
+ * -- Lauri Rooden -- https://github.com/lauriro/boot.js
  */
 
 
 
-var Model = Fn.extend(Fn.Events, {
-	init: function(name) {
-		var t = this;
-		t.name = name;
-		t.items = [];
-	},
-	add: function(item, pos) {
-		var t = this;
-		item instanceof t.Item || (item = new t.Item(item));
-		if (item.models.indexOf(t) > -1) return false;
-		item.models.push(t);
-		pos = pos === void 0 ? pos : t.items.indexFor(item, t.sortFn);
-		t.items.splice(pos , 0, item);
-		t.trigger("add", item, pos);
-		return t;
-	},
-	remove: function(item) {
-		var t = this, m = item.models;
-		if (m.length != m.remove(t).length) {
-			t.items.remove(item);
-			t.trigger("remove", item);
-		}
-	},
-	first: function(fn) {
-		var t = this, item = t.items[0];
-		return fn ? (item && fn(item), t) : item;
-	},
-	each: function(fn) {
-		var t = this;
-		/*, arr = t.items, i = 0, len = arr.length;
-		while (i<len) fn(arr[i].data, i++);*/
-		t.items.forEach(fn, t);
-		return t;
-	},
-	on_empty: function(fn) {
-		0 in this.items || fn();
-		return this;
-	},
-	toString: function() {
-		return "[Model: " + this.name +"]";
-	}
-});
-
-
-Model.Item = Model.prototype.Item = Fn.extend(Fn.Events, {
+var Model = Fn.Init.extend(Fn.Events, {
 	init: function(data) {
-		this.data = data;
-		this.previous = {};
-		this.models = [];
+		var t = this;
+		t.data = data;
+		t.previous = {};
+		t.lists = [];
 	},
-	set: function(args) {
+	set: function(args, silent) {
 		var t = this, d = t.data, changed = [];
 		for (var arg in args) if ( args.hasOwnProperty(arg) ) {
 			if (arg in d && d[arg] === args[arg]) continue;
-			previous[arg] = d[arg];
+			t.previous[arg] = d[arg];
 			d[arg] = args[arg];
 			changed.push(arg);
 		}
-		if (changed.length) {
-			t.trigger("changed", changed);
+		if (!silent && changed.length) {
+			t.trigger("change", changed);
 		}
 		return changed;
 	},
 	get: function(name) {
 		return this.data[name];
 	}
-});
+}).cache(true, function(a){return a[0]["id"]});
 
-Model.Filter = Fn.extend({
+var List = Fn.Init.extend(Fn.Items, Fn.Events, {
+	init: function(name) {
+		var t = this;
+		t.name = name;
+		t.items = [];
+	},
+	model: Model,
+	add: function(data, pos) {
+		var t = this, item = data;
+		item instanceof t.model || (item = t.model(data), item.set(data, true));
+		if (item.lists.indexOf(t) > -1) return false;
+		item.lists.push(t);
+		pos = pos !== void 0 ? pos : t.items.indexFor(item, t.sortFn, t);
+		t.items.splice(pos , 0, item);
+		t.trigger("add", item, pos);
+		return t;
+	},
+	remove: function(item) {
+		var t = this, m = item.lists;
+		if (m.length != m.remove(t).length) {
+			t.items.remove(item);
+			t.trigger("remove", item);
+		}
+	},
+	toString: function() {
+		return "[List: " + this.name +"]";
+	}
+}).cache(true);
+
+
+List.Filter = Fn.Init.extend({
 	init: function(str) {
-		var slash = function(input) {
+		var t = this, slash = function(input) {
 			if ( /[^0-9]/.test(input) ) input = '"' + input + '"';
 			return input;
 		}
@@ -128,15 +115,15 @@ Model.Filter = Fn.extend({
 		)
 
 		if (rules.length > 0) {
-			this.str = rules;
-			this.test = new Function("i", "return i&&" + rules);
+			t.str = rules;
+			t.test = new Function("i", "return i&&" + rules);
 		}
 	},
 	test: Fn.True,
 	str: "all",
 	subset: function(target) {
 		// TODO:2011-11-07:lauriro:Find better way to compare filters.
-		return target.str === "all" || target.str.indexOf(this.str) !== -1;
+		return target.str == "all" || this.str.indexOf(target.str) !== -1;
 	},
 	toString: function() {
 		return "[Filter: " + this.str +"]";
@@ -145,64 +132,24 @@ Model.Filter = Fn.extend({
 
 
 
+/** Tests
+!function(){
+	var test = new TestCase("Model");
 
-// View
-function V(name, args, parent) {
-	var args = args || {}
-	args.name = name
-	El("view", args, parent || Stack.open(name) )
-}
+	var sortedList = List.extend({sortFn: function(a, b){return a.get("id") - b.get("id")}});
+	var list = sortedList("test");
 
+	list.add({id:1})
+	list.add({id:3})
+	list.add({id:2})
+	list.add({id:3})
 
-// Controller
-function C(name){
-	if (name in this) return this[name].apply(null, Array.prototype.slice.call(arguments,1))
-}
+	test.compare(
+	  list.pluck("id").join(",")
+	, "1,2,3"
+	, "List.add");
 
-
-
-
-
-
-
-El.cache(
-	"view"
-, El("div", { className:"view" })
-, function() {
-  	var cache = {}
-  	  , opened = []
-
-  	//M.broadcast = function(event, view_name){
-  	//	var len = opened.length, view
-  	//	while ( view = opened[--len] ) {
-  	//		if (!view_name || view_name == view.name) "handle" in view && view.handle( event )
-  	//	}
-  	//}
-
-  	return function build_view(el) {
-  		var name = el.name
-
-  		if (name in cache === false) {
-  			var req = new XMLHttpRequest()
-  			req.open("GET", "views/" + name + ".js" + "?r=" + Math.random(), false)
-  			req.send()
-  			if (req.status === 200) {
-  				cache[name] = eval("(function(el){"+req.responseText+"})")
-				}
-  		}
-  		cache[name](el)
-
-  		opened.push(el)
-
-  		el.kill_hook = function() {
-  			var key = opened.indexOf( el )
-  			key !== -1 && opened.splice(key, 1)
-  			"close_hook" in el && el.close_hook()
-  		}
-  		
-  	}
-  }()
-)
-
-
+	test.done();
+}()
+//*/
 

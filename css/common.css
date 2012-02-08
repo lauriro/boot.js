@@ -51,6 +51,10 @@ a img {border:0}
 
 /*
 global classes
+
+// cross-browser min-width hack:
+.minwidth { min-width:100px; width: auto !important; width: 100px; }
+
 */
 .hidden {
 	display:none !important;
