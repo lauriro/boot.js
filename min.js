@@ -1,42 +1,14 @@
 !function(w,d,P){
-var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=function(n){return n>9?n:"0"+n},p3=function(n){return(n>99?n:(n>9?"0":"00")+n)},jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},a,b,c
+var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=function(n){return n>9?n:"0"+n},p3=function(n){return(n>99?n:(n>9?"0":"00")+n)},I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},a,b,c
 /*@cc_on
 I(w,"XMLHttpRequest","a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')")
 try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/
-a=Array
-I(a,"slice","return x.apply(y,arguments)",[F.call,A.slice])
-I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
-I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
-a=Object
-I(a,"create","x[y]=a;return new x",[function(){},P])
-I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
-I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
-a="var t=this,l=t.length,o=[],i=-1;"
-c="if(t[i]===a)return i;return -1"
-I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
-I(A,"lastIndexOf",a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c)
-b=a+"if(arguments.length<2)b=t"
-c="b=a.call(null,b,t[i],i,t);return b"
-I(A,"reduce",b+"[++i];while(++i<l)"+c)
-I(A,"reduceRight",b+"[--l];i=l;while(i--)"+c)
-b=a+"while(++i<l)if(i in t)"
-I(A,"forEach",b+"a.call(b,t[i],i,t)")
-I(A,"every",b+"if(!a.call(b,t[i],i,t))return!1;return!0")
-c=";return o"
-I(A,"map",b+"o[i]=a.call(b,t[i],i,t)"+c)
-b+="if(a.call(b,t[i],i,t))"
-I(A,"filter",b+"o.push(t[i])"+c)
-I(A,"some",b+"return!0;return!1")
-I(A,"remove",a+"o=x.call(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[A.slice])
-I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
-A.unique=function(){
-return "s i a -> i == a.lastIndexOf(s)".filter(this)}
-F.curry=function(){
-var t=this,a=Array.slice(arguments,0)
-return a.length?function(){return t.apply(this,a.concat(Array.slice(arguments,0)));}:t}
-S.trim=S.trim||S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c",[A.slice,P])
+var sl=F.call.bind(A.slice)
+F.curry=function(){
+var t=this,a=sl(arguments)
+return a.length?function(){return t.apply(this,a.concat(sl(arguments)))}:t}
 F.construct=function(a){
 return new(F.bind.apply(this,A.concat.apply([null],a)))}
 F.clone=function(){
@@ -57,25 +29,15 @@ var t=this,f=t.clone(),i=0,e
 f[P]=Object.create(t[P])
 while(e=arguments[i++])for(t in e)if(e.hasOwnProperty(t))f[P][t]=e[t];
 return f}
-F.guard=function(guard,otherwise){
-var t=this,f=guard.fn(),o=(otherwise||function(){}).fn()
-return function(){
-return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
-F.byWords=function(i){
-var t=this
-i|=0
-return function(){
-var s=this,a=arguments,r
-a[i].replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
-return r}}
+S.trim=S.trim||S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 var lambda=function(s){
 var a=[],t=s.split("->")
-if(t.length>1){
-while(t.length){
+if(t.length>1)while(t.length){
 s=t.pop()
-a=t.pop().trim().split(/[\s,]+/m)
-t.length&&t.push("(function("+a+"){return ("+s+")})")}
-}else{
+a=t.pop().trim().split(/[\s,]+/)
+t.length&&t.push("(function("+a+"){return ("+s+")})")
+}else if(s.match(/\b_\b/))a="_"
+else{
 if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){
 a.push("$1")
 s="$1"+s}
@@ -90,6 +52,47 @@ S.fn=function(){
 return lambda(this)}
 F.fn=function(){
 return this}
+a=Array
+I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
+I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
+a=Object
+I(a,"create","x[y]=a;return new x",[function(){},P])
+I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
+I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
+a.merge=function(main){
+var o,i=1,k
+while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
+return main}
+a="var t=this,l=t.length,o=[],i=-1;"
+c="if(t[i]===a)return i;return -1"
+I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
+I(A,"lastIndexOf",a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c)
+b=a+"if(arguments.length<2)b=t"
+c="b=a.call(null,b,t[i],i,t);return b"
+I(A,"reduce",b+"[++i];while(++i<l)"+c)
+I(A,"reduceRight",b+"[--l];i=l;while(i--)"+c)
+b=a+"while(++i<l)if(i in t)"
+I(A,"forEach",b+"a.call(b,t[i],i,t)")
+I(A,"every",b+"if(!a.call(b,t[i],i,t))return!1;return!0")
+c=";return o"
+I(A,"map",b+"o[i]=a.call(b,t[i],i,t)"+c)
+b+="if(a.call(b,t[i],i,t))"
+I(A,"filter",b+"o.push(t[i])"+c)
+I(A,"some",b+"return!0;return!1")
+I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
+I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
+A.unique=A.filter.curry(function(s,i,a){return i==a.lastIndexOf(s)})
+F.guard=function(guard,otherwise){
+var t=this,f=guard.fn(),o=(otherwise||function(){}).fn()
+return function(){
+return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
+F.byWords=function(i){
+var t=this
+i|=0
+return function(){
+var s=this,a=arguments,r
+a[i].replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
+return r}}
 !function(n){
 F[n]=S[n]=function(){
 var t=this,a=arguments,arr=a[0]
@@ -200,6 +203,7 @@ if(d<a[0]){
 while(d>a[--i]);d/=a[i+1];
 return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
 return this.format(format)}
+var jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 "JSON"in w||eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}")
 var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){

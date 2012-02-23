@@ -15,7 +15,6 @@
 	var A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
 	  , p2 = function(n){return n>9?n:"0"+n}
 	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
-	  , jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 	  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
 	  , a, b, c; // Reusable
 
@@ -34,79 +33,17 @@
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
 
-	/* ECMAScript 5 stuff */
 
-	a = Array;
-
-	I(a, "slice"  , "return x.apply(y,arguments)", [F.call, A.slice]);
-	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
-	// Non-standard
-	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
-
-	a = Object;
-	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
-	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
-	// Non-standard
-	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	// We need bind in beginning, other ECMAScript 5 stuff will come later
 	
-	a = "var t=this,l=t.length,o=[],i=-1;";
-	c = "if(t[i]===a)return i;return -1";
-
-	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
-	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
-
-	b = a+"if(arguments.length<2)b=t";
-	c = "b=a.call(null,b,t[i],i,t);return b";
-	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
-	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
-
-	b = a+"while(++i<l)if(i in t)";
-	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
-	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
-
-	c = ";return o";
-	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
-
-	b += "if(a.call(b,t[i],i,t))";
-	I(A, "filter",      b+"o.push(t[i])"+c);
-	I(A, "some",        b+"return!0;return!1");
-
-	// Non-standard
-	I(A, "remove",   a+"o=x.call(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [A.slice]);
-	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
-
-
-
-	A.unique = function(){
-  	//** lambda
-		return "s i a -> i == a.lastIndexOf(s)".filter(this);
-		/*/
-		return this.filter(function(s, i, a){ return i == a.lastIndexOf(s); });
-		//*/
-	}
-	/*
-	Array.flatten = function(arr){
-		for(var i=arr.length;i--;)
-			Array.isArray(arr[i]) && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
-		return arr
-	};
-	flat([1,2,[3,4,[5,6]],7]);
-	*/
-
-	
-	//** Function extensions
-
-	F.curry = function() {
-		var t = this, a = Array.slice(arguments, 0);
-		return a.length ? function() {return t.apply(this, a.concat(Array.slice(arguments, 0)));} : t;
-	}
-
-	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
-	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
-
 	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c", [A.slice, P]);
+
+	var sl = F.call.bind(A.slice);
 	
+	F.curry = function() {
+		var t = this, a = sl(arguments);
+		return a.length ? function() {return t.apply(this, a.concat(sl(arguments)))} : t;
+	}
 
 	F.construct = function(a) {
 		return new(F.bind.apply(this, A.concat.apply([null], a)));
@@ -134,13 +71,148 @@
 		f[P] = t[P]; // prototype for better access on extending 
 		return f;
 	}
-
+	
 	F.extend = function() {
 		var t = this, f = t.clone(), i = 0, e;
 		f[P] = Object.create(t[P]);
 		while (e = arguments[i++]) for (t in e) if (e.hasOwnProperty(t)) f[P][t] = e[t];
 		return f;
 	}
+	
+
+	/* ECMAScript 5 stuff */
+
+	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
+	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
+
+
+
+	/* THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
+	 *
+	 * Copyright: Copyright 2007 by Oliver Steele.  All rights reserved.
+	 * License: MIT License
+	 * Homepage: http://osteele.com/javascripts/functional
+	 * Created: 2007-07-11
+	 * Version: 1.0.2
+	 *
+	 * Modified by Lauri Rooden */
+
+	var lambda = function(s) {
+		var a = []
+			, t = s.split("->");
+		
+		if (t.length > 1) while (t.length) {
+			s = t.pop();
+			a = t.pop().trim().split(/[\s,]+/);
+			t.length && t.push("(function("+a+"){return ("+s+")})");
+		} else if (s.match(/\b_\b/)) a = "_";
+		else {
+			// test whether an operator appears on the left (or right), respectively
+			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
+				a.push("$1");
+				s = "$1" + s;
+			}
+			// test whether an operator appears on the right
+			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
+				a.push("$2");
+				s += "$2";
+			} else if (!t) {
+				// `replace` removes symbols that follow '.',
+				// precede ':', are 'this' or 'arguments'; and also the insides of
+				// strings (by a crude test).  `match` extracts the remaining
+				// symbols.
+				a = a.concat( s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
+			}
+		}
+		return new Function(a, "return(" + s + ")");
+	}.cache();
+
+	S.fn = function(){
+		return lambda(this);
+	}
+
+	F.fn = function() {
+		return this;
+	}
+
+	/*
+
+	b = [];
+
+	a = function(x,y){
+		b.push.apply(b, y.split(",").filter(function(n){return !(n in x)}))
+		
+	}
+
+	a(Array, "isArray");
+	a(Object, "create,keys");
+	a(A, "indexOf,lastIndexOf,reduce,reduceRight,forEach,every,map,filter,some")
+	a(D, "toISOString");
+	b.length && alert("missing: "+b.join())
+
+	*/
+
+
+	a = Array;
+
+	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
+	// Non-standard
+	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
+
+	a = Object;
+	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
+	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+	// Non-standard
+	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	a.merge = function(main){
+		var o, i = 1, k;
+		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
+		return main;
+	}
+	/*
+	Array.flatten = function(arr){
+		for(var i=arr.length;i--;)
+			Array.isArray(arr[i]) && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
+		return arr
+	};
+	flat([1,2,[3,4,[5,6]],7]);
+	*/
+
+	
+	a = "var t=this,l=t.length,o=[],i=-1;";
+	c = "if(t[i]===a)return i;return -1";
+
+	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
+	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
+
+	b = a+"if(arguments.length<2)b=t";
+	c = "b=a.call(null,b,t[i],i,t);return b";
+	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
+	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
+
+	b = a+"while(++i<l)if(i in t)";
+	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
+	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
+
+	c = ";return o";
+	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
+
+	b += "if(a.call(b,t[i],i,t))";
+	I(A, "filter",      b+"o.push(t[i])"+c);
+	I(A, "some",        b+"return!0;return!1");
+
+	// Non-standard
+	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl]);
+	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
+	
+	A.unique = A.filter.curry(function(s,i,a){return i == a.lastIndexOf(s)});
+
+
+
+	
+	//** Function extensions
+
 	
 	F.guard = function(guard, otherwise) {
 		var t = this
@@ -160,55 +232,6 @@
 			a[i].replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
 			return r;
 		}
-	}
-
-	/* THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
-	 *
-	 * Copyright: Copyright 2007 by Oliver Steele.  All rights reserved.
-	 * License: MIT License
-	 * Homepage: http://osteele.com/javascripts/functional
-	 * Created: 2007-07-11
-	 * Version: 1.0.2
-	 *
-	 * Modified by Lauri Rooden */
-
-	var lambda = function(s) {
-		var a = []
-			, t = s.split("->");
-		
-		if (t.length > 1) {
-			while (t.length) {
-				s = t.pop();
-				a = t.pop().trim().split(/[\s,]+/m);
-				t.length && t.push("(function("+a+"){return ("+s+")})");
-			}
-		} else {
-			// test whether an operator appears on the left (or right), respectively
-			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
-				a.push("$1");
-				s = "$1" + s;
-			}
-			// test whether an operator appears on the right
-			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
-				a.push("$2");
-				s += "$2";
-			} else if (!t) {
-				// `replace` removes symbols that are capitalized, follow '.',
-				// precede ':', are 'this' or 'arguments'; and also the insides of
-				// strings (by a crude test).  `match` extracts the remaining
-				// symbols.
-				a = a.concat( s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
-			}
-		}
-		return new Function(a, "return(" + s + ")");
-	}.cache();
-
-	S.fn = function(){
-		return lambda(this);
-	}
-
-	F.fn = function() {
-		return this;
 	}
 
 	!function(n){
@@ -499,6 +522,7 @@
 
 
 
+	var jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 
 	"JSON" in w || eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
 
