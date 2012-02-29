@@ -29,14 +29,14 @@
 
 
 	/** hasOwnProperty
-	// hasOwnProperty was unsupported in Safari/WebKit until 2.0.2
+	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
 
 
 	// We need bind in beginning, other ECMAScript 5 stuff will come later
 	
-	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c", [A.slice, P]);
+	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
 
 	var sl = F.call.bind(A.slice);
 	
@@ -122,7 +122,7 @@
 				// precede ':', are 'this' or 'arguments'; and also the insides of
 				// strings (by a crude test).  `match` extracts the remaining
 				// symbols.
-				a = a.concat( s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
+				a = a.concat( s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
 			}
 		}
 		return new Function(a, "return(" + s + ")");
@@ -140,23 +140,23 @@
 
 	b = [];
 
-	a = function(x,y){
-		b.push.apply(b, y.split(",").filter(function(n){return !(n in x)}))
-		
+	a = function(o,s){
+		for(var i=0,n,a=s.split(" ");n=a[i++];)n in o||b.push(n);
 	}
 
 	a(Array, "isArray");
-	a(Object, "create,keys");
-	a(A, "indexOf,lastIndexOf,reduce,reduceRight,forEach,every,map,filter,some")
+	a(Object, "create keys");
+	a(A, "indexOf lastIndexOf reduce reduceRight forEach every map filter some")
 	a(D, "toISOString");
-	b.length && alert("missing: "+b.join())
+	b.length && console.log("missing: "+b.join())
 
-	*/
+	//*/
 
 
 	a = Array;
 
 	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
+	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
 	// Non-standard
 	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
 
@@ -350,9 +350,9 @@
 
 	//** String extensions
 
-	S.format = function() {
-		var a = arguments;
-		return this.replace(/\{(\d+)\}/g, function(_, i){return a[i]});
+	S.format = function(m) {
+		var a = typeof m == "object" ? m : arguments;
+		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
 	}
 
   S.safe = function() {

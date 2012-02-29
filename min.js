@@ -4,7 +4,7 @@ var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=fu
 I(w,"XMLHttpRequest","a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')")
 try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/
-I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c",[A.slice,P])
+I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 var sl=F.call.bind(A.slice)
 F.curry=function(){
 var t=this,a=sl(arguments)
@@ -45,7 +45,7 @@ if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){
 a.push("$2")
 s+="$2"
 }else if(!t){
-a=a.concat(s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g,"").match(/\b[a-z_]\w*/g)).unique()}}
+a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g,"").match(/\b[a-z_]\w*/g)).unique()}}
 return new Function(a,"return("+s+")")
 }.cache()
 S.fn=function(){
@@ -148,9 +148,9 @@ var d=+new Date
 if(d>n){
 n=d+ms
 t.apply(null,arguments)}}}
-S.format=function(){
-var a=arguments
-return this.replace(/\{(\d+)\}/g,function(_,i){return a[i]})}
+S.format=function(m){
+var a=typeof m=="object"?m:arguments
+return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){
 return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
 S.camelCase=S.replace.curry(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
