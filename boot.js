@@ -400,38 +400,59 @@
 
 
 	//** Date.format
+	// ISO 8601 specifies numeric representations of date and time.
+	// The international standard date notation is
+	//
+	// YYYY-MM-DD
+	// The international standard notation for the time of day is
+	//
+	// hh:mm:ss
+	//
+	// Time zone
+	//
+	// The strings
+	//
+	// +hh:mm, +hhmm, or +hh
+	//
+	// can be added to the time to indicate that the used local time zone is hh hours and mm minutes ahead of UTC. For time zones west of the zero meridian, which are behind UTC, the notation
+	//
+	// -hh:mm, -hhmm, or -hh
+	//
+	// is used instead. For example, Central European Time (CET) is +0100 and U.S./Canadian Eastern Standard Time (EST) is -0500. The following strings all indicate the same point of time:
+	//
+	// 12:00Z = 13:00+01:00 = 0700-0500
 
 	D.format = function(_) {
 		var t = this
 		  , x = D.format.masks[_] || _ || D.format.masks["default"]
 		  , g = "get" + (x.slice(0,4) == "UTC:" ? (x=x.slice(4), "UTC"):"")
-		  , y = g + "FullYear"
-		  , m = g + "Month"
+		  , Y = g + "FullYear"
+		  , M = g + "Month"
 		  , d = g + "Date"
 		  , w = g + "Day"
 		  , h = g + "Hours"
-		  , M = g + "Minutes"
+		  , m = g + "Minutes"
 		  , s = g + "Seconds"
 		  , S = g + "Milliseconds";
 
-		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(yy(yy)?|m{1,4}|d{1,4}|([HhMsS])\5?|[uUaAZ])/g,
+		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZ])/g,
 			function(a, b, c) {
-				return a == "yy"   ? (""+t[y]()).slice(2)
-				     : a == "yyyy" ? t[y]()
-				     : a == "m"    ? t[m]()+1
-				     : a == "mm"   ? p2(t[m]()+1)
-				     : a == "mmm"  ? D.monthNames[ t[m]() ]
-				     : a == "mmmm" ? D.monthNames[ t[m]()+12 ]
-				     : a == "d"    ? t[d]()
-				     : a == "dd"   ? p2(t[d]())
-				     : a == "ddd"  ? D.dayNames[ t[w]() ]
-				     : a == "dddd" ? D.dayNames[ t[w]()+7 ]
-				     : a == "h"    ? (""+t[h]()%12||12)
-				     : a == "hh"   ? p2(t[h]()%12||12)
-				     : a == "H"    ? t[h]()
-				     : a == "HH"   ? p2(t[h]())
-				     : a == "M"    ? t[M]()
-				     : a == "MM"   ? p2(t[M]())
+				return a == "YY"   ? (""+t[Y]()).slice(2)
+				     : a == "YYYY" ? t[Y]()
+				     : a == "M"    ? t[M]()+1
+				     : a == "MM"   ? p2(t[M]()+1)
+				     : a == "MMM"  ? D.monthNames[ t[M]() ]
+				     : a == "MMMM" ? D.monthNames[ t[M]()+12 ]
+				     : a == "D"    ? t[d]()
+				     : a == "DD"   ? p2(t[d]())
+				     : a == "DDD"  ? D.dayNames[ t[w]() ]
+				     : a == "DDDD" ? D.dayNames[ t[w]()+7 ]
+				     : a == "H"    ? (""+t[h]()%12||12)
+				     : a == "HH"   ? p2(t[h]()%12||12)
+				     : a == "h"    ? t[h]()
+				     : a == "hh"   ? p2(t[h]())
+				     : a == "m"    ? t[m]()
+				     : a == "mm"   ? p2(t[m]())
 				     : a == "s"    ? t[s]()
 				     : a == "ss"   ? p2(t[s]())
 				     : a == "S"    ? t[S]()
@@ -447,9 +468,10 @@
 		)
 	}
 
-	D.format.masks = {"default":"ddd mmm dd yyyy HH:MM:ss","isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'};
+	D.format.masks = {"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'};
 	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ");
 	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
+
 
 	I(D, "toISOString", "return this.format('isoUtcDateTime')");
 	/*/
@@ -494,9 +516,19 @@
 	//*/
 
 
-	N.human = function(steps, units){
+	N.words = S.words = function(steps, units, strings){
+		var n = +this
+		  , i = 0
+		  , s = strings || {"default":"{0} {1}"};
 		
+		while(n>steps[i])n/=steps[i++];
+		i=units[i];
+		return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
 	}
+
+	S.humanSize = N.humanSize = N.words.curry([1024,1024,1024],["byte","KB","MB","GB"])
+	S.humanTime = N.humanTime = N.words.curry([60,60,24],["sec","min","hour","day"])
+
 
 
 	//** Date.pretty convert dates to human-readable
@@ -1164,9 +1196,9 @@
 	, "1276695955012"
 	, d2.format("isoUtcDateTime")
 	, "2001-09-09T01:46:40Z"
-	, d2.format("UTC:h:MM A")
+	, d2.format("UTC:H:mm A")
 	, "1:46 AM"
-	, d2.format("yy A")
+	, d2.format("YY A")
 	, "01 AM"
 	, d3.format("isoUtcDateTime")
 	, "2009-02-13T23:31:30Z"
