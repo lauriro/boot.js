@@ -406,6 +406,9 @@
 	// YYYY-MM-DD
 	// The international standard notation for the time of day is
 	//
+	// TODO:2012-03-05:lauriro:Date week number not complete
+	// http://en.wikipedia.org/wiki/ISO_week_date
+	//
 	// hh:mm:ss
 	//
 	// Time zone
@@ -435,7 +438,7 @@
 		  , s = g + "Seconds"
 		  , S = g + "Milliseconds";
 
-		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZ])/g,
+		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZw])/g,
 			function(a, b, c) {
 				return a == "YY"   ? (""+t[Y]()).slice(2)
 				     : a == "YYYY" ? t[Y]()
@@ -462,6 +465,7 @@
 				     : a == "a"    ? (t[h]() > 11 ? "pm" : "am")
 				     : a == "A"    ? (t[h]() > 11 ? "PM" : "AM")
 				     : a == "Z"    ? "GMT " + (-t.getTimezoneOffset()/60)
+				     : a == "w"    ? 1+Math.floor((t - new Date(t[Y](),0,4))/604800000)
 				     : b           ? c
 				     : a;
 			}
