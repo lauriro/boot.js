@@ -228,8 +228,8 @@
 		var t = this;
 		i |= 0;
 		return function() {
-			var s = this, a = arguments, r;
-			a[i].replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
+			var s = this, r = s, a = arguments;
+			;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
 			return r;
 		}
 	}
