@@ -15,7 +15,6 @@
 	var A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
 	  , p2 = function(n){return n>9?n:"0"+n}
 	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
-	  , jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 	  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
 	  , a, b, c; // Reusable
 
@@ -30,83 +29,21 @@
 
 
 	/** hasOwnProperty
-	// hasOwnProperty was unsupported in Safari/WebKit until 2.0.2
+	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
 
-	/* ECMAScript 5 stuff */
 
-	a = Array;
-
-	I(a, "slice"  , "return x.apply(y,arguments)", [F.call, A.slice]);
-	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
-	// Non-standard
-	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
-
-	a = Object;
-	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
-	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
-	// Non-standard
-	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	// We need bind in beginning, other ECMAScript 5 stuff will come later
 	
-	a = "var t=this,l=t.length,o=[],i=-1;";
-	c = "if(t[i]===a)return i;return -1";
+	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
 
-	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
-	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
-
-	b = a+"if(arguments.length<2)b=t";
-	c = "b=a.call(null,b,t[i],i,t);return b";
-	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
-	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
-
-	b = a+"while(++i<l)if(i in t)";
-	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
-	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
-
-	c = ";return o";
-	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
-
-	b += "if(a.call(b,t[i],i,t))";
-	I(A, "filter",      b+"o.push(t[i])"+c);
-	I(A, "some",        b+"return!0;return!1");
-
-	// Non-standard
-	I(A, "remove",   a+"o=x.call(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [A.slice]);
-	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
-
-
-
-	A.unique = function(){
-  	//** lambda
-		return "s i a -> i == a.lastIndexOf(s)".filter(this);
-		/*/
-		return this.filter(function(s, i, a){ return i == a.lastIndexOf(s); });
-		//*/
-	}
-	/*
-	Array.flatten = function(arr){
-		for(var i=arr.length;i--;)
-			Array.isArray(arr[i]) && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
-		return arr
-	};
-	flat([1,2,[3,4,[5,6]],7]);
-	*/
-
+	var sl = F.call.bind(A.slice);
 	
-	//** Function extensions
-
 	F.curry = function() {
-		var t = this, a = Array.slice(arguments, 0);
-		return a.length ? function() {return t.apply(this, a.concat(Array.slice(arguments, 0)));} : t;
+		var t = this, a = sl(arguments);
+		return a.length ? function() {return t.apply(this, a.concat(sl(arguments)))} : t;
 	}
-
-	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
-	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
-
-	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};c[y]=t[y];return c", [A.slice, P]);
-	
 
 	F.construct = function(a) {
 		return new(F.bind.apply(this, A.concat.apply([null], a)));
@@ -134,7 +71,7 @@
 		f[P] = t[P]; // prototype for better access on extending 
 		return f;
 	}
-
+	
 	F.extend = function() {
 		var t = this, f = t.clone(), i = 0, e;
 		f[P] = Object.create(t[P]);
@@ -142,25 +79,14 @@
 		return f;
 	}
 	
-	F.guard = function(guard, otherwise) {
-		var t = this
-		  , f = guard.fn()
-		  , o = (otherwise||function(){}).fn();
 
-		return function() {
-			return (f.apply(this, arguments) ? t : o).apply(this, arguments);
-		}
-	}
+	/* ECMAScript 5 stuff */
 
-	F.byWords = function(i) {
-		var t = this;
-		i |= 0;
-		return function() {
-			var s = this, a = arguments, r;
-			a[i].replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
-			return r;
-		}
-	}
+	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
+	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
+
+
 
 	/* THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 	 *
@@ -176,13 +102,12 @@
 		var a = []
 			, t = s.split("->");
 		
-		if (t.length > 1) {
-			while (t.length) {
-				s = t.pop();
-				a = t.pop().trim().split(/[\s,]+/m);
-				t.length && t.push("(function("+a+"){return ("+s+")})");
-			}
-		} else {
+		if (t.length > 1) while (t.length) {
+			s = t.pop();
+			a = t.pop().trim().split(/[\s,]+/);
+			t.length && t.push("(function("+a+"){return ("+s+")})");
+		} else if (s.match(/\b_\b/)) a = "_";
+		else {
 			// test whether an operator appears on the left (or right), respectively
 			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
 				a.push("$1");
@@ -193,11 +118,11 @@
 				a.push("$2");
 				s += "$2";
 			} else if (!t) {
-				// `replace` removes symbols that are capitalized, follow '.',
+				// `replace` removes symbols that follow '.',
 				// precede ':', are 'this' or 'arguments'; and also the insides of
 				// strings (by a crude test).  `match` extracts the remaining
 				// symbols.
-				a = a.concat( s.replace(/'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
+				a = a.concat( s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
 			}
 		}
 		return new Function(a, "return(" + s + ")");
@@ -209,6 +134,104 @@
 
 	F.fn = function() {
 		return this;
+	}
+
+	/*
+
+	b = [];
+
+	a = function(o,s){
+		for(var i=0,n,a=s.split(" ");n=a[i++];)n in o||b.push(n);
+	}
+
+	a(Array, "isArray");
+	a(Object, "create keys");
+	a(A, "indexOf lastIndexOf reduce reduceRight forEach every map filter some")
+	a(D, "toISOString");
+	b.length && console.log("missing: "+b.join())
+
+	//*/
+
+
+	a = Array;
+
+	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
+	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
+	// Non-standard
+	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
+
+	a = Object;
+	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
+	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+	// Non-standard
+	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	a.merge = function(main){
+		var o, i = 1, k;
+		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
+		return main;
+	}
+	/*
+	Array.flatten = function(arr){
+		for(var i=arr.length;i--;)
+			Array.isArray(arr[i]) && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
+		return arr
+	};
+	flat([1,2,[3,4,[5,6]],7]);
+	*/
+
+	
+	a = "var t=this,l=t.length,o=[],i=-1;";
+	c = "if(t[i]===a)return i;return -1";
+
+	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
+	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
+
+	b = a+"if(arguments.length<2)b=t";
+	c = "b=a.call(null,b,t[i],i,t);return b";
+	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
+	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
+
+	b = a+"while(++i<l)if(i in t)";
+	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
+	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
+
+	c = ";return o";
+	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
+
+	b += "if(a.call(b,t[i],i,t))";
+	I(A, "filter",      b+"o.push(t[i])"+c);
+	I(A, "some",        b+"return!0;return!1");
+
+	// Non-standard
+	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl]);
+	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
+	
+	A.unique = A.filter.curry(function(s,i,a){return i == a.lastIndexOf(s)});
+
+
+
+	
+	//** Function extensions
+
+	
+	F.guard = function(guard, otherwise) {
+		var t = this
+		  , f = guard.fn()
+		  , o = (otherwise||function(){}).fn();
+
+		return function() {
+			return (f.apply(this, arguments) ? t : o).apply(this, arguments);
+		}
+	}
+
+	F.byWords = function(i) {
+		var t = this;
+		i |= 0;
+		return function() {
+			var s = this, r = s, a = arguments;
+			;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
+			return r;
+		}
 	}
 
 	!function(n){
@@ -327,9 +350,9 @@
 
 	//** String extensions
 
-	S.format = function() {
-		var a = arguments;
-		return this.replace(/\{(\d+)\}/g, function(_, i){return a[i]});
+	S.format = function(m) {
+		var a = typeof m == "object" ? m : arguments;
+		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
 	}
 
   S.safe = function() {
@@ -377,38 +400,62 @@
 
 
 	//** Date.format
+	// ISO 8601 specifies numeric representations of date and time.
+	// The international standard date notation is
+	//
+	// YYYY-MM-DD
+	// The international standard notation for the time of day is
+	//
+	// TODO:2012-03-05:lauriro:Date week number not complete
+	// http://en.wikipedia.org/wiki/ISO_week_date
+	//
+	// hh:mm:ss
+	//
+	// Time zone
+	//
+	// The strings
+	//
+	// +hh:mm, +hhmm, or +hh
+	//
+	// can be added to the time to indicate that the used local time zone is hh hours and mm minutes ahead of UTC. For time zones west of the zero meridian, which are behind UTC, the notation
+	//
+	// -hh:mm, -hhmm, or -hh
+	//
+	// is used instead. For example, Central European Time (CET) is +0100 and U.S./Canadian Eastern Standard Time (EST) is -0500. The following strings all indicate the same point of time:
+	//
+	// 12:00Z = 13:00+01:00 = 0700-0500
 
 	D.format = function(_) {
 		var t = this
 		  , x = D.format.masks[_] || _ || D.format.masks["default"]
 		  , g = "get" + (x.slice(0,4) == "UTC:" ? (x=x.slice(4), "UTC"):"")
-		  , y = g + "FullYear"
-		  , m = g + "Month"
+		  , Y = g + "FullYear"
+		  , M = g + "Month"
 		  , d = g + "Date"
 		  , w = g + "Day"
 		  , h = g + "Hours"
-		  , M = g + "Minutes"
+		  , m = g + "Minutes"
 		  , s = g + "Seconds"
 		  , S = g + "Milliseconds";
 
-		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(yy(yy)?|m{1,4}|d{1,4}|([HhMsS])\5?|[uUaAZ])/g,
+		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZw])/g,
 			function(a, b, c) {
-				return a == "yy"   ? (""+t[y]()).slice(2)
-				     : a == "yyyy" ? t[y]()
-				     : a == "m"    ? t[m]()+1
-				     : a == "mm"   ? p2(t[m]()+1)
-				     : a == "mmm"  ? D.monthNames[ t[m]() ]
-				     : a == "mmmm" ? D.monthNames[ t[m]()+12 ]
-				     : a == "d"    ? t[d]()
-				     : a == "dd"   ? p2(t[d]())
-				     : a == "ddd"  ? D.dayNames[ t[w]() ]
-				     : a == "dddd" ? D.dayNames[ t[w]()+7 ]
-				     : a == "h"    ? (""+t[h]()%12||12)
-				     : a == "hh"   ? p2(t[h]()%12||12)
-				     : a == "H"    ? t[h]()
-				     : a == "HH"   ? p2(t[h]())
-				     : a == "M"    ? t[M]()
-				     : a == "MM"   ? p2(t[M]())
+				return a == "YY"   ? (""+t[Y]()).slice(2)
+				     : a == "YYYY" ? t[Y]()
+				     : a == "M"    ? t[M]()+1
+				     : a == "MM"   ? p2(t[M]()+1)
+				     : a == "MMM"  ? D.monthNames[ t[M]() ]
+				     : a == "MMMM" ? D.monthNames[ t[M]()+12 ]
+				     : a == "D"    ? t[d]()
+				     : a == "DD"   ? p2(t[d]())
+				     : a == "DDD"  ? D.dayNames[ t[w]() ]
+				     : a == "DDDD" ? D.dayNames[ t[w]()+7 ]
+				     : a == "H"    ? (""+t[h]()%12||12)
+				     : a == "HH"   ? p2(t[h]()%12||12)
+				     : a == "h"    ? t[h]()
+				     : a == "hh"   ? p2(t[h]())
+				     : a == "m"    ? t[m]()
+				     : a == "mm"   ? p2(t[m]())
 				     : a == "s"    ? t[s]()
 				     : a == "ss"   ? p2(t[s]())
 				     : a == "S"    ? t[S]()
@@ -418,15 +465,17 @@
 				     : a == "a"    ? (t[h]() > 11 ? "pm" : "am")
 				     : a == "A"    ? (t[h]() > 11 ? "PM" : "AM")
 				     : a == "Z"    ? "GMT " + (-t.getTimezoneOffset()/60)
+				     : a == "w"    ? 1+Math.floor((t - new Date(t[Y](),0,4))/604800000)
 				     : b           ? c
 				     : a;
 			}
 		)
 	}
 
-	D.format.masks = {"default":"ddd mmm dd yyyy HH:MM:ss","isoUtcDateTime":'UTC:yyyy-mm-dd"T"HH:MM:ss"Z"'};
+	D.format.masks = {"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'};
 	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ");
 	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
+
 
 	I(D, "toISOString", "return this.format('isoUtcDateTime')");
 	/*/
@@ -471,9 +520,19 @@
 	//*/
 
 
-	N.human = function(steps, units){
+	N.words = S.words = function(steps, units, strings){
+		var n = +this
+		  , i = 0
+		  , s = strings || {"default":"{0} {1}"};
 		
+		while(n>steps[i])n/=steps[i++];
+		i=units[i];
+		return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
 	}
+
+	S.humanSize = N.humanSize = N.words.curry([1024,1024,1024],["byte","KB","MB","GB"])
+	S.humanTime = N.humanTime = N.words.curry([60,60,24],["sec","min","hour","day"])
+
 
 
 	//** Date.pretty convert dates to human-readable
@@ -499,6 +558,7 @@
 
 
 
+	var jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 
 	"JSON" in w || eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
 
@@ -1140,9 +1200,9 @@
 	, "1276695955012"
 	, d2.format("isoUtcDateTime")
 	, "2001-09-09T01:46:40Z"
-	, d2.format("UTC:h:MM A")
+	, d2.format("UTC:H:mm A")
 	, "1:46 AM"
-	, d2.format("yy A")
+	, d2.format("YY A")
 	, "01 AM"
 	, d3.format("isoUtcDateTime")
 	, "2009-02-13T23:31:30Z"
