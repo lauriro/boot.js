@@ -40,7 +40,7 @@
 
 	var sl = F.call.bind(A.slice);
 	
-	F.curry = function() {
+	F.partial = function() {
 		var t = this, a = sl(arguments);
 		return a.length ? function() {return t.apply(this, a.concat(sl(arguments)))} : t;
 	}
@@ -70,8 +70,8 @@
 		}
 		f[P] = t[P]; // prototype for better access on extending 
 		return f;
-	}
 	
+	}
 	F.extend = function() {
 		var t = this, f = t.clone(), i = 0, e;
 		f[P] = Object.create(t[P]);
@@ -82,8 +82,8 @@
 
 	/* ECMAScript 5 stuff */
 
-	S.trim = S.trim || S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-	//"trim" in S || (S.trim = S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
+	S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+	//"trim" in S || (S.trim = S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
 	//I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
 
 
@@ -206,7 +206,7 @@
 	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl]);
 	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
 	
-	A.unique = A.filter.curry(function(s,i,a){return i == a.lastIndexOf(s)});
+	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
 
 
 
@@ -243,19 +243,57 @@
 	}.byWords()("every filter forEach map reduce reduceRight some");
 	
 	F.each = S.each = F.forEach;
-	F.foldl = S.foldl = F.reduce;
+	F.fold = S.fold = F.reduce;
 	F.foldr = S.foldr = F.reduceRight;
 	F.select = S.select = F.filter;
-	
+
+	var fr = function(r,f){
+		return f(r)
+	}
+	/*
+	// http://seanhess.github.com/2012/02/20/functional_javascript.html
+	// http://msdn.microsoft.com/en-us/scriptjunkie/gg575560
+
+function lt(a, b) {
+    return (a < b)
+}
+function eq(a, b) {
+    return (a == b)
+}
+function apply(f) {
+    var args = Array.prototype.slice.call(arguments, 1)
+    return function(x) {
+        return f.apply(null, args.concat(x))
+    }
+}
+
+function applyr(f) {
+    var args = Array.prototype.slice.call(arguments, 1)
+    return function(x) {
+        return f.apply(null, [x].concat(args))
+    }
+}
 
 
+	var a = F.call.bind(O.toString)
+	a(1).slice(8, -1).toLowerCase() // number
+*/
 
 
-	F.compose = function(fn) {
-		var t = this;
-		return function() {
-			return t.call(this, fn.apply(this, arguments));
+	F.compose = function() {
+		var a = [this].concat(sl(arguments)), t = a.pop()
+		return function(){
+			return fr.foldr(a, t.apply(this, arguments))
 		}
+		//return A.reduceRight.bind([this].concat(sl(arguments)), fr);
+	}
+
+	F.sequence = function() {
+		var t = this, a = sl(arguments);
+		return function(){
+			return fr.fold(a, t.apply(this, arguments))
+		}
+		//return A.reduce.bind([this].concat(sl(arguments)), fr);
 	}
 
 	F.chain = function(f) {
@@ -364,7 +402,7 @@
 	}
 
 	//S.camelCase = function() { return this.replace(/[ _-]+([a-z])/g,function(_, a){return a.toUpperCase()}); }
-	S.camelCase = S.replace.curry(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
+	S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
 
   S.toAccuracy = N.toAccuracy = function(a) {
     var x = (""+a).split("."), n = ~~((this/a)+.5) * a;
@@ -530,8 +568,8 @@
 		return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
 	}
 
-	S.humanSize = N.humanSize = N.words.curry([1024,1024,1024],["byte","KB","MB","GB"])
-	S.humanTime = N.humanTime = N.words.curry([60,60,24],["sec","min","hour","day"])
+	S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
+	S.humanTime = N.humanTime = N.words.partial([60,60,24],["sec","min","hour","day"])
 
 
 
@@ -1528,5 +1566,16 @@
 }()
 //*/
 
+/** Tests for functional
+!function(){
+	var test = new TestCase("functional")
 
+	test.compare(
+		'1+'.fn().compose('2*'.fn())(3),  7,
+		'1+'.fn().sequence('2*'.fn())(3), 8)
+
+
+	test.done();
+}()
+//*/
 
