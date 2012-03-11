@@ -6,7 +6,7 @@ try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 var sl=F.call.bind(A.slice)
-F.curry=function(){
+F.partial=function(){
 var t=this,a=sl(arguments)
 return a.length?function(){return t.apply(this,a.concat(sl(arguments)))}:t}
 F.construct=function(a){
@@ -29,7 +29,7 @@ var t=this,f=t.clone(),i=0,e
 f[P]=Object.create(t[P])
 while(e=arguments[i++])for(t in e)if(e.hasOwnProperty(t))f[P][t]=e[t];
 return f}
-S.trim=S.trim||S.replace.curry(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
+S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 var lambda=function(s){
 var a=[],t=s.split("->")
 if(t.length>1)while(t.length){
@@ -81,7 +81,7 @@ I(A,"filter",b+"o.push(t[i])"+c)
 I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
-A.unique=A.filter.curry(function(s,i,a){return i==a.lastIndexOf(s)})
+A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 F.guard=function(guard,otherwise){
 var t=this,f=guard.fn(),o=(otherwise||function(){}).fn()
 return function(){
@@ -90,8 +90,8 @@ F.byWords=function(i){
 var t=this
 i|=0
 return function(){
-var s=this,a=arguments,r
-a[i].replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
+var s=this,r=s,a=arguments
+;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
 !function(n){
 F[n]=S[n]=function(){
@@ -100,13 +100,19 @@ a[0]=t.fn()
 return A[n].apply(arr,a)}
 }.byWords()("every filter forEach map reduce reduceRight some")
 F.each=S.each=F.forEach
-F.foldl=S.foldl=F.reduce
+F.fold=S.fold=F.reduce
 F.foldr=S.foldr=F.reduceRight
 F.select=S.select=F.filter
-F.compose=function(fn){
-var t=this
+var fr=function(r,f){
+return f(r)}
+F.compose=function(){
+var a=[this].concat(sl(arguments)),t=a.pop()
 return function(){
-return t.call(this,fn.apply(this,arguments))}}
+return fr.foldr(a,t.apply(this,arguments))}}
+F.sequence=function(){
+var t=this,a=sl(arguments)
+return function(){
+return fr.fold(a,t.apply(this,arguments))}}
 F.chain=function(f){
 var t=this
 return function(){
@@ -153,7 +159,7 @@ var a=typeof m=="object"?m:arguments
 return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){
 return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
-S.camelCase=S.replace.curry(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
+S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.toAccuracy=N.toAccuracy=function(a){
 var x=(""+a).split("."),n=~~((this/a)+.5)*a
 return ""+(1 in x?n.toFixed(x[1].length):n)}
@@ -198,8 +204,8 @@ var n=+this,i=0,s=strings||{"default":"{0} {1}"}
 while(n>steps[i])n/=steps[i++];
 i=units[i]
 return(n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0,i)}
-S.humanSize=N.humanSize=N.words.curry([1024,1024,1024],["byte","KB","MB","GB"])
-S.humanTime=N.humanTime=N.words.curry([60,60,24],["sec","min","hour","day"])
+S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
+S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
 D.prettySteps=[8640000,2592000,604800,86400,3600,60,1]
 D.prettyUnits=["month","week","day","hour","minute","second"]
 D.prettyStrings={"default":"{0} {1} ago","day":"Yesterday"}
