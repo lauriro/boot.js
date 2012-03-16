@@ -12,45 +12,28 @@
 
 
 !function(S){
-	function sha_init(data) {
-		var bin = [], i = 0, len;
-		// input into 32 bit words
-		if (typeof(data) == "string") {
-			// encode_utf8
-			data = unescape( encodeURIComponent( data ) )
-			for (len = data.length;i < len;bin[i >> 2] = data.charCodeAt(i++)<<24|data.charCodeAt(i++)<<16|data.charCodeAt(i++)<<8|data.charCodeAt(i++));
-		} else {
-			for (len = data.length;i < len;bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++]);
-		}
+	var ch = function(i){return i.charCodeAt()}
+		, int2str = function(i) {
+				return ("0000000"+(i>>>0).toString(16)).slice(-8);
+			}
+		, sha_init = function(data) {
+				if (typeof(data) == "string") data = unescape( encodeURIComponent( data ) ).split("").map(ch);
 
-		// append a 1 bit
-		i = len << 3;
-		bin[len >> 2] |= 0x80 << (24 - (i & 31));
+				var bin = [], i = 0, len = data.length;
+				while (i < len) bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++];
 
-		// append 0 bits to length  bits % 512 == 448
-		bin.push.apply(bin, [0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ));
-
-		// append 64-bit source length
-		bin.push(0, i);
-		
-		return bin;
-	}
-
-	function sha_format(asBytes, arr){
-		var out = [],i=0, len=arr.length;
-		if (asBytes) {
-			// convert to byte array
-			for (;i<len;i++) out.push( (arr[i]>>>24)&0xff, (arr[i]>>>16)&0xff, (arr[i]>>>8)&0xff, arr[i]&0xff );
-			return out;
-		}
-		//for (;i<len;i++) out[i] = ("0000000" + (arr[i]>>>0).toString(16)).slice(-8)
-		for (;i<len;i++) {
-			var s = (arr[i]>>>0).toString(16);
-			out[i] = (s.length===8) ? s : ("0000000"+s).slice(-8);
-		}
-
-		return out.join("");
-	}
+				i = len << 3;
+				bin[len >> 2] |= 0x80 << (24 - (i & 31));
+				return bin.concat([0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ), [0, i]);
+			}
+		, sha_format = function(asBytes, arr) {
+				if (asBytes) {
+					// convert to byte array
+					for (var out = [], i=0, len=arr.length;i<len;i++) out.push( (arr[i]>>>24)&0xff, (arr[i]>>>16)&0xff, (arr[i]>>>8)&0xff, arr[i]&0xff );
+					return out;
+				}
+				return arr.map(int2str).join("");
+			}
 
 	function sha1(data, asBytes) {
 		var h0 = 0x67452301
