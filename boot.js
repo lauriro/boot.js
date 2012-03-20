@@ -516,6 +516,7 @@ function applyr(f) {
 
 
 	I(D, "toISOString", "return this.format('isoUtcDateTime')");
+	// D.toISOString = D.toISOString || D.format.partial('isoUtcDateTime');
 	/*/
 	I(D, "toISOString", "var t=this;return t.getUTCFullYear()+'-'+p2(t.getUTCMonth()+1)+'-'+p2(t.getUTCDate())+'T'+p2(t.getUTCHours())+':'+p2(t.getUTCMinutes())+':'+p2(t.getUTCSeconds())+'.'+p3(t.getUTCMilliseconds())+'Z'")
 	//*/
@@ -592,6 +593,10 @@ function applyr(f) {
 		// use guard here
 		return this.format(format);
 	}
+
+// 	D.pretty2 = function(){return (new Date() - this + 1)/1000}
+// 		.sequence(N.words.partial( [2592000, 604800, 86400, 3600,   60,       1], ["month", "week", "day", "hour", "minute", "second"]))
+// 		.guard("this<8640000", D.format)
 	//*/
 
 
