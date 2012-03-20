@@ -152,15 +152,10 @@
 	
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt) {
-		var i=0, j, ipad = [], opad = [];
-		if (key.length > blocksize) {
-			for(key=hasher(key,true); i<blocksize; ipad[i]=key[i]^0x36,opad[i]=key[i++]^0x5c);
-		} else {
-			for(; j=key.charCodeAt(i); ipad[i]=j^0x36,opad[i++]=j^0x5c);
-		}
-		for(; i<blocksize; ipad[i]=0x36,opad[i++]=0x5c);
-		for(i=0,j=txt.length; i<j; ipad.push(txt.charCodeAt(i++)) );
-		return hasher(opad.concat(hasher(ipad,true)));
+		var i = 0, ipad = [], opad = [];
+		key = (key.length > blocksize) ? hasher(key, true) : key.split("").map(ch);
+		for(; i<blocksize; ipad[i]=key[i]^0x36, opad[i]=key[i++]^0x5c);
+		return hasher(opad.concat(hasher(ipad.concat(txt.split("").map(ch)),true)));
 	}
 
 	S.hmac_sha1 = function(key){
