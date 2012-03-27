@@ -106,8 +106,7 @@
 			s = t.pop();
 			a = t.pop().trim().split(/[\s,]+/);
 			t.length && t.push("(function("+a+"){return ("+s+")})");
-		} else if (s.match(/\b_\b/)) a = "_";
-		else {
+		} else {
 			// test whether an operator appears on the left (or right), respectively
 			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
 				a.push("$1");
@@ -250,6 +249,14 @@
 	var fr = function(r,f){
 		return f(r)
 	}
+
+	/*
+	http://hangar.runway7.net/javascript/namespacing
+
+	S.ns = function(s){
+		return "h n -> h[n] = h[n] || {}".fold(this.split("."), s || w)
+	}
+	*/
 	/*
 	// http://seanhess.github.com/2012/02/20/functional_javascript.html
 	// http://msdn.microsoft.com/en-us/scriptjunkie/gg575560

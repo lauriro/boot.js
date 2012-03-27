@@ -36,8 +36,7 @@ if(t.length>1)while(t.length){
 s=t.pop()
 a=t.pop().trim().split(/[\s,]+/)
 t.length&&t.push("(function("+a+"){return ("+s+")})")
-}else if(s.match(/\b_\b/))a="_"
-else{
+}else{
 if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){
 a.push("$1")
 s="$1"+s}
