@@ -1,8 +1,7 @@
-!function(w,d,P){
+!function(w,P){
 var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=function(n){return n>9?n:"0"+n},p3=function(n){return(n>99?n:(n>9?"0":"00")+n)},I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},a,b,c
 /*@cc_on
 I(w,"XMLHttpRequest","a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')")
-try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 var sl=F.call.bind(A.slice)
@@ -81,8 +80,8 @@ I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
-F.guard=function(guard,otherwise){
-var t=this,f=guard.fn(),o=(otherwise||function(){}).fn()
+F.guard=function(test,or){
+var t=this,f=test.fn(),o=(or||function(){}).fn()
 return function(){
 return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
 F.byWords=function(i){
@@ -216,6 +215,12 @@ return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["defaul
 return this.format(format)}
 var jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
 "JSON"in w||eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}")
+}(this,"prototype")
+!function(w,d,P){
+var a,b,c
+/*@cc_on
+try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
+@*/
 var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){
 var _e=el._e||(el._e={})
