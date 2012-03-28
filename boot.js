@@ -298,17 +298,6 @@ function applyr(f) {
 		//return A.reduce.bind([this].concat(sl(arguments)), fr);
 	}
 
-	F.chain = function(f) {
-		var t = this;
-		return function() {
-			var s = this
-			  , a = arguments;
-
-			t.apply(s, a);
-			return f.apply(s, a);
-		}
-	}
-
 	F.flip = function() {
 		var t = this;
 		return function() {
@@ -388,12 +377,17 @@ function applyr(f) {
 	//*/
 
 
-	//** String extensions
+	// String extensions
+	// -----------------
+	
+	// String.format
 
 	S.format = function(m) {
 		var a = typeof m == "object" ? m : arguments;
 		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
 	}
+
+	//*/
 
   S.safe = function() {
   	return this

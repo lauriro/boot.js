@@ -111,12 +111,6 @@ F.sequence=function(){
 var t=this,a=sl(arguments)
 return function(){
 return fr.fold(a,t.apply(this,arguments))}}
-F.chain=function(f){
-var t=this
-return function(){
-var s=this,a=arguments
-t.apply(s,a)
-return f.apply(s,a)}}
 F.flip=function(){
 var t=this
 return function(){
@@ -219,7 +213,7 @@ var jsonMap={"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\
 !function(w,d,P){
 var a,b,c
 /*@cc_on
-try{d.execCommand('BackgroundImageCache',false,true)}catch(e){}
+try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/
 var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){
