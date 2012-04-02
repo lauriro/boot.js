@@ -50,7 +50,7 @@ Cookie.destroy = function (n/*ame*/) {
 	Cookie.destroy("_test1");
 
 	test.compare(
-	  Cookie("_test1")
+	  !!Cookie("_test1")
 	, false
 	, Cookie("_test2")
 	, "2"

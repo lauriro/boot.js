@@ -596,10 +596,13 @@ function applyr(f) {
 	//*/
 
 
-
-	var jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
-
-	"JSON" in w || eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
+	if(!("JSON" in w)) {
+		w.JSON = {
+			map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
+			parse: new Function("t", "return new Function('return('+t+')')()"),
+			stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")
+		}
+	}
 
 }(this, "prototype");
 
@@ -813,7 +816,7 @@ function applyr(f) {
 
 				return n in fnCache && fnCache[n](el, a) || el.set(a);
 			}
-		, css_map = {float: "cssFloat"}
+		, css_map = {"float": "cssFloat"}
 
 	function extend(e,p,k){
 		if(e){
@@ -840,7 +843,7 @@ function applyr(f) {
 		return d.createTextNode(str);
 	}
 
-	a = {
+	var a = {
 		/*
 		e - element
 		b - before
