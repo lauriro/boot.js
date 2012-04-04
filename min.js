@@ -103,14 +103,16 @@ F.foldr=S.foldr=F.reduceRight
 F.select=S.select=F.filter
 var fr=function(r,f){
 return f(r)}
+var chain=function(t,a){
+return a.reduce(function(pre,cur){
+return function(){
+return cur.call(this,pre.apply(this,arguments))}
+},t)}
 F.compose=function(){
 var a=[this].concat(sl(arguments)),t=a.pop()
-return function(){
-return fr.foldr(a,t.apply(this,arguments))}}
+return chain(t,a)}
 F.sequence=function(){
-var t=this,a=sl(arguments)
-return function(){
-return fr.fold(a,t.apply(this,arguments))}}
+return chain(this,sl(arguments))}
 F.flip=function(){
 var t=this
 return function(){

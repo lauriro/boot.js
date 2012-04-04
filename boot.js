@@ -282,20 +282,21 @@ function applyr(f) {
 */
 
 
+	var chain = function(t, a) {
+		return a.reduce(function(pre, cur){
+			return function(){
+				return cur.call(this,pre.apply(this,arguments));
+			}
+    }, t);
+  }
+
 	F.compose = function() {
 		var a = [this].concat(sl(arguments)), t = a.pop()
-		return function(){
-			return fr.foldr(a, t.apply(this, arguments))
-		}
-		//return A.reduceRight.bind([this].concat(sl(arguments)), fr);
+		return chain(t, a);
 	}
 
 	F.sequence = function() {
-		var t = this, a = sl(arguments);
-		return function(){
-			return fr.fold(a, t.apply(this, arguments))
-		}
-		//return A.reduce.bind([this].concat(sl(arguments)), fr);
+		return chain(this, sl(arguments));
 	}
 
 	F.flip = function() {
