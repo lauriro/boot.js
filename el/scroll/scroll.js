@@ -9,7 +9,10 @@
  * -- Lauri Rooden -- https://github.com/lauriro/boot.js
  */
 
-
+/*
+*Inertial scrolling? (Note: iOS 5 only)
+-webkit-overflow-scrolling: touch;
+* */
 
 El.cache(
 	"scroll",

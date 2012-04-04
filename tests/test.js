@@ -61,7 +61,7 @@ TestCase.read = function(file){
     file.forEach(this.read)
   } else {
     var req = new XMLHttpRequest(), exports = {}
-    req.open("GET", file, false)
+    req.open("GET", file.replace(/^[^\/]/, load.path+"$&"), false)
     req.send()
     var q = req.responseText
     	//.replace(/\/\/.*$/gm,"")

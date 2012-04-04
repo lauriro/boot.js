@@ -11,7 +11,7 @@
 
 
 
-!function(w/* window */, d/* document */, P/* String "prototype" */) {
+!function(w/* window */, P/* String "prototype" */) {
 	var A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
 	  , p2 = function(n){return n>9?n:"0"+n}
 	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
@@ -19,14 +19,9 @@
 	  , a, b, c; // Reusable
 
 	/*@cc_on
-		// HTML5 elements suport for IE should be in head before stylesheets
-		// "address article aside canvas details figcaption figure footer header hgroup menu nav section summary command datalist mark meter time wbr".replace(/\w+/g, function(t){d.createElement(t)});
-
-		// XMLHttpRequest was unsupported in IE 5.x-6.x + remove background image flickers on hover
+		// XMLHttpRequest was unsupported in IE 5.x-6.x
 		I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
-		try{d.execCommand('BackgroundImageCache',false,true)}catch(e){};
 	@*/
-
 
 	/** hasOwnProperty
 	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
@@ -70,8 +65,8 @@
 		}
 		f[P] = t[P]; // prototype for better access on extending 
 		return f;
-	
 	}
+
 	F.extend = function() {
 		var t = this, f = t.clone(), i = 0, e;
 		f[P] = Object.create(t[P]);
@@ -213,10 +208,10 @@
 	//** Function extensions
 
 	
-	F.guard = function(guard, otherwise) {
+	F.guard = function(test, or) {
 		var t = this
-		  , f = guard.fn()
-		  , o = (otherwise||function(){}).fn();
+		  , f = test.fn()
+		  , o = (or||function(){}).fn();
 
 		return function() {
 			return (f.apply(this, arguments) ? t : o).apply(this, arguments);
@@ -287,31 +282,21 @@ function applyr(f) {
 */
 
 
+	var chain = function(t, a) {
+		return a.reduce(function(pre, cur){
+			return function(){
+				return cur.call(this,pre.apply(this,arguments));
+			}
+    }, t);
+  }
+
 	F.compose = function() {
 		var a = [this].concat(sl(arguments)), t = a.pop()
-		return function(){
-			return fr.foldr(a, t.apply(this, arguments))
-		}
-		//return A.reduceRight.bind([this].concat(sl(arguments)), fr);
+		return chain(t, a);
 	}
 
 	F.sequence = function() {
-		var t = this, a = sl(arguments);
-		return function(){
-			return fr.fold(a, t.apply(this, arguments))
-		}
-		//return A.reduce.bind([this].concat(sl(arguments)), fr);
-	}
-
-	F.chain = function(f) {
-		var t = this;
-		return function() {
-			var s = this
-			  , a = arguments;
-
-			t.apply(s, a);
-			return f.apply(s, a);
-		}
+		return chain(this, sl(arguments));
 	}
 
 	F.flip = function() {
@@ -393,12 +378,17 @@ function applyr(f) {
 	//*/
 
 
-	//** String extensions
+	// String extensions
+	// -----------------
+	
+	// String.format
 
 	S.format = function(m) {
 		var a = typeof m == "object" ? m : arguments;
 		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
 	}
+
+	//*/
 
   S.safe = function() {
   	return this
@@ -607,11 +597,28 @@ function applyr(f) {
 	//*/
 
 
+	if(!("JSON" in w)) {
+		w.JSON = {
+			map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
+			parse: new Function("t", "return new Function('return('+t+')')()"),
+			stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")
+		}
+	}
 
-	var jsonMap = {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"}
+}(this, "prototype");
 
-	"JSON" in w || eval("w.JSON={parse:function(t){return new Function('return('+t+')')()},stringify:function j_enc(o){if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=j_enc(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=jsonMap[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(j_enc(i)+':'+j_enc(o[i]));return'{'+s.join(',')+'}';}return''+o}}");
 
+
+
+
+!function(w/* window */, d/* document */, P/* String "prototype" */) {
+	var a, b, c; // Reusable
+	/*@cc_on
+		// remove background image flickers on hover in IE6
+		// You can also use CSS
+		// html { filter: expression(document.execCommand("BackgroundImageCache", false, true)); }
+		try{document.execCommand('BackgroundImageCache',false,true)}catch(e){};
+	@*/
 
 	//** Event handling
 	//TODO:sync with Fn.Events
@@ -810,7 +817,7 @@ function applyr(f) {
 
 				return n in fnCache && fnCache[n](el, a) || el.set(a);
 			}
-		, css_map = {float: "cssFloat"}
+		, css_map = {"float": "cssFloat"}
 
 	function extend(e,p,k){
 		if(e){
@@ -837,7 +844,7 @@ function applyr(f) {
 		return d.createTextNode(str);
 	}
 
-	a = {
+	var a = {
 		/*
 		e - element
 		b - before
@@ -1020,6 +1027,9 @@ function applyr(f) {
 	if (!("execScript" in w)) {
 		w.execScript = (function(o,Object){return(1,eval)("(Object)")===o})(Object,1) ? eval : function(s){
 			El("script", s).after(a);
+			// var el = document.createElement('script');
+			// el.appendChild(document.createTextNode(s));
+			// a.parentNode.insertBefore(el, a);
 		}
 	}
 
