@@ -68,9 +68,9 @@
 	}
 
 	F.extend = function() {
-		var t = this, f = t.clone(), i = 0, e;
+		var t = this, f = t.clone(), i = 0;
 		f[P] = Object.create(t[P]);
-		while (e = arguments[i++]) for (t in e) if (e.hasOwnProperty(t)) f[P][t] = e[t];
+		while (t = arguments[i++]) Object.merge(f[P], t);
 		return f;
 	}
 	
@@ -228,6 +228,21 @@
 		}
 	}
 
+	F.byKeyVal = function() {
+		var t = this;
+		return function(o) {
+			var s = this, a = arguments, r;
+			if (typeof o == "object") Object.each(o, function(v, k){
+				a[0] = k;
+				a[1] = v;
+				r = t.apply(s, a);
+			})
+			else r = t.apply(s, a);
+			return r;
+		}
+	}
+
+
 	!function(n){
 		F[n] = S[n] = function(){
 			var t = this, a = arguments, arr = a[0]
@@ -308,21 +323,6 @@ function applyr(f) {
 			return t.apply(this, a);
 		}
 	}
-
-	F.byKeyValue = function() {
-		var t = this;
-		return function(o) {
-			var s = this, a = arguments, r;
-			if (typeof o == "object") Object.each(o, function(v, k){
-				a[0] = k;
-				a[1] = v;
-				r = t.apply(s, a);
-			})
-			else r = t.apply(s, a);
-			return r;
-		}
-	}
-
 
 	// Time to live - Run *fun* if Function not called on time
 	F.ttl = function(ms, fun) {
@@ -543,8 +543,8 @@ function applyr(f) {
 
 	//** Date.daysInMonth
 	D.daysInMonth = function() {
-		//return 32-new Date(this.getFullYear(),this.getMonth(),32).getDate();
 		return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate();
+		//return 32-new Date(this.getFullYear(),this.getMonth(),32).getDate();
 	}
 	//*/
 
@@ -903,7 +903,7 @@ function applyr(f) {
 			}
 			t.rmClass(n);
 			return false;
-		},
+		}.byWords(),
 
 		empty: function() {
 			var t = this, n;
@@ -922,16 +922,10 @@ function applyr(f) {
 
 		css: function(atr, val) {
 			var t = this;
-			if (typeof atr == "object") 
-				for (var a in atr)
-				/** hasOwnProperty
-				if (atr.hasOwnProperty(a))
-				//*/
-				t.css(a, atr[a]);
-			else if (val) t.style[ (css_map[atr]||atr).camelCase() ] = val;
+			if (val) t.style[ (css_map[atr]||atr).camelCase() ] = val;
 			else getStyle(t, atr);
 			return t;
-		},
+		}.byKeyVal(),
 
 		on: function(w, fn) {
 			Event.add(this, w, fn);

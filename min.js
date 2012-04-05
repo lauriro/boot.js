@@ -24,9 +24,9 @@ return t.extend.apply(t,arguments).cache(instance,keyFn,c)}
 f[P]=t[P]
 return f}
 F.extend=function(){
-var t=this,f=t.clone(),i=0,e
+var t=this,f=t.clone(),i=0
 f[P]=Object.create(t[P])
-while(e=arguments[i++])for(t in e)if(e.hasOwnProperty(t))f[P][t]=e[t];
+while(t=arguments[i++])Object.merge(f[P],t);
 return f}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 var lambda=function(s){
@@ -91,6 +91,16 @@ return function(){
 var s=this,r=s,a=arguments
 ;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
+F.byKeyVal=function(){
+var t=this
+return function(o){
+var s=this,a=arguments,r
+if(typeof o=="object")Object.each(o,function(v,k){
+a[0]=k
+a[1]=v
+r=t.apply(s,a)})
+else r=t.apply(s,a)
+return r}}
 !function(n){
 F[n]=S[n]=function(){
 var t=this,a=arguments,arr=a[0]
@@ -120,16 +130,6 @@ var a=arguments,b=a[0]
 a[0]=a[1]
 a[1]=b
 return t.apply(this,a)}}
-F.byKeyValue=function(){
-var t=this
-return function(o){
-var s=this,a=arguments,r
-if(typeof o=="object")Object.each(o,function(v,k){
-a[0]=k
-a[1]=v
-r=t.apply(s,a)})
-else r=t.apply(s,a)
-return r}}
 F.ttl=function(ms,fun){
 var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
 return function(){
@@ -379,7 +379,8 @@ if((status===void 0&&!t.hasClass(n))||status){
 t.addClass(n)
 return!0}
 t.rmClass(n)
-return!1},
+return!1
+}.byWords(),
 empty:function(){
 var t=this,n
 while(n=t.firstChild)t.kill.call(n);
@@ -393,12 +394,10 @@ if("kill_hook"in t)t.kill_hook()
 return t},
 css:function(atr,val){
 var t=this
-if(typeof atr=="object")
-for(var a in atr)
-t.css(a,atr[a])
-else if(val)t.style[(css_map[atr]||atr).camelCase()]=val
+if(val)t.style[(css_map[atr]||atr).camelCase()]=val
 else getStyle(t,atr)
-return t},
+return t
+}.byKeyVal(),
 on:function(w,fn){
 Event.add(this,w,fn)
 return this
