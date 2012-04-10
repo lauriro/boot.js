@@ -53,14 +53,6 @@ return this}
 a=Array
 I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
-a=Object
-I(a,"create","x[y]=a;return new x",[function(){},P])
-I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
-I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
-a.merge=function(main){
-var o,i=1,k
-while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
-return main}
 a="var t=this,l=t.length,o=[],i=-1;"
 c="if(t[i]===a)return i;return -1"
 I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
@@ -80,6 +72,14 @@ I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
+a=Object
+I(a,"create","x[y]=a;return new x",[function(){},P])
+I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
+I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
+a.merge=function(main){
+var o,i=1,k
+while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
+return main}
 F.guard=function(test,or){
 var t=this,f=test.fn(),o=(or||function(){}).fn()
 return function(){

@@ -147,7 +147,13 @@
 	//*/
 
 
+	// Array extensions
+	// ----------------
 	a = Array;
+
+	// ### Array.isArray ###
+	//
+	// Native in FF
 
 	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
 	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
@@ -161,18 +167,6 @@
 	};
 	flat([1,2,[3,4,[5,6]],7]);
 	*/
-
-	a = Object;
-	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
-	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
-	// Non-standard
-	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
-	a.merge = function(main){
-		var o, i = 1, k;
-		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
-		return main;
-	}
-
 	
 	a = "var t=this,l=t.length,o=[],i=-1;";
 	c = "if(t[i]===a)return i;return -1";
@@ -203,7 +197,29 @@
 	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
 
 
+	// Object extensions
+	// -----------------
 
+	a = Object;
+
+	// ### Object.create ###
+	// ES5
+	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
+	// ### Object.keys ###
+	// ES5
+	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+	// Non-standard
+	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	a.merge = function(main){
+		var o, i = 1, k;
+		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
+		return main;
+	}
+
+	
+
+	// Function extensions
+	// -------------------
 	
 	//** Function extensions
 
