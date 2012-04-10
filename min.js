@@ -7,7 +7,7 @@ I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this in
 var sl=F.call.bind(A.slice)
 F.partial=function(){
 var t=this,a=sl(arguments)
-return a.length?function(){return t.apply(this,a.concat(sl(arguments)))}:t}
+return function(){return t.apply(this,a.concat(sl(arguments)))}}
 F.construct=function(a){
 return new(F.bind.apply(this,A.concat.apply([null],a)))}
 F.clone=function(){
@@ -111,18 +111,14 @@ F.each=S.each=F.forEach
 F.fold=S.fold=F.reduce
 F.foldr=S.foldr=F.reduceRight
 F.select=S.select=F.filter
-var fr=function(r,f){
-return f(r)}
-var chain=function(t,a){
-return a.reduce(function(pre,cur){
+F.chain=function(a){
+return(Array.isArray(a)?a:sl(arguments)).reduce(function(pre,cur){
 return function(){
 return cur.call(this,pre.apply(this,arguments))}
-},t)}
+},this)}
 F.compose=function(){
 var a=[this].concat(sl(arguments)),t=a.pop()
-return chain(t,a)}
-F.sequence=function(){
-return chain(this,sl(arguments))}
+return t.chain(a)}
 F.flip=function(){
 var t=this
 return function(){

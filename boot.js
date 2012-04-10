@@ -37,7 +37,7 @@
 	
 	F.partial = function() {
 		var t = this, a = sl(arguments);
-		return a.length ? function() {return t.apply(this, a.concat(sl(arguments)))} : t;
+		return function() {return t.apply(this, a.concat(sl(arguments)))};
 	}
 
 	F.construct = function(a) {
@@ -153,6 +153,14 @@
 	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
 	// Non-standard
 	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
+	/*
+	Array.flatten = function(arr){
+		for(var i=arr.length;i--;)
+			0 in arr[i] && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
+		return arr
+	};
+	flat([1,2,[3,4,[5,6]],7]);
+	*/
 
 	a = Object;
 	I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
@@ -164,14 +172,6 @@
 		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
 		return main;
 	}
-	/*
-	Array.flatten = function(arr){
-		for(var i=arr.length;i--;)
-			Array.isArray(arr[i]) && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
-		return arr
-	};
-	flat([1,2,[3,4,[5,6]],7]);
-	*/
 
 	
 	a = "var t=this,l=t.length,o=[],i=-1;";
@@ -256,11 +256,11 @@
 	F.foldr = S.foldr = F.reduceRight;
 	F.select = S.select = F.filter;
 
+	/*
 	var fr = function(r,f){
 		return f(r)
 	}
 
-	/*
 	http://hangar.runway7.net/javascript/namespacing
 
 	S.ns = function(s){
@@ -297,21 +297,17 @@ function applyr(f) {
 */
 
 
-	var chain = function(t, a) {
-		return a.reduce(function(pre, cur){
+	F.chain = function(a) {
+		return (Array.isArray(a) ? a : sl(arguments)).reduce(function(pre, cur){
 			return function(){
-				return cur.call(this,pre.apply(this,arguments));
+				return cur.call(this, pre.apply(this,arguments));
 			}
-    }, t);
+    }, this);
   }
 
 	F.compose = function() {
 		var a = [this].concat(sl(arguments)), t = a.pop()
-		return chain(t, a);
-	}
-
-	F.sequence = function() {
-		return chain(this, sl(arguments));
+		return t.chain(a);
 	}
 
 	F.flip = function() {
@@ -1592,7 +1588,7 @@ function applyr(f) {
 
 	test.compare(
 		'1+'.fn().compose('2*'.fn())(3),  7,
-		'1+'.fn().sequence('2*'.fn())(3), 8)
+		'1+'.fn().chain('2*'.fn())(3), 8)
 
 
 	test.done();
