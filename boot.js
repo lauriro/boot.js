@@ -16,6 +16,8 @@
 	  , p2 = function(n){return n>9?n:"0"+n}
 	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
 	  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
+	  , xhrs = []
+	  , Nop = function(){};
 	  , a, b, c; // Reusable
 
 	/*@cc_on
@@ -23,6 +25,21 @@
 		I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
 	@*/
 
+	//** xhr
+
+	w.xhr = function(method, url, cb, sync){
+		var r = xhrs.shift() || new XMLHttpRequest();
+		r.open(method, url, !sync);
+		r.onreadystatechange = function(){
+			if (r.readyState == 4) {
+				cb && cb( r.responseText, r);
+				r.onreadystatechange = cb = Nop;
+				xhrs.push(r);
+			}
+		}
+		return r;
+	};
+	//*/
 	/** hasOwnProperty
 	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
@@ -421,7 +438,6 @@ function applyr(f) {
 
 
 	//** String.utf8
-
   S.utf8_encode = function() {
     return unescape( encodeURIComponent( this ) );
   }
@@ -433,7 +449,6 @@ function applyr(f) {
 
 
   //** IP helpers
-
   S.ip2int = function() {
   	var t = (this+".0.0.0").split(".");
   	return ((t[0] << 24) | (t[1] << 16) | (t[2] << 8 ) | (t[3]))>>>0;
@@ -620,6 +635,54 @@ function applyr(f) {
 			stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")
 		}
 	}
+
+
+	// eval in a global context for non-IE & non-Chrome (removed form v8 on 2011-05-23: Version 3.3.9)
+	// THANKS: Juriy Zaytsev - Global eval [http://perfectionkills.com/global-eval-what-are-the-options/]
+	if (!("execScript" in w)) {
+		w.execScript = (function(o,Object){return(1,eval)("(Object)")===o})(Object,1) ? eval : 
+			"d t a -> s -> d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document, "script", "appendChild")
+	}
+
+
+	/** loader.CommonJS style modules
+	var _required = {}
+	w.require = function(file) {
+		if (file in _required) return _required[file];
+		var req = new XMLHttpRequest(), exports = {};
+		req.open("GET", file.replace(/^[^\/]/, w.require.path+"$&"), false);
+		req.send();
+		eval(req.responseText);
+		return _required[file] = exports;
+	}
+	w.require.path = b;
+	//*/
+
+
+	//** loader.async
+	w.load = function(f, cb) {
+		if (!Array.isArray(f)) f=[f];
+		var i=0, len=f.length, res = [];
+		while (i<len) !function(i) {
+			xhr("GET", f[i].replace(/^[^\/]/, w.load.path+"$&"), function(str) {
+				res[i] = str;
+				//for (var str,e="";str=res[loaded];++loaded){e+=str};
+				//e && execScript(e);
+				if (!--len) {
+					execScript( res.join(";") );
+					cb && cb();
+					res = null;
+				}
+			}).send();
+		}(i++);
+	}
+	/** loader - helpers
+	a = document.getElementsByTagName("script");
+	b = a[a.length-1].src.replace(/[^\/]+$/,"");
+	//*/
+
+	w.load.path = ""
+	//*/
 
 }(this, "prototype");
 
@@ -876,7 +939,8 @@ function applyr(f) {
 					e = f;
 				}
 
-				if ("nodeType" in e) b ? t.insertBefore(e, b===true ? t.firstChild : b) : t.appendChild(e);
+				// if ("nodeType" in e) b ? t.insertBefore(e, b===true ? t.firstChild : b) : t.appendChild(e);
+				if ("nodeType" in e) t.insertBefore(e, b===true ? t.firstChild : b ? b : null)
 				//else "to" in e && e.to(t, b);
 				"append_hook" in e && e.append_hook();
 				//"child_hook" in t && t.child_hook();
@@ -1011,75 +1075,6 @@ function applyr(f) {
 	}
 
 	w.El = El;
-	//*/
-
-	//** xhr
-	var xhrs = []
-	  , anon = function(){};
-
-	w.xhr = function(method, url, cb, sync){
-		var r = xhrs.shift() || new XMLHttpRequest();
-		r.open(method, url, !sync);
-		r.onreadystatechange = function(){
-			if (r.readyState == 4) {
-				cb && cb( r.responseText, r);
-				r.onreadystatechange = cb = anon;
-				xhrs.push(r);
-			}
-		}
-		return r;
-	};
-	//*/
-
-	a = d.getElementsByTagName("script");
-	// eval in a global context for non-IE & non-Chrome (removed form v8 on 2011-05-23: Version 3.3.9)
-	// THANKS: Juriy Zaytsev - Global eval [http://perfectionkills.com/global-eval-what-are-the-options/]
-	if (!("execScript" in w)) {
-		w.execScript = (function(o,Object){return(1,eval)("(Object)")===o})(Object,1) ? eval : function(s){
-			El("script", s).after(a);
-			// var el = document.createElement('script');
-			// el.appendChild(document.createTextNode(s));
-			// a.parentNode.insertBefore(el, a);
-		}
-	}
-
-	//** loader - helpers
-	b = a[a.length-1].src.replace(/[^\/]+$/,"");
-	//*/
-
-
-	/** loader.CommonJS style modules
-	var _required = {}
-	w.require = function(file) {
-		if (file in _required) return _required[file];
-		var req = new XMLHttpRequest(), exports = {};
-		req.open("GET", file.replace(/^[^\/]/, w.require.path+"$&"), false);
-		req.send();
-		eval(req.responseText);
-		return _required[file] = exports;
-	}
-	w.require.path = b;
-	//*/
-
-
-	//** loader.async
-	w.load = function(f, cb) {
-		if (!Array.isArray(f)) f=[f];
-		var i=0, len=f.length, res = [];
-		while (i<len) !function(i) {
-			xhr("GET", f[i].replace(/^[^\/]/, w.load.path+"$&"), function(str) {
-				res[i] = str;
-				//for (var str,e="";str=res[loaded];++loaded){e+=str};
-				//e && execScript(e);
-				if (!--len) {
-					execScript( res.join(";") );
-					cb && cb();
-					res = null;
-				}
-			}).send();
-		}(i++);
-	}
-	w.load.path = b;
 	//*/
 
 }(window, document, "prototype");
