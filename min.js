@@ -1,8 +1,17 @@
 !function(w,P){
-var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=function(n){return n>9?n:"0"+n},p3=function(n){return(n>99?n:(n>9?"0":"00")+n)},I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},a,b,c
+var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],p2=function(n){return n>9?n:"0"+n},p3=function(n){return(n>99?n:(n>9?"0":"00")+n)},I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},xhrs=[],Nop=function(){},a,b,c
 /*@cc_on
 I(w,"XMLHttpRequest","a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')")
 @*/
+w.xhr=function(method,url,cb,sync){
+var r=xhrs.shift()||new XMLHttpRequest
+r.open(method,url,!sync)
+r.onreadystatechange=function(){
+if(r.readyState==4){
+cb&&cb(r.responseText,r)
+r.onreadystatechange=cb=Nop
+xhrs.push(r)}}
+return r}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 var sl=F.call.bind(A.slice)
 F.partial=function(){
@@ -53,14 +62,6 @@ return this}
 a=Array
 I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
-a=Object
-I(a,"create","x[y]=a;return new x",[function(){},P])
-I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
-I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
-a.merge=function(main){
-var o,i=1,k
-while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
-return main}
 a="var t=this,l=t.length,o=[],i=-1;"
 c="if(t[i]===a)return i;return -1"
 I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
@@ -80,8 +81,16 @@ I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
+a=Object
+I(a,"create","x[y]=a;return new x",[function(){},P])
+I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
+I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
+a.merge=function(main){
+var o,i=1,k
+while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
+return main}
 F.guard=function(test,or){
-var t=this,f=test.fn(),o=(or||function(){}).fn()
+var t=this,f=test.fn(),o=(or||Nop).fn()
 return function(){
 return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
 F.byWords=function(i){
@@ -210,12 +219,24 @@ w.JSON={
 map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
 parse:"t->new Function('return('+t+')')()".fn(),
 stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")}}
+if(!("execScript"in w)){
+w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:
+"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document,"script","appendChild")}
+w.load=function(f,cb){
+if(!Array.isArray(f))f=[f]
+var i=0,len=f.length,res=[]
+while(i<len)!function(i){
+xhr("GET",f[i].replace(/^[^\/]/,w.load.path+"$&"),function(str){
+res[i]=str
+if(!--len){
+execScript(res.join(";"))
+cb&&cb()
+res=null}
+}).send()
+}(i++)}
+w.load.path=""
 }(this,"prototype")
 !function(w,d,P){
-var a,b,c
-/*@cc_on
-try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
-@*/
 var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){
 var _e=el._e||(el._e={})
@@ -348,7 +369,7 @@ else if(!("nodeType"in e)&&"length"in e){
 var len=e.length,i=0,f="createDocumentFragment"in d?d.createDocumentFragment():El("div")
 while(i<len)t.append.call(f,e[i++]);
 e=f}
-if("nodeType"in e)b?t.insertBefore(e,b===true?t.firstChild:b):t.appendChild(e)
+if("nodeType"in e)t.insertBefore(e,b===true?t.firstChild:b?b:null)
 "append_hook"in e&&e.append_hook()}
 return t},
 after:function(e,b){
@@ -426,35 +447,10 @@ if(!(El[P]=extend((w.HTMLElement||w.Element||{})[P],a))){
 El[P]=a
 var c=d.createElement
 extend(d.body)
-d.createElement=function(n){return extend(c(n))}}
+d.createElement=function(n){return extend(c(n))}
+/*@cc_on
+try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
+@*/}
 w.El=El
-var xhrs=[],anon=function(){}
-w.xhr=function(method,url,cb,sync){
-var r=xhrs.shift()||new XMLHttpRequest
-r.open(method,url,!sync)
-r.onreadystatechange=function(){
-if(r.readyState==4){
-cb&&cb(r.responseText,r)
-r.onreadystatechange=cb=anon
-xhrs.push(r)}}
-return r}
-a=d.getElementsByTagName("script")
-if(!("execScript"in w)){
-w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:function(s){
-El("script",s).after(a)}}
-b=a[a.length-1].src.replace(/[^\/]+$/,"")
-w.load=function(f,cb){
-if(!Array.isArray(f))f=[f]
-var i=0,len=f.length,res=[]
-while(i<len)!function(i){
-xhr("GET",f[i].replace(/^[^\/]/,w.load.path+"$&"),function(str){
-res[i]=str
-if(!--len){
-execScript(res.join(";"))
-cb&&cb()
-res=null}
-}).send()
-}(i++)}
-w.load.path=b
 }(window,document,"prototype")
 !function(s){execScript(s[s.length-1].innerHTML||";")}(document.getElementsByTagName("script"))

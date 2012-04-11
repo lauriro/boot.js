@@ -78,8 +78,9 @@ El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 	Event.stop(e);
 });
 
+load.path = "../"
 load("tests/test.js", function(){
-	var modules = ["fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js", "jsonh.js"]
+	var modules = ["el.js","fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js", "jsonh.js"]
 
 	load( modules, function(){
 
