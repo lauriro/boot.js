@@ -90,7 +90,7 @@ var o,i=1,k
 while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k];
 return main}
 F.guard=function(test,or){
-var t=this,f=test.fn(),o=(or||function(){}).fn()
+var t=this,f=test.fn(),o=(or||Nop).fn()
 return function(){
 return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
 F.byWords=function(i){
@@ -221,7 +221,7 @@ parse:"t->new Function('return('+t+')')()".fn(),
 stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")}}
 if(!("execScript"in w)){
 w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:
-"d t a -> s -> d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document,"script","appendChild")}
+"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document,"script","appendChild")}
 w.load=function(f,cb){
 if(!Array.isArray(f))f=[f]
 var i=0,len=f.length,res=[]
@@ -237,10 +237,6 @@ res=null}
 w.load.path=""
 }(this,"prototype")
 !function(w,d,P){
-var a,b,c
-/*@cc_on
-try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
-@*/
 var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){
 var _e=el._e||(el._e={})
@@ -451,7 +447,10 @@ if(!(El[P]=extend((w.HTMLElement||w.Element||{})[P],a))){
 El[P]=a
 var c=d.createElement
 extend(d.body)
-d.createElement=function(n){return extend(c(n))}}
+d.createElement=function(n){return extend(c(n))}
+/*@cc_on
+try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
+@*/}
 w.El=El
 }(window,document,"prototype")
 !function(s){execScript(s[s.length-1].innerHTML||";")}(document.getElementsByTagName("script"))
