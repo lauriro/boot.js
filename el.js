@@ -214,7 +214,7 @@
 	function extend(e,p,k){
 		if(e){
 			if(!p)p=El[P];
-			for(k in p)e[k]=p[k];
+			for(k in p)e[k]=p[k]
 		}
 		return e;
 	}
@@ -397,7 +397,7 @@
 	w.El = El;
 	//*/
 
-}(window, document, "prototype");
+}(this, document, "prototype");
 
 
 

@@ -13,11 +13,9 @@
 
 !function(w/* window */, P/* String "prototype" */) {
 	var A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
-	  , p2 = function(n){return n>9?n:"0"+n}
-	  , p3 = function(n){return (n>99?n:(n>9?"0":"00")+n)}
 	  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
 	  , xhrs = []
-	  , Nop = function(){};
+	  , Nop = function(){}
 	  , a, b, c; // Reusable
 
 	/*@cc_on
@@ -229,7 +227,7 @@
 	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
 	a.merge = function(main){
 		var o, i = 1, k;
-		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k];
+		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
 		return main;
 	}
 
@@ -455,7 +453,7 @@ function applyr(f) {
   }
 
   S.int2ip = N.int2ip = function() {
-  	var t = this;
+  	var t = +this;
   	return [t>>>24, (t>>>16)&0xFF, (t>>>8)&0xFF, t&0xFF].join(".");
   }
 	//*/
@@ -464,6 +462,14 @@ function applyr(f) {
 
 	// Date extensions
 	// ---------------
+	
+	function p2(n) {
+		return n>9?n:"0"+n
+	}
+
+	function p3(n) {
+		return (n>99?n:(n>9?"0":"00")+n)
+	}
 
 	//** Date.format
 	// ISO 8601 specifies numeric representations of date and time.
