@@ -53,7 +53,9 @@ TestCase.prototype = {
 , result:function(){
 		var str = this.name + " " + this.pass + " passed, " + this.fail.length + " failed in "+this.time+" ms."
 		if (this.fail.length) str += this.fail.join("<br>")
-		return El("li."+(this.fail.length?"fail":"pass"), str);
+		var el = El("li."+(this.fail.length?"fail":"pass"));
+		el.innerHTML = str;
+		return el;
   }
 }
 TestCase.read = function(file){
