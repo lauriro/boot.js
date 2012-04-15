@@ -12,7 +12,7 @@
 
 
 function Cookie (n/*ame*/) {
-	return (n = ("; "+document.cookie).split("; "+n+"=")[1]) ? unescape(n.split("; ")[0]) : false;
+	return (n = ("; "+document.cookie).split("; "+n+"=")[1]) ? unescape(n.split(";")[0]) : "";
 }
 
 Cookie.set = function (n/*ame*/, v/*alue*/, e/*xpires in seconds*/, p/*ath*/, d/*omain*/, s/*ecure*/) {
@@ -22,7 +22,7 @@ Cookie.set = function (n/*ame*/, v/*alue*/, e/*xpires in seconds*/, p/*ath*/, d/
 }
 
 Cookie.destroy = function (n/*ame*/) {
-	return Cookie.set(n, "", -9e4);
+	return Cookie.set(n, "", -1);
 }
 
 
@@ -44,14 +44,14 @@ Cookie.destroy = function (n/*ame*/) {
 	, Cookie("_test2")
 	, "2"
 	, Cookie("_test3_not_found")
-	, false
+	, ""
 	, "Cookie()");
 
 	Cookie.destroy("_test1");
 
 	test.compare(
-	  !!Cookie("_test1")
-	, false
+	  Cookie("_test1")
+	, ""
 	, Cookie("_test2")
 	, "2"
 	, "Cookie.destroy()");
