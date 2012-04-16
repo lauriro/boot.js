@@ -41,7 +41,7 @@ return new Function(a,"return("+s+")")
 S.fn=function(){return lambda(this)}
 F.fn=function(){return this}
 a=Array
-I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
+I(a,"isArray","return a instanceof Array")
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
 a="var t=this,l=t.length,o=[],i=-1;"
 c="if(t[i]===a)return i;return -1"
@@ -157,17 +157,7 @@ D.pretty=function(format,custom){var d=(new Date-this+1)/1000,a=D.prettySteps,i=
 if(d<a[0]){while(d>a[--i]);d/=a[i+1];
 return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
 return this.format(format)}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:"t->new Function('return('+t+')')()".fn(),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")}}
-if(!("execScript"in w)){w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document,"script","appendChild")}
-w.load=function(f,cb){if(!Array.isArray(f))f=[f]
-var i=0,len=f.length,res=[]
-while(i<len)!function(i){xhr("GET",f[i].replace(/^[^\/]/,w.load.path+"$&"),function(str){res[i]=str
-if(!--len){execScript(res.join(";"))
-cb&&cb()
-res=null}
-}).send()
-}(i++)}
-w.load.path=""
+if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:"t->new Function('return('+t+')')()".fn(),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}
 }(this,"prototype")
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
@@ -304,4 +294,16 @@ try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/}
 w.El=El
 }(this,document,"prototype")
-!function(s){execScript(s[s.length-1].innerHTML||";")}(document.getElementsByTagName("script"))
+!function(w,d,s){var ls=d.getElementsByTagName(s),tag=ls[ls.length-1]
+if(!("execScript"in w)){w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(d,s,"appendChild")}
+w.load=function(f,cb){if(!Array.isArray(f))f=[f]
+var i=0,len=f.length,res=[]
+while(i<len)!function(i){xhr("GET",f[i].replace(/^[^\/]/,w.load.path+"$&"),function(str){res[i]=str
+if(!--len){execScript(res.join(";"))
+cb&&cb()
+res=null}
+}).send()
+}(i++)}
+w.load.path=tag.src.replace(/[^\/]+$/,"")
+execScript(tag.innerHTML+";")
+}(this,document,"script")

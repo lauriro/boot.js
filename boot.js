@@ -42,11 +42,13 @@
 	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
+	
+	// instanceof not implemented in IE 5 MAC
 
 
 	// We need bind in beginning, other ECMAScript 5 stuff will come later
 	
-	I(F, "bind"   , "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
+	I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
 
 	var sl = F.call.bind(A.slice);
 	
@@ -170,8 +172,8 @@
 	//
 	// Native in FF
 
-	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
-	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
+	I(a, "isArray", "return a instanceof Array");
+	
 	// Non-standard
 	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
 	/*
@@ -638,57 +640,9 @@ function applyr(f) {
 		w.JSON = {
 			map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
 			parse: "t->new Function('return('+t+')')()".fn(),
-			stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join(',')+']';}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"';}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join(',')+'}';}return''+o")
+			stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")
 		}
 	}
-
-
-	// eval in a global context for non-IE & non-Chrome (removed form v8 on 2011-05-23: Version 3.3.9)
-	// THANKS: Juriy Zaytsev - Global eval [http://perfectionkills.com/global-eval-what-are-the-options/]
-	if (!("execScript" in w)) {
-		w.execScript = (function(o,Object){return(1,eval)("(Object)")===o})(Object,1) ? eval : 
-			"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(document, "script", "appendChild")
-	}
-
-
-	/** loader.CommonJS style modules
-	var _required = {}
-	w.require = function(file) {
-		if (file in _required) return _required[file];
-		var req = new XMLHttpRequest(), exports = {};
-		req.open("GET", file.replace(/^[^\/]/, w.require.path+"$&"), false);
-		req.send();
-		eval(req.responseText);
-		return _required[file] = exports;
-	}
-	w.require.path = b;
-	//*/
-
-
-	//** loader.async
-	w.load = function(f, cb) {
-		if (!Array.isArray(f)) f=[f];
-		var i=0, len=f.length, res = [];
-		while (i<len) !function(i) {
-			xhr("GET", f[i].replace(/^[^\/]/, w.load.path+"$&"), function(str) {
-				res[i] = str;
-				//for (var str,e="";str=res[loaded];++loaded){e+=str};
-				//e && execScript(e);
-				if (!--len) {
-					execScript( res.join(";") );
-					cb && cb();
-					res = null;
-				}
-			}).send();
-		}(i++);
-	}
-	/** loader - helpers
-	a = document.getElementsByTagName("script");
-	b = a[a.length-1].src.replace(/[^\/]+$/,"");
-	//*/
-
-	w.load.path = ""
-	//*/
 
 }(this, "prototype");
 
@@ -812,6 +766,17 @@ function applyr(f) {
 	, [1,3,5].indexFor(5, sort), 3
 	, [1,3,5].indexFor(6, sort), 3
 	, "Array.indexFor()");
+
+	test.compare(
+	  Array.isArray([1])
+	, true
+	, Array.isArray(1)
+	, false
+	, Array.isArray(arguments)
+	, false
+	, Array.isArray({a:1})
+	, false
+	, "Array.isArray");
 
 	test.done();
 }()
