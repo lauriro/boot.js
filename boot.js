@@ -42,6 +42,8 @@
 	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
+	
+	// instanceof not implemented in IE 5 MAC
 
 
 	// We need bind in beginning, other ECMAScript 5 stuff will come later
@@ -170,8 +172,8 @@
 	//
 	// Native in FF
 
-	I(a, "isArray", "return x.call(a)=='[object Array]'", [O.toString]);
-	//a.isArray = "x->a->x.call(a)=='[object Array]'".fn()(O.toString)
+	I(a, "isArray", "return a instanceof Array");
+	
 	// Non-standard
 	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
 	/*
@@ -764,6 +766,17 @@ function applyr(f) {
 	, [1,3,5].indexFor(5, sort), 3
 	, [1,3,5].indexFor(6, sort), 3
 	, "Array.indexFor()");
+
+	test.compare(
+	  Array.isArray([1])
+	, true
+	, Array.isArray(1)
+	, false
+	, Array.isArray(arguments)
+	, false
+	, Array.isArray({a:1})
+	, false
+	, "Array.isArray");
 
 	test.done();
 }()

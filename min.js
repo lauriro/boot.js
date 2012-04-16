@@ -41,7 +41,7 @@ return new Function(a,"return("+s+")")
 S.fn=function(){return lambda(this)}
 F.fn=function(){return this}
 a=Array
-I(a,"isArray","return x.call(a)=='[object Array]'",[O.toString])
+I(a,"isArray","return a instanceof Array")
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
 a="var t=this,l=t.length,o=[],i=-1;"
 c="if(t[i]===a)return i;return -1"
