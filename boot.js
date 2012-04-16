@@ -18,13 +18,13 @@
 	  , Nop = function(){}
 	  , a, b, c; // Reusable
 
-	/*@cc_on
-		// XMLHttpRequest was unsupported in IE 5.x-6.x
-		I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
-	@*/
+
+	// XMLHttpRequest was unsupported in IE 5.x-6.x
+	I(w, "XMLHttpRequest", "return new ActiveXObject('Msxml2.XMLHTTP')");
+	//I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
+
 
 	//** xhr
-
 	w.xhr = function(method, url, cb, sync){
 		var r = xhrs.shift() || new XMLHttpRequest();
 		r.open(method, url, !sync);
@@ -38,6 +38,8 @@
 		return r;
 	};
 	//*/
+
+
 	/** hasOwnProperty
 	* Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
