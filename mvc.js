@@ -110,6 +110,8 @@ List.Filter = Fn.Init.extend({
 				}
 
 				// Extract required fields /collection[id&name]
+				if (junk.indexOf(".") > -1)
+					return slash(junk)+'.split(".").reduce(function(a,b){return a && b in a && a[b]}, i)'
 				return slash(junk) + " in i" + sep;
 			}
 		)

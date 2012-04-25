@@ -38,6 +38,7 @@
     Math.log(64)/Math.LN2
  */
 
+!function(root){
 
 var BitsInByte = [ 
 		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
@@ -450,6 +451,19 @@ SuccinctTrie.prototype = {
   }
 };
 
+	root.Trie = root.SuccinctTrie = SuccinctTrie;
+	root.FrozenTrie = SuccinctTrie;
+	root.RankDirectory = RankDirectory;
+
+}(this)
+
+
+if ( typeof exports !== "undefined" ) {
+	exports.Trie = SuccinctTrie;
+	exports.FrozenTrie = SuccinctTrie;
+	exports.RankDirectory = RankDirectory;
+}
+
 
 /** Tests
 !function(){
@@ -472,11 +486,3 @@ SuccinctTrie.prototype = {
 }()
 //*/
 
-
-
-
-if ( typeof exports !== "undefined" ) {
-	exports.Trie = SuccinctTrie;
-	exports.FrozenTrie = SuccinctTrie;
-	exports.RankDirectory = RankDirectory;
-}

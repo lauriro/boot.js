@@ -40,7 +40,7 @@ El.cache(
 		function move(e){
 			var diff = v ? maxPx - Event.pointerY(e) + offset : Event.pointerX(e) - offset;
 			diff = (diff>maxPx ? maxPx : (diff<0?0:diff));
-			el.set( diff / px, diff );
+			el.change( diff / px, diff );
 			"on_move" in el && el.on_move( diff + knobLen );
 			return false;
 		}
@@ -49,10 +49,10 @@ El.cache(
 			fill.addClass("anim")
 			drag = false;
 			Event.remove(doc, "mouseup", stop).remove(doc, "mousemove", move);
-			el.set(value);
+			el.change(value);
 		}
 
-		el.set = function(val, pos, scroll){
+		el.change = function(val, pos, scroll){
 			px || load();
 			val = (val<min?min:val>max?max:val).toAccuracy(step);
 			;(drag || scroll) && value !== val && "on_change" in el && el.on_change(val);
@@ -62,22 +62,22 @@ El.cache(
 
 		el.append_hook = function(){
 			setTimeout(function(){
-				el.set(value);
+				el.change(value);
 			}, 150);
 		}
 
 		el.on("mousedown", function(e){
-			fill.removeClass("anim")
+			fill.rmClass("anim")
 			drag = true;
 			load();
 			move(e);
 			Event.add(doc, "mouseup", stop).add(doc, "mousemove", move).stop(e);
 		}).on("mousewheel", function(e,delta){
 			Event.stop(e);
-			el.set( 1*value + delta*step, 0, 1 );
+			el.change( 1*value + delta*step, 0, 1 );
 		});
 
-		Event.touch_as_mouse(el);
+		//Event.touch_as_mouse(el);
 	}
 );
 
