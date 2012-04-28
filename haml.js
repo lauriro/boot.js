@@ -36,18 +36,21 @@
 
 
 	function custom_init(el, data){
-		/*@cc_on el=El.get(el);@*/
-		var template, node = el.firstChild;
-		if (template = el.getAttribute("data-template")) {
-			El.cache.fn[template].call(el, el, data);
-			rendering || el.removeAttribute("data-template");
+		if (!rendering) {
+			/*@cc_on el=El.get(el);@*/
+			var template, node = el.firstChild;
+			if (template = el.getAttribute("data-template")) {
+				El.cache.fn[template].call(el, el, data);
+				el.removeAttribute("data-template");
+			}
+			for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data);
 		}
-		for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data);
 	}
 	function template(id, parent) {
 		var t = this;
 		t.id = id;
 		t.el = El("div");
+		t.el._parent = parent
 		t.el.haml_done = function(){
 			var str = t.el.innerHTML
 			  , fn = str.indexOf("data-template") > -1 ? custom_init : null;
@@ -172,7 +175,6 @@
 					switch (m[1]) {
 						case "template":
 							el = new template(m[2], parent).el;
-							el._parent = parent
 						break;
 						case "markdown":
 							//TODO:2011-11-09:lauriro:Write markdown support for haml
