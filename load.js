@@ -54,12 +54,12 @@
 			}).send();
 		}(i++);
 	}
+	w.load.path = tag.src.replace(/[^\/]+$/, "");
 	/** loader - helpers
 	a = document.getElementsByTagName("script");
 	b = a[a.length-1].src.replace(/[^\/]+$/,"");
 	//*/
 
-	w.load.path = tag.src.replace(/[^\/]+$/, "");
 	//*/
 
 	execScript(tag.innerHTML+";")

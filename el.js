@@ -253,7 +253,7 @@
 				}
 
 				// if ("nodeType" in e) b ? t.insertBefore(e, b===true ? t.firstChild : b) : t.appendChild(e);
-				if ("nodeType" in e) t.insertBefore(e, b===true ? t.firstChild : b ? b : null)
+				if ("nodeType" in e) t.insertBefore(e, b ? (b===true ? t.firstChild : typeof b == "number" ? t.childNodes[b] : b) : null)
 				//else "to" in e && e.to(t, b);
 				"append_hook" in e && e.append_hook();
 				//"child_hook" in t && t.child_hook();
@@ -316,7 +316,7 @@
 		css: function(atr, val) {
 			var t = this;
 			if (val) t.style[ (css_map[atr]||atr).camelCase() ] = val;
-			else getStyle(t, atr);
+			else return getStyle(t, atr);
 			return t;
 		}.byKeyVal(),
 
@@ -483,6 +483,12 @@
 	el.toggleClass("test4", false);
 	test_el.compare(el.className, "test3");
 	test_el.compare(el.hasClass("test3"), true, el.hasClass("test4"), false, "El.hasClass");
+
+	el.css("left","1px");
+	test_el.compare(el.css("left"), "1px", "El.css");
+
+	el.css({"top":"2px","left":"3px"});
+	test_el.compare(el.css("top"), "2px", el.css("left"), "3px", "El.css");
 
 
 	test_el.done();
