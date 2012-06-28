@@ -5,7 +5,7 @@
 	<meta http-equiv="x-dns-prefetch-control" content="off">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-	<link rel="stylesheet" type="text/css" href="css/test.css">
+	<link rel="stylesheet" type="text/css" href="../css/test.css">
 	<!--[if IE]>
 		<meta http-equiv="imagetoolbar" content="no">
 		<![if lt IE 9]><link type="text/css" rel="stylesheet" href="css/ie6.css"><![endif]>
@@ -13,7 +13,7 @@
 	<title>Test</title>
 </head><body>
 
-<script type="text/javascript" src="min.js">
+<script type="text/javascript" src="../min.js">
 var a = {a:1,b:2,c:{cc:3}};
 var b = {a:1,b:3}
 
@@ -78,8 +78,9 @@ El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 	Event.stop(e);
 });
 
-load("test.js", function(){
-	var modules = ["fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js", "jsonh.js"]
+load.path = "../"
+load("tests/test.js", function(){
+	var modules = ["el.js","fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "haml.js", "history.js", "jsonh.js"]
 
 	load( modules, function(){
 

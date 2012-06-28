@@ -12,45 +12,28 @@
 
 
 !function(S){
-	function sha_init(data) {
-		var bin = [], i = 0, len;
-		// input into 32 bit words
-		if (typeof(data) == "string") {
-			// encode_utf8
-			data = unescape( encodeURIComponent( data ) )
-			for (len = data.length;i < len;bin[i >> 2] = data.charCodeAt(i++)<<24|data.charCodeAt(i++)<<16|data.charCodeAt(i++)<<8|data.charCodeAt(i++));
-		} else {
-			for (len = data.length;i < len;bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++]);
-		}
+	var ch = function(i){return i.charCodeAt()}
+		, int2str = function(i) {
+				return ("0000000"+(i>>>0).toString(16)).slice(-8);
+			}
+		, sha_init = function(data) {
+				if (typeof(data) == "string") data = unescape( encodeURIComponent( data ) ).split("").map(ch);
 
-		// append a 1 bit
-		i = len << 3;
-		bin[len >> 2] |= 0x80 << (24 - (i & 31));
+				var bin = [], i = 0, len = data.length;
+				while (i < len) bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++];
 
-		// append 0 bits to length  bits % 512 == 448
-		bin.push.apply(bin, [0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ));
-
-		// append 64-bit source length
-		bin.push(0, i);
-		
-		return bin;
-	}
-
-	function sha_format(asBytes, arr){
-		var out = [],i=0, len=arr.length;
-		if (asBytes) {
-			// convert to byte array
-			for (;i<len;i++) out.push( (arr[i]>>>24)&0xff, (arr[i]>>>16)&0xff, (arr[i]>>>8)&0xff, arr[i]&0xff );
-			return out;
-		}
-		//for (;i<len;i++) out[i] = ("0000000" + (arr[i]>>>0).toString(16)).slice(-8)
-		for (;i<len;i++) {
-			var s = (arr[i]>>>0).toString(16);
-			out[i] = (s.length===8) ? s : ("0000000"+s).slice(-8);
-		}
-
-		return out.join("");
-	}
+				i = len << 3;
+				bin[len >> 2] |= 0x80 << (24 - (i & 31));
+				return bin.concat([0,0,0,0,0,0,0,0,0,0,0,0,0,0].slice( bin.length & 15 ), [0, i]);
+			}
+		, sha_format = function(asBytes, arr) {
+				if (asBytes) {
+					// convert to byte array
+					for (var out = [], i=0, len=arr.length;i<len;i++) out.push( (arr[i]>>>24)&0xff, (arr[i]>>>16)&0xff, (arr[i]>>>8)&0xff, arr[i]&0xff );
+					return out;
+				}
+				return arr.map(int2str).join("");
+			}
 
 	function sha1(data, asBytes) {
 		var h0 = 0x67452301
@@ -96,11 +79,9 @@
 
 
 
-	var s_sha1 = function(asBytes){
-		return S.sha1 === s_sha1 && sha1(""+this, asBytes);
+	S.sha1 = function(asBytes){
+		return sha1(""+this, asBytes);
 	}
-
-	S.sha1 = s_sha1;
 
 	function sha256(data, asBytes) {
 		var h0 = 0x6a09e667
@@ -165,36 +146,67 @@
 		return sha_format(asBytes, [h0, h1, h2, h3, h4, h5, h6, h7]);
 	}
 
-	var s_sha256 = function(asBytes){
-		return s_sha256 === S.sha256 && sha256(""+this, asBytes);
+	S.sha256 = function(asBytes){
+		return sha256(""+this, asBytes);
 	}
 	
-	S.sha256 = s_sha256;
-
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt) {
-		var i=0, j, ipad = [], opad = [];
-		if (key.length > blocksize) {
-			for(key=hasher(key,true); i<blocksize; ipad[i]=key[i]^0x36,opad[i]=key[i++]^0x5c);
-		} else {
-			for(; j=key.charCodeAt(i); ipad[i]=j^0x36,opad[i++]=j^0x5c);
-		}
-		for(; i<blocksize; ipad[i]=0x36,opad[i++]=0x5c);
-		for(i=0,j=txt.length; i<j; ipad.push(txt.charCodeAt(i++)) );
-		return hasher(opad.concat(hasher(ipad,true)));
+		var i = 0, ipad = [], opad = [];
+		key = (key.length > blocksize) ? hasher(key, true) : key.split("").map(ch);
+		for(; i<blocksize; ipad[i]=key[i]^0x36, opad[i]=key[i++]^0x5c);
+		return hasher(opad.concat(hasher(ipad.concat(txt.split("").map(ch)),true)));
 	}
 
-	var s_hmac_sha1 = function(key){
-				return S.hmac_sha1 === s_hmac_sha1 && hmac(sha1, 64, key, this);
-			}
-	  , s_hmac_sha256 = function(key){
-	  		return S.hmac_sha256 === s_hmac_sha256 && hmac(sha256, 64, key, this);
-	  	}
+	S.hmac_sha1 = function(key){
+		return hmac(sha1, 64, key, this);
+	}
+
+	S.hmac_sha256 = function(key){
+		return hmac(sha256, 64, key, this);
+	}
 	
-	S.hmac_sha1 = s_hmac_sha1;
-	S.hmac_sha256 = s_hmac_sha256;
 	//*/
 
+
+	/** PBKDF2
+	
+	** PBKDF2 Implementation (described in RFC 2898)
+	*
+	*  @param string p password
+	*  @param string s salt
+	*  @param int c iteration count (use 1000 or higher)
+	*  @param int kl derived key length
+	*  @param string a hash algorithm
+	*
+	*  @return string derived key
+
+	function pbkdf2( $p, $s, $c, $kl, $a = 'sha256' ) {
+	 
+			$hl = strlen(hash($a, null, true)); # Hash length
+			$kb = ceil($kl / $hl);              # Key blocks to compute
+			$dk = '';                           # Derived key
+	 
+			# Create key
+			for ( $block = 1; $block <= $kb; $block ++ ) {
+	 
+					# Initial hash for this block
+					$ib = $b = hash_hmac($a, $s . pack('N', $block), $p, true);
+	 
+					# Perform block iterations
+					for ( $i = 1; $i < $c; $i ++ )
+	 
+							# XOR each iterate
+							$ib ^= ($b = hash_hmac($a, $b, $p, true));
+	 
+					$dk .= $ib; # Append iterated block
+			}
+	 
+			# Return derived key of correct length
+			return substr($dk, 0, $kl);
+	}
+
+	//*/
 }(String.prototype);
 
 

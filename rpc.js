@@ -56,8 +56,8 @@ var rpc = function(){
 		req.send();
 	}
 
-	get("LICENSE",function(data, req){
-		get("LICENSE",function(data2, req2){
+	get("../LICENSE",function(data, req){
+		get("../LICENSE",function(data2, req2){
 			TestCase("RPC")
 				.compare(
 					data
