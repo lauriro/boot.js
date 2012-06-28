@@ -72,11 +72,10 @@ return function(){var s=this,r=s,a=arguments
 ;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
 F.byKeyVal=function(){var t=this
-return function(o){var s=this,a=arguments,r
-if(typeof o=="object")Object.each(o,function(v,k){a[0]=k
-a[1]=v
-r=t.apply(s,a)})
-else r=t.apply(s,a)
+return function(o){var s=this,a=sl(arguments),r
+if(typeof o=="object")for(r in o){a[0]=r
+a[1]=o[r]
+r=t.apply(s,a)}else r=t.apply(s,a)
 return r}}
 !function(n){F[n]=S[n]=function(){var t=this,a=arguments,arr=a[0]
 a[0]=t.fn()
@@ -233,7 +232,7 @@ if(e){if(typeof e=="string"||typeof e=="number")e=El.text(e)
 else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f="createDocumentFragment"in d?d.createDocumentFragment():El("div")
 while(i<len)t.append.call(f,e[i++]);
 e=f}
-if("nodeType"in e)t.insertBefore(e,b===true?t.firstChild:b?b:null)
+if("nodeType"in e)t.insertBefore(e,b?(b===true?t.firstChild:typeof b=="number"?t.childNodes[b]:b):null)
 "append_hook"in e&&e.append_hook()}
 return t},after:function(e,b){e.parentNode.append(this,b?e:e.nextSibling)
 return this},to:function(e,b){e.append(this,b)
@@ -254,7 +253,7 @@ if("empty"in t)t.empty()
 if("kill_hook"in t)t.kill_hook()
 return t},css:function(atr,val){var t=this
 if(val)t.style[(css_map[atr]||atr).camelCase()]=val
-else getStyle(t,atr)
+else return getStyle(t,atr)
 return t}.byKeyVal(),on:function(w,fn){Event.add(this,w,fn)
 return this}.byWords(),non:function(w,fn){Event.remove(this,w,fn)
 return this}.byWords(),set:function(args){var t=this,k,v
