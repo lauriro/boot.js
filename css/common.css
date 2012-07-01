@@ -16,9 +16,9 @@ body {
 button {
  	vertical-align: middle;
 	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	user-select: none;
+	 -khtml-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
 	width:auto;overflow:visible; /* Fixes extra padding issue in IE6/7 */
 	cursor:pointer;*cursor:hand; /* Alternate cursor for IE */
 }
@@ -37,12 +37,13 @@ button {
 /* Prevent the text contents of draggable elements from being selectable. */
 [draggable=true] {
 	-webkit-user-drag: element;
-	-khtml-user-drag: element;
+	 -khtml-user-drag: element;
+
 	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
-	user-select: none;
+	 -khtml-user-select: none;
+	   -moz-user-select: none;
+	     -o-user-select: none;
+	        user-select: none;
 }
 
 

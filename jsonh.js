@@ -41,12 +41,21 @@ JSON.H = {
 /** Tests for JSONH
 !function(){
 	var test = new TestCase("JSONH")
-	  , o = [{a:"A",b:"Ab"}, {a:"B",b:"Bb"}];
+	  , o = [{a:"A",b:"Ab"}, {a:"B",b:"Bb"}]
+	  , o2 = [{a:"A",b:"Ab",c:"Ac"}, {a:"B",c:"Bc",b:"Bb"}];
 
 	JSON.H.pack(o);
-	test.compare( JSON.stringify(o), '[["a","b"],"A","Ab","B","Bb"]');
+	JSON.H.pack(o2);
+	test.compare(
+		JSON.stringify(o), '[["a","b"],"A","Ab","B","Bb"]',
+		JSON.stringify(o2), '[["a","b","c"],"A","Ab","Ac","B","Bb","Bc"]'
+	);
 	JSON.H.unpack(o);
-	test.compare( JSON.stringify(o), '[{"a":"A","b":"Ab"},{"a":"B","b":"Bb"}]');
+	JSON.H.unpack(o2);
+	test.compare( 
+		JSON.stringify(o), '[{"a":"A","b":"Ab"},{"a":"B","b":"Bb"}]',
+		JSON.stringify(o2), '[{"a":"A","b":"Ab","c":"Ac"},{"a":"B","b":"Bb","c":"Bc"}]'
+	);
 
 	test.done();
 }()

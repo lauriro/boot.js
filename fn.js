@@ -38,7 +38,14 @@ Fn.Events = {
 		} else delete t._e;
 		return t;
 	}.byWords(),
-	trigger: function(ev) {
+	once: function(ev, fn, scope) {
+		var t = this
+		  , o = fn.chain(t.non.bind(t, ev, o))
+		  //, o = fn.chain(function(){t.non(ev, o)})
+		t.on(ev, o, scope);
+		return t;
+	},
+	emit: function(ev) {
 		var t = this;
 		if ("_e" in t && ev in t._e) {
 			for (var i=0, e=t._e[ev], a=e.slice.call(arguments, 1); ev=e[i++];) ev[0].apply(ev[1]||t, a);

@@ -13,21 +13,44 @@
 
 !function(S/* String.prototype */){
 	var custom = El.cache.fn, rendering  = false;
+	/*
+	function getTextNodesIn(node, includeWhitespaceNodes) {
+		var textNodes = [], whitespace = /^\s*$/;
+
+		function getTextNodes(node) {
+			if (node.nodeType == 3) {
+				if (includeWhitespaceNodes || !whitespace.test(node.nodeValue)) {
+					textNodes.push(node);
+				}
+			} else {
+				for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+					getTextNodes(node.childNodes[i]);
+				}
+			}
+		}
+
+    getTextNodes(node);
+		return textNodes;
+	}
+	*/
 
 
 	function custom_init(el, data){
-		/*@cc_on el=El.get(el);@*/
-		var template, node = el.firstChild;
-		if (template = el.getAttribute("data-template")) {
-			El.cache.fn[template].call(el, el, data);
-			rendering || el.removeAttribute("data-template");
+		if (!rendering) {
+			/*@cc_on el=El.get(el);@*/
+			var template, node = el.firstChild;
+			if (template = el.getAttribute("data-template")) {
+				El.cache.fn[template].call(el, el, data);
+				el.removeAttribute("data-template");
+			}
+			for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data);
 		}
-		for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data);
 	}
-	function template(id) {
+	function template(id, parent) {
 		var t = this;
 		t.id = id;
 		t.el = El("div");
+		t.el._parent = parent
 		t.el.haml_done = function(){
 			var str = t.el.innerHTML
 			  , fn = str.indexOf("data-template") > -1 ? custom_init : null;
@@ -39,6 +62,7 @@
 				t.fn = El.liquid(str)
 				El.cache(t.id, t, t.parse.bind(t));
 			}
+			return parent;
 		//	delete t.el.haml_done;
 			
 		}
@@ -138,8 +162,7 @@
 				while (i <= stack[0]) {
 					stack.shift();
 					
-					if ("haml_done" in parent) parent.haml_done();
-					parent = parent._parent || parent.parentNode;
+					parent = ("haml_done" in parent) ? parent.haml_done() : parent.parentNode;
 				}
 
 				if (name) {
@@ -151,8 +174,7 @@
 					m = text.split(" ");
 					switch (m[1]) {
 						case "template":
-							el = new template(m[2]).el;
-							el._parent = parent
+							el = new template(m[2], parent).el;
 						break;
 						case "markdown":
 							//TODO:2011-11-09:lauriro:Write markdown support for haml
