@@ -27,7 +27,7 @@ var Model = Fn.Init.extend(Fn.Events, {
 			changed.push(arg);
 		}
 		if (!silent && changed.length) {
-			t.trigger("change", changed);
+			t.emit("change", changed);
 		}
 		return changed;
 	},
@@ -50,14 +50,14 @@ var List = Fn.Init.extend(Fn.Items, Fn.Events, {
 		item.lists.push(t);
 		pos = pos !== void 0 ? pos : t.items.indexFor(item, t.sortFn, t);
 		t.items.splice(pos , 0, item);
-		t.trigger("add", item, pos);
+		t.emit("add", item, pos);
 		return t;
 	},
 	remove: function(item) {
 		var t = this, m = item.lists;
 		if (m.length != m.remove(t).length) {
 			t.items.remove(item);
-			t.trigger("remove", item);
+			t.emit("remove", item);
 		}
 	},
 	toString: function() {
