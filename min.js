@@ -149,6 +149,38 @@ if(d<a[0]){while(d>a[--i]);d/=a[i+1];
 return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
 return this.format(format)}
 if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:"t->new Function('return('+t+')')()".fn(),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this,"prototype")
+var Fn=function(){var t=this
+return "init"in t&&t.init.apply(t,arguments)||t}
+Fn.Nop=function(){}
+Fn.This=function(){return this}
+Fn.True=function(){return!0}
+Fn.False=function(){return!1}
+Fn.Init=Fn
+Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
+;(e[ev]||(e[ev]=[])).push([fn,scope])
+return t}.byWords(),non:function(ev,fn){var t=this
+if(ev){if("_e"in t&&ev in t._e){if(fn)t._e[ev].remove(fn)
+else delete t._e[ev]}}else delete t._e
+return t}.byWords(),once:function(ev,fn,scope){var t=this,o=fn.chain(t.non.bind(t,ev,o))
+t.on(ev,o,scope)
+return t},emit:function(ev){var t=this
+if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
+return t}}
+Fn.Items={each:function(fn){var t=this
+t.items.forEach(fn,t)
+return t},map:function(fn){return this.items.map(fn,this)},pluck:function(name){return this.items.map(function(item){return item.get(name)},this)},at:function(index,fn){var t=this,item=t.items[index]
+return fn?(item&&fn.call(t,item),t):item},first:function(fn){return this.at(0,fn)},on_empty:function(fn){0 in this.items||fn()
+return this}}
+Fn.Lazy={wait:function(ignore){var t=this,k,hooks=[],hooked=[]
+ignore=ignore||[]
+for(k in t)if(typeof t[k]=="function"&&ignore.indexOf(k)==-1)!function(k){hooked.push(k)
+t[k]=function(){hooks.push([k,arguments]);return t}}(k)
+t.resume=function(){delete t.resume
+var i=hooked.length,v
+while(i--)delete t[hooked[i]];
+while(v=hooks[++i])t[v[0]].apply(t,v[1]);
+t=hooks=hooked=null}
+return t}}
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 type in _e||(_e[type]={})
