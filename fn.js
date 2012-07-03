@@ -11,16 +11,16 @@
 
 
 
-var Fn = function() {
-	var t = this;
-	return "init" in t && t.init.apply(t, arguments) || t;
-};
+var Fn = {};
 
 Fn.Nop = function() {};
 Fn.This = function() {return this};
 Fn.True = function() {return true};
 Fn.False = function() {return false};
-Fn.Init = Fn;
+Fn.Init = function() {
+	var t = this;
+	return "init" in t && t.init.apply(t, arguments) || t;
+};
 
 Fn.Events = {
 	on: function(ev, fn, scope) {

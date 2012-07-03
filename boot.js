@@ -11,33 +11,23 @@
 
 
 
-!function(w/* window */, P/* String "prototype" */) {
-  var A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
-  , I = function(o, n, s, x) {if (!(n in o)) o[n] = new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])}
+!function(w/* window */) {
+  var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
+  , sl
+  , fn
   , xhrs = []
   , Nop = function(){}
   , a, b, c; // Reusable
 
+  function I(o, n, s, x) {
+    o[n] = o[n] || new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])
+  }
 
-  // XMLHttpRequest was unsupported in IE 5.x-6.x
-  I(w, "XMLHttpRequest", "return new ActiveXObject('Msxml2.XMLHTTP')");
-  //I(w, "XMLHttpRequest", "a=function(n){n='Msxml2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
+  // We need bind in beginning, other ECMAScript 5 stuff will come later
+  I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
 
+  sl = F.call.bind(A.slice)
 
-  //** xhr
-  w.xhr = function(method, url, cb, sync){
-    var r = xhrs.shift() || new XMLHttpRequest();
-    r.open(method, url, !sync);
-    r.onreadystatechange = function(){
-      if (r.readyState == 4) {
-        cb && cb( r.responseText, r);
-        r.onreadystatechange = cb = Nop;
-        xhrs.push(r);
-      }
-    }
-    return r;
-  };
-  //*/
 
 
   /** hasOwnProperty
@@ -48,11 +38,7 @@
   // instanceof not implemented in IE 5 MAC
 
 
-  // We need bind in beginning, other ECMAScript 5 stuff will come later
 
-  I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
-
-  var sl = F.call.bind(A.slice);
 
   F.partial = function() {
     var t = this, a = sl(arguments);
@@ -90,29 +76,18 @@
     var t = this, f = t.clone(), i = 0;
     f[P] = Object.create(t[P]);
     while (t = arguments[i++]) Object.merge(f[P], t);
-      return f;
+    return f;
   }
 
 
   /* ECMAScript 5 stuff */
 
   S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-  //"trim" in S || (S.trim = S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, ""));
-  //I(S, "trim"   , "return this.replace(x,'')", [/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g]);
 
 
+  // THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 
-  /* THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
-  *
-  * Copyright: Copyright 2007 by Oliver Steele.  All rights reserved.
-  * License: MIT License
-  * Homepage: http://osteele.com/javascripts/functional
-  * Created: 2007-07-11
-  * Version: 1.0.2
-  *
-  * Modified by Lauri Rooden */
-
-  var lambda = function(s) {
+  fn = function(s) {
     var a = []
     , t = s.split("->");
 
@@ -142,7 +117,7 @@
   }.cache();
 
   S.fn = function(){
-    return lambda(this);
+    return fn(this);
   }
 
   F.fn = function() {
@@ -223,7 +198,7 @@
 
   // ### Object.create ###
   // ES5
-  I(a, "create" , "x[y]=a;return new x", [function(){}, P]);
+  I(a, "create" , "x[y]=a;return new x", [Nop, P]);
   // ### Object.keys ###
   // ES5
   I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
@@ -296,6 +271,10 @@
   }
 
   http://hangar.runway7.net/javascript/namespacing
+
+  function ns(n, s) {
+    return n.split(".").reduce(function(p, n){return p[n]=p[n]||{}}, s||this)
+  }
 
   S.ns = function(s){
     return "h n -> h[n] = h[n] || {}".fold(this.split("."), s || w)
@@ -577,7 +556,7 @@
       // Timezone
       n.indexOf("Z")>-1 && d.setTime(d-(d.getTimezoneOffset()*60000));
     } else d.setTime( (n<4294967296?n*1000:n) );
-      return format?d.format(format):d;
+    return format?d.format(format):d;
   }
   //*/
 
@@ -637,15 +616,38 @@
   //*/
 
 
+
+  // XMLHttpRequest was unsupported in IE 5.x-6.x
+  // MSXML version 3.0 was the last version of MSXML to support version-independent ProgIDs.
+  I(w, "XMLHttpRequest", "return new ActiveXObject('MSXML2.XMLHTTP')");
+  //I(w, "XMLHttpRequest", "a=function(n){n='MSXML2.XMLHTTP'+n;try{x[y]=function(){return new ActiveXObject(n)};return new x[y]}catch(e){}};return a('.6.0')||a('')");
+
+
+  //** xhr
+  w.xhr = function(method, url, cb, sync){
+    var r = xhrs.shift() || new XMLHttpRequest();
+    r.open(method, url, !sync);
+    r.onreadystatechange = function(){
+      if (r.readyState == 4) {
+        cb && cb( r.responseText, r);
+        r.onreadystatechange = cb = Nop;
+        xhrs.push(r);
+      }
+    }
+    return r;
+  };
+  //*/
+
+
   if (!("JSON" in w)) {
     w.JSON = {
       map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
-      parse: "t->new Function('return('+t+')')()".fn(),
+      parse: fn("t->new Function('return('+t+')')()"),
       stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")
     }
   }
 
-}(this, "prototype");
+}(this);
 
 
 

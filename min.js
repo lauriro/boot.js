@@ -1,13 +1,7 @@
-!function(w,P){var A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],I=function(o,n,s,x){if(!(n in o))o[n]=new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])},xhrs=[],Nop=function(){},a,b,c
-I(w,"XMLHttpRequest","return new ActiveXObject('Msxml2.XMLHTTP')")
-w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
-r.open(method,url,!sync)
-r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
-r.onreadystatechange=cb=Nop
-xhrs.push(r)}}
-return r}
+!function(w){var P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],sl,fn,xhrs=[],Nop=function(){},a,b,c
+function I(o,n,s,x){o[n]=o[n]||new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
-var sl=F.call.bind(A.slice)
+sl=F.call.bind(A.slice)
 F.partial=function(){var t=this,a=sl(arguments)
 return function(){return t.apply(this,a.concat(sl(arguments)))}}
 F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
@@ -25,7 +19,7 @@ f[P]=Object.create(t[P])
 while(t=arguments[i++])Object.merge(f[P],t);
 return f}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
-var lambda=function(s){var a=[],t=s.split("->")
+fn=function(s){var a=[],t=s.split("->")
 if(t.length>1)while(t.length){s=t.pop()
 a=t.pop().trim().split(/[\s,]+/)
 t.length&&t.push("(function("+a+"){return ("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("$1")
@@ -33,7 +27,7 @@ s="$1"+s}
 if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){a.push("$2")
 s+="$2"}else if(!t){a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g,"").match(/\b[a-z_]\w*/g)).unique()}}
 return new Function(a,"return("+s+")")}.cache()
-S.fn=function(){return lambda(this)}
+S.fn=function(){return fn(this)}
 F.fn=function(){return this}
 a=Array
 I(a,"isArray","return a instanceof Array")
@@ -58,7 +52,7 @@ I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);ret
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 a=Object
-I(a,"create","x[y]=a;return new x",[function(){},P])
+I(a,"create","x[y]=a;return new x",[Nop,P])
 I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
 I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
 a.merge=function(main){var o,i=1,k
@@ -148,14 +142,21 @@ D.pretty=function(format,custom){var d=(new Date-this+1)/1000,a=D.prettySteps,i=
 if(d<a[0]){while(d>a[--i]);d/=a[i+1];
 return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
 return this.format(format)}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:"t->new Function('return('+t+')')()".fn(),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this,"prototype")
-var Fn=function(){var t=this
-return "init"in t&&t.init.apply(t,arguments)||t}
+I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
+w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
+r.open(method,url,!sync)
+r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
+r.onreadystatechange=cb=Nop
+xhrs.push(r)}}
+return r}
+if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:fn("t->new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
+var Fn={}
 Fn.Nop=function(){}
 Fn.This=function(){return this}
 Fn.True=function(){return!0}
 Fn.False=function(){return!1}
-Fn.Init=Fn
+Fn.Init=function(){var t=this
+return "init"in t&&t.init.apply(t,arguments)||t}
 Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
 ;(e[ev]||(e[ev]=[])).push([fn,scope])
 return t}.byWords(),non:function(ev,fn){var t=this
