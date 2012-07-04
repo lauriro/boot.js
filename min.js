@@ -18,7 +18,33 @@ F.extend=function(){var t=this,f=t.clone(),i=0
 f[P]=Object.create(t[P])
 while(t=arguments[i++])Object.merge(f[P],t);
 return f}
-S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
+F.chain=function(a){return(Array.isArray(a)?a:sl(arguments)).reduce(function(pre,cur){return function(){return cur.call(this,pre.apply(this,arguments))}},this)}
+F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
+return t.chain(a)}
+F.guard=function(test,or){var t=this,f=test.fn(),o=(or||Nop).fn()
+return function(){return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
+F.ttl=function(ms,fun){var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
+return function(){clearTimeout(s)
+ms&&t.apply(null,arguments)}}
+F.once=function(ms){var t=this,s,args
+return function(){clearTimeout(s)
+args=arguments
+s=setTimeout(function(){t.apply(null,args)},ms)}}
+F.rate=function(ms){var t=this,n=0
+return function(){var d=+new Date
+if(d>n){n=d+ms
+t.apply(null,arguments)}}}
+F.byWords=function(i){var t=this
+i|=0
+return function(){var s=this,r=s,a=arguments
+;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
+return r}}
+F.byKeyVal=function(){var t=this
+return function(o){var s=this,a=sl(arguments),r
+if(typeof o=="object")for(r in o){a[0]=r
+a[1]=o[r]
+r=t.apply(s,a)}else r=t.apply(s,a)
+return r}}
 w.Fn=function(s){var a=[],t=s.split("->")
 if(t.length>1)while(t.length){s=t.pop()
 a=t.pop().trim().split(/[\s,]+/)
@@ -29,6 +55,7 @@ s+="$2"}else if(!t){a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|th
 return new Function(a,"return("+s+")")}.cache()
 S.fn=function(){return Fn(this)}
 F.fn=function(){return this}
+S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 a=Array
 I(a,"isArray","return a instanceof Array")
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
@@ -58,19 +85,6 @@ I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
 a.merge=function(main){var o,i=1,k
 while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
 return main}
-F.guard=function(test,or){var t=this,f=test.fn(),o=(or||Nop).fn()
-return function(){return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
-F.byWords=function(i){var t=this
-i|=0
-return function(){var s=this,r=s,a=arguments
-;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
-return r}}
-F.byKeyVal=function(){var t=this
-return function(o){var s=this,a=sl(arguments),r
-if(typeof o=="object")for(r in o){a[0]=r
-a[1]=o[r]
-r=t.apply(s,a)}else r=t.apply(s,a)
-return r}}
 !function(n){F[n]=S[n]=function(){var t=this,a=arguments,arr=a[0]
 a[0]=t.fn()
 return A[n].apply(arr,a)}}.byWords()("every filter forEach map reduce reduceRight some")
@@ -78,32 +92,21 @@ F.each=S.each=F.forEach
 F.fold=S.fold=F.reduce
 F.foldr=S.foldr=F.reduceRight
 F.select=S.select=F.filter
-F.chain=function(a){return(Array.isArray(a)?a:sl(arguments)).reduce(function(pre,cur){return function(){return cur.call(this,pre.apply(this,arguments))}},this)}
-F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
-return t.chain(a)}
-F.ttl=function(ms,fun){var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
-return function(){clearTimeout(s)
-ms&&t.apply(null,arguments)}}
-F.once=function(ms){var t=this,s,args
-return function(){clearTimeout(s)
-args=arguments
-s=setTimeout(function(){t.apply(null,args)},ms)}}
-F.rate=function(ms){var t=this,n=0
-return function(){var d=+new Date
-if(d>n){n=d+ms
-t.apply(null,arguments)}}}
+w.ns=function(n,s){return "h n->h[n]=h[n]||{}".fold(n.split("."),s||w)}
 S.format=function(m){var a=typeof m=="object"?m:arguments
 return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
-S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.toAccuracy=N.toAccuracy=function(a){var x=(""+a).split("."),n=~~((this/a)+.5)*a
 return ""+(1 in x?n.toFixed(x[1].length):n)}
+N.words=S.words=function(steps,units,strings){var n=+this,i=0,s=strings||{"default":"{0} {1}"}
+while(n>steps[i])n/=steps[i++];
+i=units[i]
+return(n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0,i)}
+S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
+S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
+S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.utf8_encode=function(){return unescape(encodeURIComponent(this))}
 S.utf8_decode=function(){return decodeURIComponent(escape(this))}
-S.ip2int=function(){var t=(this+".0.0.0").split(".")
-return((t[0]<<24)|(t[1]<<16)|(t[2]<<8)|(t[3]))>>>0}
-S.int2ip=N.int2ip=function(){var t=+this
-return[t>>>24,(t>>>16)&0xFF,(t>>>8)&0xFF,t&0xFF].join(".")}
 function p2(n){return n>9?n:"0"+n}
 function p3(n){return(n>99?n:(n>9?"0":"00")+n)}
 D.format=function(_){var t=this,x=D.format.masks[_]||_||D.format.masks["default"],g="get"+(x.slice(0,4)=="UTC:"?(x=x.slice(4),"UTC"):""),Y=g+"FullYear",M=g+"Month",d=g+"Date",w=g+"Day",h=g+"Hours",m=g+"Minutes",s=g+"Seconds",S=g+"Milliseconds"
@@ -124,12 +127,6 @@ return format?d.format(format):d}
 D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()}
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
-N.words=S.words=function(steps,units,strings){var n=+this,i=0,s=strings||{"default":"{0} {1}"}
-while(n>steps[i])n/=steps[i++];
-i=units[i]
-return(n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0,i)}
-S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
-S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
 D.prettySteps=[8640000,2592000,604800,86400,3600,60,1]
 D.prettyUnits=["month","week","day","hour","minute","second"]
 D.prettyStrings={"default":"{0} {1} ago","day":"Yesterday"}

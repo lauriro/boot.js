@@ -38,7 +38,9 @@
 
 
 
-
+  // Function extensions
+  // -------------------
+  
   F.partial = function() {
     var t = this, a = sl(arguments);
     return function() {return t.apply(this, a.concat(sl(arguments)))};
@@ -78,11 +80,114 @@
     return f;
   }
 
+  F.chain = function(a) {
+    return (Array.isArray(a) ? a : sl(arguments)).reduce(function(pre, cur){
+      return function(){
+        return cur.call(this, pre.apply(this,arguments));
+      }
+    }, this);
+  }
 
-  /* ECMAScript 5 stuff */
+  F.compose = function() {
+    var a = [this].concat(sl(arguments)), t = a.pop()
+    return t.chain(a);
+  }
 
-  S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+  F.guard = function(test, or) {
+    var t = this
+    , f = test.fn()
+    , o = (or||Nop).fn();
 
+    return function() {
+      return (f.apply(this, arguments) ? t : o).apply(this, arguments);
+    }
+  }
+
+  // Time to live - Run *fun* if Function not called on time
+  F.ttl = function(ms, fun) {
+    var t = this, s = setTimeout(function(){ms=0;fun&&fun()}, ms);
+    return function() {
+      clearTimeout(s);
+      ms && t.apply(null, arguments);
+    }
+  }
+
+  // Run Function once after last call
+  F.once = function(ms) {
+    var t = this, s, args;
+    return function() {
+      clearTimeout(s);
+      args = arguments;
+      s = setTimeout(function(){t.apply(null, args)}, ms);
+    }
+  }
+
+  // Maximum call rate for Function
+  F.rate = function(ms) {
+    var t = this, n = 0;
+    return function() {
+      var d = +new Date();
+      if (d > n) {
+        n = d + ms;
+        t.apply(null, arguments);
+      }
+    }
+  }
+
+  F.byWords = function(i) {
+    var t = this;
+    i |= 0;
+    return function() {
+      var s = this, r = s, a = arguments;
+      ;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
+      return r;
+    }
+  }
+
+  F.byKeyVal = function() {
+    var t = this;
+    return function(o) {
+      var s = this, a = sl(arguments), r;
+      if (typeof o == "object") for (r in o) {
+        a[0] = r;
+        a[1] = o[r];
+        r = t.apply(s, a);
+      } else r = t.apply(s, a);
+        return r;
+    }
+  }
+
+  /*
+  F.flip = function() {
+    var t = this;
+    return function() {
+      var a = arguments, b = a[0];
+      a[0] = a[1]
+      a[1] = b
+      return t.apply(this, a);
+    }
+  }
+  */
+  /**
+   * Returns a function identical to this function except that
+   * it prints its arguments on entry and its return value on exit.
+   * This is useful for debugging function-level programs.
+   */
+  
+  /** debug.trace
+  F.trace = function(n) {
+    var t = this;
+    n = n || t;
+    return "console" in w ?
+      function() {
+        console.info('[', n, 'apply(', this!=w && this, ',', arguments, ')');
+        var result = t.apply(this, arguments);
+        console.info(']', n, ' -> ', result);
+        return result;
+      } :
+      t;
+  }
+  //*/
 
   // THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 
@@ -123,21 +228,10 @@
     return this;
   }
 
-  /*
 
-  b = [];
+  /* ECMAScript 5 stuff */
 
-  a = function(o,s){
-  for(var i=0,n,a=s.split(" ");n=a[i++];)n in o||b.push(n);
-  }
-
-  a(Array, "isArray");
-  a(Object, "create keys");
-  a(A, "indexOf lastIndexOf reduce reduceRight forEach every map filter some")
-  a(D, "toISOString");
-  b.length && console.log("missing: "+b.join())
-
-  //*/
+  S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
 
 
   // Array extensions
@@ -211,46 +305,6 @@
 
   
 
-  // Function extensions
-  // -------------------
-  
-  //** Function extensions
-
-
-  F.guard = function(test, or) {
-    var t = this
-    , f = test.fn()
-    , o = (or||Nop).fn();
-
-    return function() {
-      return (f.apply(this, arguments) ? t : o).apply(this, arguments);
-    }
-  }
-
-  F.byWords = function(i) {
-    var t = this;
-    i |= 0;
-    return function() {
-      var s = this, r = s, a = arguments;
-      ;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
-      return r;
-    }
-  }
-
-  F.byKeyVal = function() {
-    var t = this;
-    return function(o) {
-      var s = this, a = sl(arguments), r;
-      if (typeof o == "object") for (r in o) {
-        a[0] = r;
-        a[1] = o[r];
-        r = t.apply(s, a);
-      } else r = t.apply(s, a);
-        return r;
-    }
-  }
-
-
   !function(n){
     F[n] = S[n] = function(){
       var t = this, a = arguments, arr = a[0]
@@ -264,21 +318,12 @@
   F.foldr = S.foldr = F.reduceRight;
   F.select = S.select = F.filter;
 
-  /*
-  var fr = function(r,f){
-    return f(r)
+
+  // THANKS: Sudhir Jonathan - Namespacing [http://hangar.runway7.net/javascript/namespacing]
+  w.ns = function(n, s) {
+    return "h n->h[n]=h[n]||{}".fold(n.split("."), s||w)
   }
 
-  http://hangar.runway7.net/javascript/namespacing
-
-  function ns(n, s) {
-    return n.split(".").reduce(function(p, n){return p[n]=p[n]||{}}, s||this)
-  }
-
-  S.ns = function(s){
-    return "h n -> h[n] = h[n] || {}".fold(this.split("."), s || w)
-  }
-  */
   /*
   // http://seanhess.github.com/2012/02/20/functional_javascript.html
   // http://msdn.microsoft.com/en-us/scriptjunkie/gg575560
@@ -303,101 +348,21 @@
       }
   }
 
-
+    // typeof
     var a = F.call.bind(O.toString)
     a(1).slice(8, -1).toLowerCase() // number
   */
 
 
-  F.chain = function(a) {
-    return (Array.isArray(a) ? a : sl(arguments)).reduce(function(pre, cur){
-      return function(){
-        return cur.call(this, pre.apply(this,arguments));
-      }
-    }, this);
-  }
-
-  F.compose = function() {
-    var a = [this].concat(sl(arguments)), t = a.pop()
-    return t.chain(a);
-  }
-  /*
-  F.flip = function() {
-    var t = this;
-    return function() {
-      var a = arguments, b = a[0];
-      a[0] = a[1]
-      a[1] = b
-      return t.apply(this, a);
-    }
-  }
-  */
-
-  // Time to live - Run *fun* if Function not called on time
-  F.ttl = function(ms, fun) {
-    var t = this, s = setTimeout(function(){ms=0;fun&&fun()}, ms);
-    return function() {
-      clearTimeout(s);
-      ms && t.apply(null, arguments);
-    }
-  }
-
-  // Run Function once after last call
-  F.once = function(ms) {
-    var t = this, s, args;
-    return function() {
-      clearTimeout(s);
-      args = arguments;
-      s = setTimeout(function(){t.apply(null, args)}, ms);
-    }
-  }
-
-  // Maximum call rate for Function
-  F.rate = function(ms) {
-    var t = this, n = 0;
-    return function() {
-      var d = +new Date();
-      if (d > n) {
-        n = d + ms;
-        t.apply(null, arguments);
-      }
-    }
-  }
-  //*/
-
-  /**
-   * Returns a function identical to this function except that
-   * it prints its arguments on entry and its return value on exit.
-   * This is useful for debugging function-level programs.
-   */
-  
-  /** debug.trace
-  F.trace = function(n) {
-    var t = this;
-    n = n || t;
-    return "console" in w ?
-      function() {
-        console.info('[', n, 'apply(', this!=w && this, ',', arguments, ')');
-        var result = t.apply(this, arguments);
-        console.info(']', n, ' -> ', result);
-        return result;
-      } :
-      t;
-  }
-  //*/
 
 
   // String extensions
   // -----------------
 
-  // String.format
-
   S.format = function(m) {
     var a = typeof m == "object" ? m : arguments;
     return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
   }
-
-  //*/
 
   S.safe = function() {
     return this
@@ -407,15 +372,25 @@
     .replace(/\"/g, "&quot;");
   }
 
-  //S.camelCase = function() { return this.replace(/[ _-]+([a-z])/g,function(_, a){return a.toUpperCase()}); }
-  S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
-
   S.toAccuracy = N.toAccuracy = function(a) {
     var x = (""+a).split("."), n = ~~((this/a)+.5) * a;
     return ""+(1 in x ? n.toFixed(x[1].length) : n);
   }
-  //*/
 
+  N.words = S.words = function(steps, units, strings){
+    var n = +this
+    , i = 0
+    , s = strings || {"default":"{0} {1}"};
+
+    while(n>steps[i])n/=steps[i++];
+    i=units[i];
+    return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
+  }
+
+  S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
+  S.humanTime = N.humanTime = N.words.partial([60,60,24],["sec","min","hour","day"])
+
+  S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
 
   //** String.utf8
   S.utf8_encode = function() {
@@ -427,8 +402,7 @@
   }
 	//*/
 
-
-  //** IP helpers
+  /** IP helpers
   S.ip2int = function() {
     var t = (this+".0.0.0").split(".");
     return ((t[0] << 24) | (t[1] << 16) | (t[2] << 8 ) | (t[3]))>>>0;
@@ -563,7 +537,6 @@
   //** Date.daysInMonth
   D.daysInMonth = function() {
     return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate();
-    //return 32-new Date(this.getFullYear(),this.getMonth(),32).getDate();
   }
   //*/
 
@@ -573,20 +546,6 @@
     return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1);
   }
   //*/
-
-
-  N.words = S.words = function(steps, units, strings){
-    var n = +this
-    , i = 0
-    , s = strings || {"default":"{0} {1}"};
-
-    while(n>steps[i])n/=steps[i++];
-    i=units[i];
-    return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
-  }
-
-  S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
-  S.humanTime = N.humanTime = N.words.partial([60,60,24],["sec","min","hour","day"])
 
 
 
@@ -1034,23 +993,23 @@ test.compare(
 , "12.4"
 , "String.toAccuracy()");
 
-test.compare(
-(4294967295).int2ip()
-, "255.255.255.255"
-, (0).int2ip()
-, "0.0.0.0"
-, "4294967295".int2ip()
-, "255.255.255.255"
-, "0".int2ip()
-, "0.0.0.0"
-, "String.int2ip()");
+//test.compare(
+//(4294967295).int2ip()
+//, "255.255.255.255"
+//, (0).int2ip()
+//, "0.0.0.0"
+//, "4294967295".int2ip()
+//, "255.255.255.255"
+//, "0".int2ip()
+//, "0.0.0.0"
+//, "String.int2ip()");
 
-test.compare(
-"255.255.255.255".ip2int()
-, 4294967295
-, "0.0.0.0".ip2int()
-, 0
-, "String.ip2int()");
+//test.compare(
+//"255.255.255.255".ip2int()
+//, 4294967295
+//, "0.0.0.0".ip2int()
+//, 0
+//, "String.ip2int()");
 
 test.done();
 }()
