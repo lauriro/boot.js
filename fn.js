@@ -11,8 +11,6 @@
 
 
 
-var Fn = {};
-
 Fn.Nop = function() {};
 Fn.This = function() {return this};
 Fn.True = function() {return true};

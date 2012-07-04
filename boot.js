@@ -14,7 +14,6 @@
 !function(w/* window */) {
   var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
   , sl
-  , fn
   , xhrs = []
   , Nop = function(){}
   , a, b, c; // Reusable
@@ -87,14 +86,14 @@
 
   // THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 
-  fn = function(s) {
+  w.Fn = function(s) {
     var a = []
     , t = s.split("->");
 
     if (t.length > 1) while (t.length) {
       s = t.pop();
       a = t.pop().trim().split(/[\s,]+/);
-      t.length && t.push("(function("+a+"){return ("+s+")})");
+      t.length && t.push("(function("+a+"){return("+s+")})");
     } else {
       // test whether an operator appears on the left (or right), respectively
       if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
@@ -117,7 +116,7 @@
   }.cache();
 
   S.fn = function(){
-    return fn(this);
+    return Fn(this);
   }
 
   F.fn = function() {
@@ -322,7 +321,7 @@
     var a = [this].concat(sl(arguments)), t = a.pop()
     return t.chain(a);
   }
-
+  /*
   F.flip = function() {
     var t = this;
     return function() {
@@ -332,6 +331,7 @@
       return t.apply(this, a);
     }
   }
+  */
 
   // Time to live - Run *fun* if Function not called on time
   F.ttl = function(ms, fun) {
@@ -642,7 +642,7 @@
   if (!("JSON" in w)) {
     w.JSON = {
       map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
-      parse: fn("t->new Function('return('+t+')')()"),
+      parse: Fn("t->new Function('return('+t+')')()"),
       stringify: new Function("o", "if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")
     }
   }

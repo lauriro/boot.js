@@ -1,4 +1,4 @@
-!function(w){var P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],sl,fn,xhrs=[],Nop=function(){},a,b,c
+!function(w){var P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],O=Object[P],S=String[P],sl,xhrs=[],Nop=function(){},a,b,c
 function I(o,n,s,x){o[n]=o[n]||new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 sl=F.call.bind(A.slice)
@@ -19,15 +19,15 @@ f[P]=Object.create(t[P])
 while(t=arguments[i++])Object.merge(f[P],t);
 return f}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
-fn=function(s){var a=[],t=s.split("->")
+w.Fn=function(s){var a=[],t=s.split("->")
 if(t.length>1)while(t.length){s=t.pop()
 a=t.pop().trim().split(/[\s,]+/)
-t.length&&t.push("(function("+a+"){return ("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("$1")
+t.length&&t.push("(function("+a+"){return("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("$1")
 s="$1"+s}
 if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){a.push("$2")
 s+="$2"}else if(!t){a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g,"").match(/\b[a-z_]\w*/g)).unique()}}
 return new Function(a,"return("+s+")")}.cache()
-S.fn=function(){return fn(this)}
+S.fn=function(){return Fn(this)}
 F.fn=function(){return this}
 a=Array
 I(a,"isArray","return a instanceof Array")
@@ -81,11 +81,6 @@ F.select=S.select=F.filter
 F.chain=function(a){return(Array.isArray(a)?a:sl(arguments)).reduce(function(pre,cur){return function(){return cur.call(this,pre.apply(this,arguments))}},this)}
 F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
 return t.chain(a)}
-F.flip=function(){var t=this
-return function(){var a=arguments,b=a[0]
-a[0]=a[1]
-a[1]=b
-return t.apply(this,a)}}
 F.ttl=function(ms,fun){var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
 return function(){clearTimeout(s)
 ms&&t.apply(null,arguments)}}
@@ -149,8 +144,7 @@ r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
 r.onreadystatechange=cb=Nop
 xhrs.push(r)}}
 return r}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:fn("t->new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
-var Fn={}
+if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:Fn("t->new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
 Fn.Nop=function(){}
 Fn.This=function(){return this}
 Fn.True=function(){return!0}
