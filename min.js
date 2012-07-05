@@ -2,11 +2,11 @@
 function I(o,n,s,x){o[n]=o[n]||new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 sl=F.call.bind(A.slice)
-F.partial=function(){var t=this,a=sl(arguments)
-return function(){return t.apply(this,a.concat(sl(arguments)))}}
 F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
 F.clone=function(){var a=this.toString().match(/\((.*)\)\s*{([\s\S]*)}$/)
 return new Function(a[1].split(/[, ]+/),a[2])}
+F.partial=function(){var t=this,a=sl(arguments)
+return function(){return t.apply(this,A.concat.apply(a,arguments))}}
 F.cache=function(instance,keyFn,cache){var t=this,c=cache||{},f=function(){var a=arguments,i=!!instance||this instanceof f,k=keyFn?keyFn(a,t):i+":"+a.length+":"+A.join.call(a)
 return k in c?c[k]:(c[k]=i?t.construct(a):t.apply(this,a))}
 f.origin=t
@@ -18,7 +18,7 @@ F.extend=function(){var t=this,f=t.clone(),i=0
 f[P]=Object.create(t[P])
 while(t=arguments[i++])Object.merge(f[P],t);
 return f}
-F.chain=function(a){return(Array.isArray(a)?a:sl(arguments)).reduce(function(pre,cur){return function(){return cur.call(this,pre.apply(this,arguments))}},this)}
+F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".reduce(Array.isArray(a)?a:sl(arguments),this)}
 F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
 return t.chain(a)}
 F.guard=function(test,or){var t=this,f=test.fn(),o=(or||Nop).fn()
@@ -56,6 +56,13 @@ return new Function(a,"return("+s+")")}.cache()
 S.fn=function(){return Fn(this)}
 F.fn=function(){return this}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
+a=Object
+I(a,"create","x[y]=a;return new x",[Nop,P])
+I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
+I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
+a.merge=function(main){var o,i=1,k
+while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
+return main}
 a=Array
 I(a,"isArray","return a instanceof Array")
 I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
@@ -78,13 +85,6 @@ I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
-a=Object
-I(a,"create","x[y]=a;return new x",[Nop,P])
-I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
-I(a,"each","for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
-a.merge=function(main){var o,i=1,k
-while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
-return main}
 !function(n){F[n]=S[n]=function(){var t=this,a=arguments,arr=a[0]
 a[0]=t.fn()
 return A[n].apply(arr,a)}}.byWords()("every filter forEach map reduce reduceRight some")

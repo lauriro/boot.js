@@ -41,11 +41,6 @@
   // Function extensions
   // -------------------
   
-  F.partial = function() {
-    var t = this, a = sl(arguments);
-    return function() {return t.apply(this, a.concat(sl(arguments)))};
-  }
-
   F.construct = function(a) {
     return new(F.bind.apply(this, A.concat.apply([null], a)));
   }  
@@ -53,6 +48,12 @@
   F.clone = function() {
     var a = this.toString().match(/\((.*)\)\s*{([\s\S]*)}$/);
     return new Function(a[1].split(/[, ]+/), a[2]);
+  }
+
+  F.partial = function() {
+    var t = this, a = sl(arguments);
+    //return function() {return t.apply(this, a.concat(sl(arguments)))};
+    return function() {return t.apply(this, A.concat.apply(a, arguments))};
   }
 
   // Run function once and return cached value or cached instance
@@ -81,11 +82,7 @@
   }
 
   F.chain = function(a) {
-    return (Array.isArray(a) ? a : sl(arguments)).reduce(function(pre, cur){
-      return function(){
-        return cur.call(this, pre.apply(this,arguments));
-      }
-    }, this);
+    return "a b->->b.call(this,a.apply(this,arguments))".reduce(Array.isArray(a) ? a : sl(arguments), this);
   }
 
   F.compose = function() {
@@ -234,6 +231,27 @@
   S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
 
 
+  // Object extensions
+  // -----------------
+
+  a = Object;
+
+  // ### Object.create ###
+  // ES5
+  I(a, "create" , "x[y]=a;return new x", [Nop, P]);
+  // ### Object.keys ###
+  // ES5
+  I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+  // Non-standard
+  I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+  a.merge = function(main){
+    var o, i = 1, k;
+    while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
+    return main;
+  }
+
+
+
   // Array extensions
   // ----------------
   a = Array;
@@ -257,7 +275,6 @@
 
   a = "var t=this,l=t.length,o=[],i=-1;";
   c = "if(t[i]===a)return i;return -1";
-
   I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
   I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
 
@@ -283,25 +300,6 @@
   
   A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
 
-
-  // Object extensions
-  // -----------------
-
-  a = Object;
-
-  // ### Object.create ###
-  // ES5
-  I(a, "create" , "x[y]=a;return new x", [Nop, P]);
-  // ### Object.keys ###
-  // ES5
-  I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
-  // Non-standard
-  I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
-  a.merge = function(main){
-    var o, i = 1, k;
-    while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
-    return main;
-  }
 
   
 
@@ -570,7 +568,7 @@
   }
 
   //   D.pretty2 = function(){return (new Date() - this + 1)/1000}
-  //     .sequence(N.words.partial( [2592000, 604800, 86400, 3600,   60,       1], ["month", "week", "day", "hour", "minute", "second"]))
+  //     .chain(F.call.bind(N.words.partial([60,60,24,7,30],["second","minute","hour","day","week","month"],{"default":"{0} {1} ago", "day":"Yesterday","minutes":"minutit"}))) 
   //     .guard("this<8640000", D.format)
   //*/
 
