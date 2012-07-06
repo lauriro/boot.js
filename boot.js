@@ -197,7 +197,7 @@
       a = t.pop().trim().split(/[\s,]+/);
       t.length && t.push("(function("+a+"){return("+s+")})");
     } else {
-      // test whether an operator appears on the left (or right), respectively
+      // test whether an operator appears on the left
       if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
         a.push("$1");
         s = "$1" + s;
@@ -226,14 +226,9 @@
   }
 
 
-  /* ECMAScript 5 stuff */
-
-  S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-
 
   // Object extensions
   // -----------------
-
   a = Object;
 
   // ### Object.create ###
@@ -357,6 +352,9 @@
   // String extensions
   // -----------------
 
+  S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
+  S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
+
   S.format = function(m) {
     var a = typeof m == "object" ? m : arguments;
     return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
@@ -388,7 +386,6 @@
   S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
   S.humanTime = N.humanTime = N.words.partial([60,60,24],["sec","min","hour","day"])
 
-  S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
 
   //** String.utf8
   S.utf8_encode = function() {
@@ -512,8 +509,9 @@
 
   //** Date helpers
 
+  //, n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
   S.date = N.date = function(format) {
-    var t = this, d = new Date(), m, n = +t || Date.parse(t) || ""+t;
+    var t = this, d = new Date(), m, n = +t || ""+t;
     if (isNaN(n)) {
       // Big endian date, starting with the year, eg. 2011-01-31
       if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3]);

@@ -55,7 +55,6 @@ s+="$2"}else if(!t){a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|th
 return new Function(a,"return("+s+")")}.cache()
 S.fn=function(){return Fn(this)}
 F.fn=function(){return this}
-S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 a=Object
 I(a,"create","x[y]=a;return new x",[Nop,P])
 I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
@@ -93,6 +92,8 @@ F.fold=S.fold=F.reduce
 F.foldr=S.foldr=F.reduceRight
 F.select=S.select=F.filter
 w.ns=function(n,s){return "h n->h[n]=h[n]||{}".fold(n.split("."),s||w)}
+S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
+S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.format=function(m){var a=typeof m=="object"?m:arguments
 return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
@@ -104,7 +105,6 @@ i=units[i]
 return(n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0,i)}
 S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
 S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
-S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.utf8_encode=function(){return unescape(encodeURIComponent(this))}
 S.utf8_decode=function(){return decodeURIComponent(escape(this))}
 function p2(n){return n>9?n:"0"+n}
@@ -115,7 +115,7 @@ D.format.masks={"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-
 D.monthNames="Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ")
 D.dayNames="Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ")
 I(D,"toISOString","return this.format('isoUtcDateTime')")
-S.date=N.date=function(format){var t=this,d=new Date,m,n=+t||Date.parse(t)||""+t
+S.date=N.date=function(format){var t=this,d=new Date,m,n=+t||""+t
 if(isNaN(n)){if(m=n.match(/(\d{4})-(\d{2})-(\d{2})/))d.setFullYear(m[1],m[2]-1,m[3])
 else if(m=n.match(/(\d{2})\.(\d{2})\.(\d{4})/))d.setFullYear(m[3],m[2]-1,m[1])
 else if(m=n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/))d.setFullYear(m[3],m[1]-1,m[2])
