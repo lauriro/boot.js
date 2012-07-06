@@ -148,17 +148,15 @@ Fn.True=function(){return!0}
 Fn.False=function(){return!1}
 Fn.Init=function(){var t=this
 return "init"in t&&t.init.apply(t,arguments)||t}
-Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
+Event.Emitter=Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
 ;(e[ev]||(e[ev]=[])).push([fn,scope])
 return t}.byWords(),non:function(ev,fn){var t=this
 if(ev){if("_e"in t&&ev in t._e){if(fn)t._e[ev].remove(fn)
 else delete t._e[ev]}}else delete t._e
-return t}.byWords(),once:function(ev,fn,scope){var t=this,o=fn.chain(t.non.bind(t,ev,o))
-t.on(ev,o,scope)
-return t},emit:function(ev){var t=this
+return t}.byWords(),once:function(ev,fn,scope){return this.on(ev,fn,scope).on(ev,this.non.partial(ev,fn))},emit:function(ev){var t=this
 if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
 return t}}
-Fn.Items={each:function(fn){var t=this
+Fn.Iter=Fn.Items={each:function(fn){var t=this
 t.items.forEach(fn,t)
 return t},map:function(fn){return this.items.map(fn,this)},pluck:function(name){return this.items.map(function(item){return item.get(name)},this)},at:function(index,fn){var t=this,item=t.items[index]
 return fn?(item&&fn.call(t,item),t):item},first:function(fn){return this.at(0,fn)},on_empty:function(fn){0 in this.items||fn()

@@ -20,7 +20,7 @@ Fn.Init = function() {
 	return "init" in t && t.init.apply(t, arguments) || t;
 };
 
-Fn.Events = {
+Event.Emitter = Fn.Events = {
 	on: function(ev, fn, scope) {
 		var t = this, e = t._e || (t._e = {});
 		(e[ev] || (e[ev] = [])).push([fn, scope]);
@@ -37,11 +37,7 @@ Fn.Events = {
 		return t;
 	}.byWords(),
 	once: function(ev, fn, scope) {
-		var t = this
-		  , o = fn.chain(t.non.bind(t, ev, o))
-		  //, o = fn.chain(function(){t.non(ev, o)})
-		t.on(ev, o, scope);
-		return t;
+		return this.on(ev, fn, scope).on(ev, this.non.partial(ev, fn));
 	},
 	emit: function(ev) {
 		var t = this;
@@ -52,7 +48,7 @@ Fn.Events = {
 	}
 };
 
-Fn.Items = {
+Fn.Iter = Fn.Items = {
 	each: function(fn) {
 		var t = this;
 		t.items.forEach(fn, t);
