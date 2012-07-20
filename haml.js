@@ -144,7 +144,9 @@
 		       	 }
 		       	 //if (a) return "');"+a+"("+b.replace(/^\s*\(|\)\s*$/g,"")+"){_.push('"
 		       	 //return "')};_.push('"
-		       	 return (a ? "');"+a+"("+b.replace(/^\(|\)\s*$/g,"")+m : "')};") + "_.push('";
+		       	 return (a ? "');"+a+"("+b.replace(/^\(|\)\s*$/g,"")+m :
+                     b == "else " ? "')}else{" :
+                     "')};") + "_.push('";
 		       })
 		  + "')}return _.join('')";
 		
