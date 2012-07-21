@@ -127,13 +127,13 @@ return format?d.format(format):d}
 D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()}
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
-D.prettySteps=[8640000,2592000,604800,86400,3600,60,1]
-D.prettyUnits=["month","week","day","hour","minute","second"]
-D.prettyStrings={"default":"{0} {1} ago","day":"Yesterday"}
 D.pretty=function(format,custom){var d=(new Date-this+1)/1000,a=D.prettySteps,i=a.length
 if(d<a[0]){while(d>a[--i]);d/=a[i+1];
 return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
 return this.format(format)}
+D.prettySteps=[8640000,2592000,604800,86400,3600,60,1]
+D.prettyUnits=["month","week","day","hour","minute","second"]
+D.prettyStrings={"default":"{0} {1} ago","day":"Yesterday"}
 I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
 w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
 r.open(method,url,!sync)
