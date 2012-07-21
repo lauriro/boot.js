@@ -206,13 +206,7 @@
       if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
         a.push("$2");
         s += "$2";
-      } else if (!t) {
-        // `replace` removes symbols that follow '.',
-        // precede ':', are 'this' or 'arguments'; and also the insides of
-        // strings (by a crude test).  `match` extracts the remaining
-        // symbols.
-        a = a.concat( s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g, "").match(/\b[a-z_]\w*/g) ).unique();
-      }
+      } else if (!t) a = "_"
     }
     return new Function(a, "return(" + s + ")");
   }.cache();
@@ -1025,12 +1019,6 @@ test.compare(
 '/2'.fn()(4), 2,
 '2/'.fn()(4), 0.5,
 '/'.fn()(2,4), 0.5,
-'x + 1'.fn()(1), 2,
-'x + 2*y'.fn()(1, 2), 5,
-'y + 2*x'.fn()(1, 2), 5,
-'Math.cos(angle)'.fn()(Math.PI), -1,
-'point.x'.fn()({x:1, y:2}), 1,
-'({x:1, y:2})[key]'.fn()('x'), 1,
 'x -> y -> x + 2*y'.fn()(1)(2), 5,
 'x -> y -> z -> x + 2*y+3*z'.fn()(1)(2)(3), 14,
 

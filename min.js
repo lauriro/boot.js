@@ -51,7 +51,7 @@ a=t.pop().trim().split(/[\s,]+/)
 t.length&&t.push("(function("+a+"){return("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("$1")
 s="$1"+s}
 if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){a.push("$2")
-s+="$2"}else if(!t){a=a.concat(s.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|this|arguments|\.\w+|\w+:/g,"").match(/\b[a-z_]\w*/g)).unique()}}
+s+="$2"}else if(!t)a="_"}
 return new Function(a,"return("+s+")")}.cache()
 S.fn=function(){return Fn(this)}
 F.fn=function(){return this}
