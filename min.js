@@ -171,7 +171,7 @@ while(i--)delete t[hooked[i]];
 while(v=hooks[++i])t[v[0]].apply(t,v[1]);
 t=hooks=hooked=null}
 return t}}
-!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[]
+!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[],S=String[P],rendering=false
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 type in _e||(_e[type]={})
 return(_e[type][fn._fn_id||(fn._fn_id=++fn_id)]=type=="mousewheel"?function(e){if(!e)e=w.event
@@ -251,7 +251,7 @@ El.cache.fn=fnCache
 El.text=function(str){return d.createTextNode(str)}
 var a={append:function(e,b){var t=this
 if(e){if(typeof e=="string"||typeof e=="number")e=El.text(e)
-else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f="createDocumentFragment"in d?d.createDocumentFragment():El("div")
+else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f=d.createDocumentFragment()
 while(i<len)t.append.call(f,e[i++]);
 e=f}
 if("nodeType"in e)t.insertBefore(e,b?(b===true?t.firstChild:typeof b=="number"?t.childNodes[b]:b):null)
@@ -262,11 +262,9 @@ return this},hasClass:function(n){return(" "+this.className+" ").indexOf(" "+n+"
 t.className+=t.className==""?n:t.hasClass(n)?"":" "+n
 return t}.byWords(),rmClass:function(n){var t=this
 t.className=(" "+t.className+" ").replace(" "+n+" "," ").trim()
-return t}.byWords(),toggleClass:function(n,status){var t=this
-if((status===void 0&&!t.hasClass(n))||status){t.addClass(n)
-return!0}
-t.rmClass(n)
-return!1}.byWords(),empty:function(){var t=this,n
+return t}.byWords(),toggleClass:function(n,s){if(s===void 0)s=!this.hasClass(n)
+this[s?"addClass":"rmClass"](n)
+return s}.byWords(),empty:function(){var t=this,n
 while(n=t.firstChild)t.kill.call(n);
 return t},kill:function(){var t=this
 if(t.parentNode)t.parentNode.removeChild(t)
@@ -278,8 +276,8 @@ if(val)t.style[(css_map[atr]||atr).camelCase()]=val
 else return getStyle(t,atr)
 return t}.byKeyVal(),on:function(w,fn){Event.add(this,w,fn)
 return this}.byWords(),non:function(w,fn){Event.remove(this,w,fn)
-return this}.byWords(),set:function(args){var t=this,k,v
-if(args){if(typeof args=="string"||"nodeType"in args||"length"in args)t.append(args)
+return this}.byWords(),set:function(args){var t=this,k=typeof args,v
+if(args){if(k=="string"||k=="number"||"nodeType"in args||"length"in args)t.append(args)
 else for(k in args){v=args[k]
 if(k=="class"||k=="className")t.addClass(v)
 else if(typeof v=="string")t.setAttribute(k,v)
@@ -296,7 +294,6 @@ d.createElement=function(n){return extend(c(n))}
 try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/}
 w.El=El
-var S=String[P],custom=El.cache.fn,rendering=false
 function custom_init(el,data){if(!rendering){/*@cc_on el=El.get(el);@*/
 var template,node=el.firstChild
 if(template=el.getAttribute("data-template")){El.cache.fn[template].call(el,el,data)
@@ -305,13 +302,12 @@ for(;node;node=node.nextSibling)if(node.nodeType==1)custom_init(node,data)}}
 function template(id,parent){var t=this
 t.id=id
 t.el=El("div")
-t.el._parent=parent
 t.el.haml_done=function(){var str=t.el.innerHTML,fn=str.indexOf("data-template")>-1?custom_init:null
 if(str.indexOf("{{")<0&&str.indexOf("{%")<0&&t.el.childNodes.length==1){El.cache(t.id,t.el.firstChild,fn)}else{t.fn=El.liquid(str)
 El.cache(t.id,t,t.parse.bind(t))}
 return parent}
 return t}
-template.prototype={cloneNode:function(){return this},set:function(){return this},parse:function(el,data){var t=this
+template.prototype={cloneNode:Fn.This,set:Fn.This,parse:function(el,data){var t=this
 t.el.innerHTML=t.fn(data)
 custom_init(t.el,data)
 el=t.el.childNodes
@@ -329,12 +325,12 @@ parent=("haml_done"in parent)?parent.haml_done():parent.parentNode}
 if(name){args=args?JSON.parse(args):{}
 el=El(name.replace(/^[^%]/,"%div$&").substr(1),args)
 if(text)el.append(text.replace(/'/g,"\\'"))
-if(m=name.match(/^%(\w+)/))m[1]in custom&&el.setAttribute("data-template",m[1])}else{m=text.split(" ")
+if(m=name.match(/^%(\w+)/))m[1]in fnCache&&el.setAttribute("data-template",m[1])}else{m=text.split(" ")
 switch(m[1]){case"template":el=new template(m[2],parent).el
 break
 case"markdown":break
 default:el=El.text(args?all:text)}}
-!el._parent&&parent.append(el)
+!el.haml_done&&parent.append(el)
 if(el.nodeType!==3){parent=el
 stack.unshift(i)}}
 return ""})

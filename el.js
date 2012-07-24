@@ -16,8 +16,10 @@
 	//TODO:sync with Fn.Events
 
 	var Event = w.Event || (w.Event={})
-	  , fn_id = 0
-	  , kbMaps = []
+	, fn_id = 0
+	, kbMaps = []
+	, S = String[P]
+	, rendering  = false;
 
 	function cacheEvent(el, type, fn, fix_fn) {
 		var _e = el._e || (el._e={});
@@ -237,24 +239,19 @@
 	}
 
 	var a = {
-		/*
-		e - element
-		b - before
-		*/
 		append: function(e, b/*efore*/) {
 			var t = this;
 			if (e) {
 				if (typeof e == "string" || typeof e == "number") e = El.text(e);
 				else if ( !("nodeType" in e) && "length" in e ) {
 					// document.createDocumentFragment is unsupported in IE5.5
-					var len = e.length, i = 0, f = "createDocumentFragment" in d ? d.createDocumentFragment() : El("div");
+					// f = "createDocumentFragment" in d ? d.createDocumentFragment() : El("div");
+					var len = e.length, i = 0, f = d.createDocumentFragment();
 					while (i<len) t.append.call(f, e[i++]);
 					e = f;
 				}
 
-				// if ("nodeType" in e) b ? t.insertBefore(e, b===true ? t.firstChild : b) : t.appendChild(e);
 				if ("nodeType" in e) t.insertBefore(e, b ? (b===true ? t.firstChild : typeof b == "number" ? t.childNodes[b] : b) : null)
-				//else "to" in e && e.to(t, b);
 				"append_hook" in e && e.append_hook();
 				//"child_hook" in t && t.child_hook();
 			}
@@ -287,15 +284,10 @@
 			return t;
 		}.byWords(),
 
-		toggleClass: function(n, status) {
-			var t = this;
-			//if ( (arguments.length == 1 && !t.hasClass(n)) || status ) {
-			if ( (status===void 0 && !t.hasClass(n)) || status ) {
-				t.addClass(n);
-				return true;
-			}
-			t.rmClass(n);
-			return false;
+		toggleClass: function(n, s) {
+			if (s === void 0) s = !this.hasClass(n); // arguments.length == 1
+			this[ s ? "addClass" : "rmClass" ](n);
+			return s;
 		}.byWords(),
 
 		empty: function() {
@@ -331,16 +323,16 @@
 		}.byWords(),
 
 		set: function(args) {
-			var t = this, k, v;
+			var t = this, k = typeof args, v;
 			if (args) {
-				if (typeof args == "string" || "nodeType" in args || "length" in args) t.append(args);
+				if (k == "string" || k == "number" || "nodeType" in args || "length" in args) t.append(args);
 				else for (k in args) 
 				/** hasOwnProperty
 				if (args.hasOwnProperty(arg)) 
 				//*/
 				{
 					v = args[k];
-					// there are bug in ie<9 where later changed 'name' param not accepted in form submit
+					// there are bug in ie<9 where changed 'name' param not accepted on form submit
 					/* cc_on
 					if (@_jscript_version < 9 && k == "name") {
 						//console.log(t.outerHTML.replace(/<\w+/, '$& name="'+v+'"'))
@@ -400,9 +392,6 @@
 
 
 
-	var S = String[P]
-	, custom = El.cache.fn
-	, rendering  = false;
 
 	/*
 	function getTextNodesIn(node, includeWhitespaceNodes) {
@@ -441,11 +430,9 @@
 		var t = this;
 		t.id = id;
 		t.el = El("div");
-		t.el._parent = parent
 		t.el.haml_done = function(){
 			var str = t.el.innerHTML
 			  , fn = str.indexOf("data-template") > -1 ? custom_init : null;
-
 
 			if (str.indexOf("{{") < 0 && str.indexOf("{%") < 0 && t.el.childNodes.length == 1){
 				El.cache(t.id, t.el.firstChild, fn);
@@ -461,12 +448,8 @@
 	}
 
 	template.prototype = {
-		cloneNode: function() {
-			return this;
-		},
-		set: function() {
-			return this;
-		},
+		cloneNode: Fn.This,
+		set: Fn.This,
 		parse: function(el, data) {
 			var t = this;
 			t.el.innerHTML = t.fn(data);
@@ -562,7 +545,7 @@
 					args = args ? JSON.parse(args) : {};
 					el = El(name.replace(/^[^%]/,"%div$&").substr(1), args);
 					if (text) el.append( text.replace(/'/g,"\\'") );
-					if (m = name.match(/^%(\w+)/)) m[1] in custom && el.setAttribute("data-template", m[1]);
+					if (m = name.match(/^%(\w+)/)) m[1] in fnCache && el.setAttribute("data-template", m[1]);
 				} else {
 					m = text.split(" ");
 					switch (m[1]) {
@@ -577,7 +560,7 @@
 					}
 				}
 
-				!el._parent && parent.append(el);
+				!el.haml_done && parent.append(el);
 				if (el.nodeType !== 3) {
 					parent = el;
 					stack.unshift(i)
@@ -715,17 +698,19 @@
 	el.rmClass("c4");
 	test_el.compare(el.className, "test3");
 
-	el.toggleClass("test4");
-	test_el.compare(el.className, "test3 test4", "El.toggleClass");
+	var s;
 
-	el.toggleClass("test4", true);
-	test_el.compare(el.className, "test3 test4");
+	s = el.toggleClass("test4");
+	test_el.compare(el.className, "test3 test4", s, true, "El.toggleClass");
 
-	el.toggleClass("test4");
-	test_el.compare(el.className, "test3");
+	s = el.toggleClass("test4", true);
+	test_el.compare(el.className, "test3 test4", s, true);
 
-	el.toggleClass("test4", false);
-	test_el.compare(el.className, "test3");
+	s = el.toggleClass("test4");
+	test_el.compare(el.className, "test3", s, false);
+
+	s = el.toggleClass("test4", false);
+	test_el.compare(el.className, "test3", s, false);
 	test_el.compare(el.hasClass("test3"), true, el.hasClass("test4"), false, "El.hasClass");
 
 	el.css("left","1px");
