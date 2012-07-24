@@ -219,7 +219,7 @@
 	// ES5
 	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
 	// Non-standard
-	I(a, "each"   , "for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
+	I(a, "each"   , "if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
 	a.merge = function(main){
 		var o, i = 1, k;
 		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
