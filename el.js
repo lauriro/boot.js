@@ -184,61 +184,35 @@
 	//** Page builder
 
 	var elCache = {}
-	  , fnCache = {}
-	  , dv = d.defaultView
-	  , getStyle = ( dv && "getComputedStyle" in dv ?
-	    	function(el, a) {
-	    		return el.style[a] || dv.getComputedStyle(el,null)[a] || null;
-	    	} :
-	    	function(el, a) {
-	    		if (a == "opacity") {
-	    			var opacity = el.filters("alpha").opacity;
-	    			return isNaN(opacity) ? 1 : (opacity?opacity/100:0);
-	    		}
-	    		a = a.camelCase();
-	    		return el.style[a]||el.currentStyle[a]||null;
-	    	}
-	    )
-	  , el_re = /([.#:])(\w+)/g
-	  , El = function(n/*ame */, a/*rgs */) {
-				var pre = {};
-				n = n.replace(el_re, function(_, o, s) {
-					pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s;
-					return "";
-				}) || "div";
-
-				var el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre);
-
-				return n in fnCache && fnCache[n](el, a) || el.set(a);
+	, fnCache = {}
+	, dv = d.defaultView
+	, getStyle = ( dv && "getComputedStyle" in dv ?
+			function(el, a) {
+				return el.style[a] || dv.getComputedStyle(el,null)[a] || null;
+			} :
+			function(el, a) {
+				if (a == "opacity") {
+					var opacity = el.filters("alpha").opacity;
+					return isNaN(opacity) ? 1 : (opacity?opacity/100:0);
+				}
+				a = a.camelCase();
+				return el.style[a]||el.currentStyle[a]||null;
 			}
-		, css_map = {"float": "cssFloat"}
+		)
+	, el_re = /([.#:])([-\w]+)/g
+	, El = function(n/*ame */, a/*rgs */) {
+		var pre = {};
+		n = n.replace(el_re, function(_, o, s) {
+			pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s;
+			return "";
+		}) || "div";
 
-	function extend(e,p,k){
-		if(e){
-			if(!p)p=El[P];
-			for(k in p)e[k]=p[k]
-		}
-		return e;
-	}
+		var el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre);
 
-	El.get = function(el) {
-		if (typeof el == "string") el = d.getElementById(el);
-		return "to" in el ? el : extend(el);
+		return n in fnCache && fnCache[n](el, a) || el.set(a);
 	}
-
-	El.cache = function(n, el, custom) {
-		elCache[n] = typeof el == "string" ? El(el) : el;
-		if (custom) {
-			fnCache[n] = custom;
-		}
-	}
-	El.cache.el = elCache;
-	El.cache.fn = fnCache;
-	El.text = function(str){
-		return d.createTextNode(str);
-	}
-
-	var a = {
+	, css_map = {"float": "cssFloat"}
+	, a = {
 		append: function(e, b/*efore*/) {
 			var t = this;
 			if (e) {
@@ -365,6 +339,31 @@
 
 				while (el = els[i++]) if (fn(el)) return "to" in el ? el : extend(el);
 			}
+	}
+
+	function extend(e,p,k){
+		if(e){
+			if(!p)p=El[P];
+			for(k in p)e[k]=p[k]
+		}
+		return e;
+	}
+
+	El.get = function(el) {
+		if (typeof el == "string") el = d.getElementById(el);
+		return "to" in el ? el : extend(el);
+	}
+
+	El.cache = function(n, el, custom) {
+		elCache[n] = typeof el == "string" ? El(el) : el;
+		if (custom) {
+			fnCache[n] = custom;
+		}
+	}
+	El.cache.el = elCache;
+	El.cache.fn = fnCache;
+	El.text = function(str){
+		return d.createTextNode(str);
 	}
 
 	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {

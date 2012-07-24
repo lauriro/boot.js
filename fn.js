@@ -11,16 +11,7 @@
 
 
 
-Fn.Nop = function() {};
-Fn.This = function() {return this};
-Fn.True = function() {return true};
-Fn.False = function() {return false};
-Fn.Init = function() {
-	var t = this;
-	return "init" in t && t.init.apply(t, arguments) || t;
-};
-
-Event.Emitter = Fn.Events = {
+Fn.Events = {
 	on: function(ev, fn, scope) {
 		var t = this, e = t._e || (t._e = {});
 		(e[ev] || (e[ev] = [])).push([fn, scope]);

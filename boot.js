@@ -15,12 +15,13 @@
 	var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
 	, sl
 	, xhrs = []
-	, Nop = function(){}
 	, a, b, c; // Reusable
 
 	function I(o, n, s, x) {
 		o[n] = o[n] || new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n]);
 	}
+
+	function Nop(){}
 
 	// We need bind in beginning, other ECMAScript 5 stuff will come later
 	I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
@@ -50,7 +51,6 @@
 
 	F.partial = function() {
 		var t = this, a = sl(arguments);
-		//return function() {return t.apply(this, a.concat(sl(arguments)))};
 		return function() {return t.apply(this, A.concat.apply(a, arguments))};
 	}
 
@@ -148,7 +148,7 @@
 				a[1] = o[r];
 				r = t.apply(s, a);
 			} else r = t.apply(s, a);
-				return r;
+			return r;
 		}
 	}
 
@@ -169,7 +169,7 @@
 				console.info(']', n, ' -> ', result);
 				return result;
 		} :
-			t;
+		t;
 	}
 	//*/
 
@@ -181,31 +181,35 @@
 
 		if (t.length > 1) while (t.length) {
 			s = t.pop();
-			a = t.pop().trim().split(/[\s,]+/);
+			a = t.pop().match(/[$\w]+/g)||"";
 			t.length && t.push("(function("+a+"){return("+s+")})");
 		} else {
 			// test whether an operator appears on the left
 			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
-				a.push("$1");
-				s = "$1" + s;
+				a.push("_1");
+				s = "_1" + s;
 			}
 			// test whether an operator appears on the right
 			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
-				a.push("$2");
-				s += "$2";
+				a.push("_2");
+				s += "_2";
 			} else if (!t) a = "_"
 		}
 		return new Function(a, "return(" + s + ")");
 	}.cache();
 
+	Fn.Nop = Nop
+	Fn.This = F.fn = function() {return this}
+	Fn.True = function() {return true}
+	Fn.False = function() {return false}
+	Fn.Init = function() {
+		var t = this;
+		return "init" in t && t.init.apply(t, arguments) || t;
+	}
+
 	S.fn = function(){
 		return Fn(this);
 	}
-
-	F.fn = function() {
-		return this;
-	}
-
 
 
 	// Object extensions
