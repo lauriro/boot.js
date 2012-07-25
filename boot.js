@@ -80,7 +80,7 @@
 	}
 
 	F.chain = function(a) {
-		return "a b->->b.call(this,a.apply(this,arguments))".reduce(Array.isArray(a) ? a : sl(arguments), this);
+		return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a) ? a : sl(arguments), this);
 	}
 
 	F.compose = function() {
@@ -181,18 +181,18 @@
 
 		if (t.length > 1) while (t.length) {
 			s = t.pop();
-			a = t.pop().match(/[$\w]+/g)||"";
+			a = t.pop().match(/\w+/g)||"";
 			t.length && t.push("(function("+a+"){return("+s+")})");
 		} else {
 			// test whether an operator appears on the left
 			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
-				a.push("_1");
-				s = "_1" + s;
+				a.push("$1");
+				s = "$1" + s;
 			}
 			// test whether an operator appears on the right
 			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
-				a.push("_2");
-				s += "_2";
+				a.push("$2");
+				s += "$2";
 			} else if (!t) a = "_"
 		}
 		return new Function(a, "return(" + s + ")");
@@ -278,9 +278,10 @@
 	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl]);
 	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
 
+	A.each = A.forEach;
+	A.fold = A.reduce;
+	A.foldr = A.reduceRight;
 	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
-
-
 
 	!function(n){
 		F[n] = S[n] = function(){
@@ -288,12 +289,8 @@
 			a[0] = t.fn();
 			return A[n].apply(arr, a);
 		}
-	}.byWords()("every filter forEach map reduce reduceRight some");
+	}.byWords()("every filter each map fold foldr some");
 
-	F.each = S.each = F.forEach;
-	F.fold = S.fold = F.reduce;
-	F.foldr = S.foldr = F.reduceRight;
-	F.select = S.select = F.filter;
 
 
 	// THANKS: Sudhir Jonathan - Namespacing [http://hangar.runway7.net/javascript/namespacing]
@@ -970,8 +967,8 @@ test.compare(
 'x -> y -> z -> x + 2*y+3*z'.fn()(1)(2)(3), 14,
 
 '1+'.map([1,2,3]).join(), [2, 3, 4].join(),
-'x y -> 2*x+y'.reduce([1,0,1,0], 0), 10,
-'%2'.select([1,2,3,4]).join(), [1, 3].join(),
+'x y -> 2*x+y'.fold([1,0,1,0], 0), 10,
+'%2'.filter([1,2,3,4]).join(), [1, 3].join(),
 
 '>2'.some([1,2,3]), true,
 '>10'.some([1,2,3]), false

@@ -19,7 +19,7 @@ F.extend=function(){var t=this,f=t.clone(),i=0
 f[P]=Object.create(t[P])
 while(t=arguments[i++])Object.merge(f[P],t);
 return f}
-F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".reduce(Array.isArray(a)?a:sl(arguments),this)}
+F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a)?a:sl(arguments),this)}
 F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
 return t.chain(a)}
 F.guard=function(test,or){var t=this,f=test.fn(),o=(or||Nop).fn()
@@ -48,11 +48,11 @@ r=t.apply(s,a)}else r=t.apply(s,a)
 return r}}
 w.Fn=function(s){var a=[],t=s.split("->")
 if(t.length>1)while(t.length){s=t.pop()
-a=t.pop().match(/[$\w]+/g)||""
-t.length&&t.push("(function("+a+"){return("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("_1")
-s="_1"+s}
-if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){a.push("_2")
-s+="_2"}else if(!t)a="_"}
+a=t.pop().match(/\w+/g)||""
+t.length&&t.push("(function("+a+"){return("+s+")})")}else{if(t=s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)){a.push("$1")
+s="$1"+s}
+if(s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)){a.push("$2")
+s+="$2"}else if(!t)a="_"}
 return new Function(a,"return("+s+")")}.cache()
 Fn.Nop=Nop
 Fn.This=F.fn=function(){return this}
@@ -89,14 +89,13 @@ I(A,"filter",b+"o.push(t[i])"+c)
 I(A,"some",b+"return!0;return!1")
 I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
 I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
+A.each=A.forEach
+A.fold=A.reduce
+A.foldr=A.reduceRight
 A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 !function(n){F[n]=S[n]=function(){var t=this,a=arguments,arr=a[0]
 a[0]=t.fn()
-return A[n].apply(arr,a)}}.byWords()("every filter forEach map reduce reduceRight some")
-F.each=S.each=F.forEach
-F.fold=S.fold=F.reduce
-F.foldr=S.foldr=F.reduceRight
-F.select=S.select=F.filter
+return A[n].apply(arr,a)}}.byWords()("every filter each map fold foldr some")
 w.ns=function(n,s){return "h n->h[n]=h[n]||{}".fold(n.split("."),s||w)}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
