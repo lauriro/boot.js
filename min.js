@@ -96,7 +96,6 @@ A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 !function(n){F[n]=S[n]=function(){var t=this,a=arguments,arr=a[0]
 a[0]=t.fn()
 return A[n].apply(arr,a)}}.byWords()("every filter each map fold foldr some")
-w.ns=function(n,s){return "h n->h[n]=h[n]||{}".fold(n.split("."),s||w)}
 S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
 S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.format=function(m){var a=typeof m=="object"?m:arguments

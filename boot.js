@@ -293,13 +293,6 @@
 
 
 
-	// THANKS: Sudhir Jonathan - Namespacing [http://hangar.runway7.net/javascript/namespacing]
-	w.ns = function(n, s) {
-		return "h n->h[n]=h[n]||{}".fold(n.split("."), s||w)
-	}
-
-
-
 	// String extensions
 	// -----------------
 
@@ -455,11 +448,8 @@
 	// D.toISOString = D.toISOString || D.format.partial('isoUtcDateTime');
 
 
-	//** Date helpers
-
-	//, n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
 	S.date = N.date = function(format) {
-		var t = this, d = new Date(), m, n = +t || ""+t;
+		var t = this, d = new Date(), m, n = +t || ""+t; // n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
 		if (isNaN(n)) {
 			// Big endian date, starting with the year, eg. 2011-01-31
 			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3]);
@@ -476,7 +466,6 @@
 		} else d.setTime( (n<4294967296?n*1000:n) );
 		return format?d.format(format):d;
 	}
-	//*/
 
 	//** Date.daysInMonth
 	D.daysInMonth = function() {
