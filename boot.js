@@ -12,7 +12,7 @@
 
 
 !function(w/* window */) {
-	var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], O = Object[P], S = String[P]
+	var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], S = String[P]
 	, sl
 	, xhrs = []
 	, a, b, c; // Reusable
@@ -32,7 +32,7 @@
 	// instanceof not implemented in IE 5 MAC
 	// Safari 2.0.2: 416     hasOwnProperty introduced October 31, 2005 (Mac OS X v10.4)
 	/** hasOwnProperty
-	I(O, "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
+	I(Object[P], "hasOwnProperty", "try{b=this.constructor;while(b=b[x])if(b[a]===this[a])return false}catch(e){}return true", [P]);
 	//*/
 
 
@@ -176,24 +176,13 @@
 	// THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 
 	w.Fn = function(s) {
-		var a = []
+		var a = ["_"]
 		, t = s.split("->");
 
 		if (t.length > 1) while (t.length) {
 			s = t.pop();
 			a = t.pop().match(/\w+/g)||"";
 			t.length && t.push("(function("+a+"){return("+s+")})");
-		} else {
-			// test whether an operator appears on the left
-			if (t = s.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/)) {
-				a.push("$1");
-				s = "$1" + s;
-			}
-			// test whether an operator appears on the right
-			if (s.match(/[+\-*\/%&|\^\.=<>!]\s*$/)) {
-				a.push("$2");
-				s += "$2";
-			} else if (!t) a = "_"
 		}
 		return new Function(a, "return(" + s + ")");
 	}.cache();
@@ -462,7 +451,7 @@
 			if (n.match(/pm/i) && m[1] < 12) m[1]+=12;
 			d.setHours(m[1], m[2], m[3]||0, m[4]||0);
 			// Timezone
-			n.indexOf("Z")>-1 && d.setTime(d-(d.getTimezoneOffset()*60000));
+			n.indexOf("Z") && d.setTime(d-(d.getTimezoneOffset()*60000));
 		} else d.setTime( (n<4294967296?n*1000:n) );
 		return format?d.format(format):d;
 	}
@@ -950,18 +939,15 @@ test.compare(
 'x y -> x + 2*y'.fn()(1, 2), 5,
 'x, y -> x + 2*y'.fn()(1, 2), 5,
 '_ + 1'.fn()(1), 2,
-'/2'.fn()(4), 2,
-'2/'.fn()(4), 0.5,
-'/'.fn()(2,4), 0.5,
 'x -> y -> x + 2*y'.fn()(1)(2), 5,
 'x -> y -> z -> x + 2*y+3*z'.fn()(1)(2)(3), 14,
 
-'1+'.map([1,2,3]).join(), [2, 3, 4].join(),
+'1+_'.map([1,2,3]).join(), [2, 3, 4].join(),
 'x y -> 2*x+y'.fold([1,0,1,0], 0), 10,
-'%2'.filter([1,2,3,4]).join(), [1, 3].join(),
+'_%2'.filter([1,2,3,4]).join(), [1, 3].join(),
 
-'>2'.some([1,2,3]), true,
-'>10'.some([1,2,3]), false
+'_>2'.some([1,2,3]), true,
+'_>10'.some([1,2,3]), false
 
 );
 //map('"im"+root', ["probable", "possible"]), ["improbable", "impossible"]
@@ -976,8 +962,8 @@ test.done();
 var test = new TestCase("functional")
 
 test.compare(
-'1+'.fn().compose('2*'.fn())(3),  7,
-'1+'.fn().chain('2*'.fn())(3), 8)
+'1+_'.fn().compose('2*_'.fn())(3),  7,
+'1+_'.fn().chain('2*_'.fn())(3), 8)
 
 
 test.done();
