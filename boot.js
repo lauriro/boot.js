@@ -499,6 +499,7 @@
 	D.prettySteps = [8640000, 2592000, 604800, 86400, 3600,   60,       1];
 	D.prettyUnits = [         "month", "week", "day", "hour", "minute", "second"];
 	D.prettyStrings={"default":"{0} {1} ago", "day":"Yesterday"};
+	//*/
 
 
 

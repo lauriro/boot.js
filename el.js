@@ -362,9 +362,14 @@
 	}
 	El.cache.el = elCache;
 	El.cache.fn = fnCache;
-	El.text = function(str){
+	El.text = function(str) {
 		return d.createTextNode(str);
 	}
+	/**
+	El.each = function() {
+	
+	}
+	//*/
 
 	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {
 		// for IE 6-7, IE8 supports Element
