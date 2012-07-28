@@ -341,7 +341,7 @@
 	}
 	//*/
 
-	/** IP helpers
+	//** IP helpers
 	S.ip2int = function() {
 		var t = (this+".0.0.0").split(".");
 		return ((t[0] << 24) | (t[1] << 16) | (t[2] << 8 ) | (t[3]))>>>0;
@@ -917,23 +917,23 @@ test.compare(
 , "12.4"
 , "String.toAccuracy()");
 
-//test.compare(
-//(4294967295).int2ip()
-//, "255.255.255.255"
-//, (0).int2ip()
-//, "0.0.0.0"
-//, "4294967295".int2ip()
-//, "255.255.255.255"
-//, "0".int2ip()
-//, "0.0.0.0"
-//, "String.int2ip()");
+test.compare(
+(4294967295).int2ip()
+, "255.255.255.255"
+, (0).int2ip()
+, "0.0.0.0"
+, "4294967295".int2ip()
+, "255.255.255.255"
+, "0".int2ip()
+, "0.0.0.0"
+, "String.int2ip()");
 
-//test.compare(
-//"255.255.255.255".ip2int()
-//, 4294967295
-//, "0.0.0.0".ip2int()
-//, 0
-//, "String.ip2int()");
+test.compare(
+"255.255.255.255".ip2int()
+, 4294967295
+, "0.0.0.0".ip2int()
+, 0
+, "String.ip2int()");
 
 test.done();
 }()

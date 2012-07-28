@@ -111,6 +111,10 @@ S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"]
 S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
 S.utf8_encode=function(){return unescape(encodeURIComponent(this))}
 S.utf8_decode=function(){return decodeURIComponent(escape(this))}
+S.ip2int=function(){var t=(this+".0.0.0").split(".")
+return((t[0]<<24)|(t[1]<<16)|(t[2]<<8)|(t[3]))>>>0}
+S.int2ip=N.int2ip=function(){var t=+this
+return[t>>>24,(t>>>16)&0xFF,(t>>>8)&0xFF,t&0xFF].join(".")}
 function p2(n){return n>9?n:"0"+n}
 function p3(n){return(n>99?n:(n>9?"0":"00")+n)}
 D.format=function(_){var t=this,x=D.format.masks[_]||_||D.format.masks["default"],g="get"+(x.slice(0,4)=="UTC:"?(x=x.slice(4),"UTC"):""),Y=g+"FullYear",M=g+"Month",d=g+"Date",w=g+"Day",h=g+"Hours",m=g+"Minutes",s=g+"Seconds",S=g+"Milliseconds"
