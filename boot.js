@@ -272,11 +272,11 @@
 	A.foldr = A.reduceRight;
 	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
 
-	!function(n){
-		F[n] = S[n] = function(){
-			var t = this, a = arguments, arr = a[0]
-			a[0] = t.fn();
-			return A[n].apply(arr, a);
+	!function(n) {
+		F[n] = S[n] = function() {
+			var a = arguments, l = a[0]
+			a[0] = this.fn();
+			return A[n].apply(l, a);
 		}
 	}.byWords()("every filter each map fold foldr some");
 
