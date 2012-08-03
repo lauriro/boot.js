@@ -22,11 +22,11 @@
     return ("0000000"+(i>>>0).toString(16)).slice(-8)
   }
   function s2i(s) { // str2int array
-    return s.split("").map(function(i){return i.charCodeAt()})
+    return unescape(encodeURIComponent(s)).split("").map(function(i){return i.charCodeAt()})
   }
 
   var sha_init = function(data) {
-    if (typeof(data) == "string") data = s2i(unescape( encodeURIComponent( data ) ));
+    if (typeof(data) == "string") data = s2i(data);
 
       var bin = [], i = 0, len = data.length;
       while (i < len) bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++];
@@ -245,7 +245,7 @@ TestCase("SHA").compare(
 , "a".hmac_sha1("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551")
 , "658b181b4f17bb6223cf448e8ed0c54cea8f6a0b"
 , "päike".hmac_sha1("abc1ö")
-, "b3a3c8645761fe44a2f1b54e8f123db723762b11"
+, "0ea68376b52a7de043d75a4551d29301d487b393"
 , "String.hmac_sha1()"
 ).compare(
 	"q".hmac_sha256("w")
