@@ -56,7 +56,7 @@
     while (i < len) {
       w = bin.slice(i, i+=(j=16))
       while (j < 80) w[j++] = l(w[j-4]^w[j-9]^w[j-15]^w[j-17],1)
-        a = A
+      a = A
       b = B
       c = C
       d = D
@@ -64,10 +64,10 @@
       j = 0
       while (j<80) {
         if (j<20) t=((b&c)|(~b&d))+0x5A827999
-          else if (j<40) t=(b^c^d)+0x6ED9EBA1
-            else if (j<60) t=((b&c)|(b&d)|(c&d))+0x8F1BBCDC
-              else t=(b^c^d)+0xCA62C1D6
-                t += l(a,5)+e+w[j++]
+        else if (j<40) t=(b^c^d)+0x6ED9EBA1
+        else if (j<60) t=((b&c)|(b&d)|(c&d))+0x8F1BBCDC
+        else t=(b^c^d)+0xCA62C1D6
+        t += l(a,5)+e+w[j++]
         e = d
         d = c
         c = l(b,30)
@@ -84,8 +84,7 @@
   }
 
 
-
-  S.sha1 = function(asBytes){
+  S.sha1 = function(asBytes) {
     return sha1(""+this, asBytes);
   }
 
@@ -101,7 +100,7 @@
     , bin = sha_init(data)
     , i = 0, j, len = bin.length, a, b, c, d, e, f, g, h, t1, t2, w = []
     , map = [ 
-      0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5
       , 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174
       , 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da
       , 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967
@@ -152,7 +151,7 @@
     return sha_format(asBytes, [A, B, C, D, E, F, G, H]);
   }
 
-  S.sha256 = function(asBytes){
+  S.sha256 = function(asBytes) {
     return sha256(""+this, asBytes);
   }
 
@@ -161,14 +160,14 @@
     var i = 0, ipad = [], opad = [];
     key = (key.length > blocksize) ? hasher(key, true) : s2i(key);
     for(; i<blocksize; ipad[i]=key[i]^0x36, opad[i]=key[i++]^0x5c);
-      return hasher(opad.concat(hasher(ipad.concat(s2i(txt)),true)));
+    return hasher(opad.concat(hasher(ipad.concat(s2i(txt)),true)));
   }
 
-  S.hmac_sha1 = function(key){
+  S.hmac_sha1 = function(key) {
     return hmac(sha1, 64, key, this);
   }
 
-  S.hmac_sha256 = function(key){
+  S.hmac_sha256 = function(key) {
     return hmac(sha256, 64, key, this);
   }
 
