@@ -206,16 +206,16 @@ Event.pointerY=function(e){if("changedTouches"in e)e=e.changedTouches[0]
 return e.pageY||e.clientY+d.body.scrollTop||0}
 Event.pointer=function(e){var x=Event.pointerX(e),y=Event.pointerY(e)
 return{x:x,y:y,left:x,top:y}}
-function keyup(e){var key=e.keyCode||e.which,map=kbMaps[0]
-if(key in map)map[key](key)
-else if("num"in map&&key>47&&key<58)map.num(key-48)
-else if("all"in map)map.all(key)
-else{var i=0
-while("bubble"in map&&(map=kbMaps[++i])){if(key in map)map[key](key)
-else if("all"in map)map.all(key)}}}
+function _key(code,char,i){var map=kbMaps[i]
+if(char&&char in map)map[char](char)
+else if("num"in map&&code>47&&code<58)map.num(code-48)
+else if("all"in map)map.all(code,char)
+else if("bubble"in map&&kbMaps[++i])_key(code,char,i)}
+function keyup(e){var code=e.keyCode||e.which
+_key(code,String.fromCharCode(code)||code,0)}
 Event.setKeyMap=function(map){kbMaps.unshift(map)
 kbMaps.length==1&&Event.add(document,"keyup",keyup)}
-Event.removeKeyMap=function(map){if(kbMaps.length>0){var index=kbMaps.indexOf(map)
+Event.rmKeyMap=function(map){if(kbMaps.length>0){var index=kbMaps.indexOf(map)
 kbMaps.splice(index==-1?0:index,1)
 kbMaps.length==0&&Event.remove(document,"keyup",keyup)}}
 function touchHandler(e){Event.stop(e)
