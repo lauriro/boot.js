@@ -4,8 +4,6 @@ function Nop(){}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
 sl=F.call.bind(A.slice)
 F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
-F.clone=function(){var a=this.toString().match(/\((.*)\)\s*{([\s\S]*)}$/)
-return new Function(a[1].split(/[, ]+/),a[2])}
 F.partial=function(){var t=this,a=sl(arguments)
 return function(){return t.apply(this,A.concat.apply(a,arguments))}}
 F.cache=function(instance,keyFn,cache){var t=this,c=cache||{},f=function(){var a=arguments,i=!!instance||this instanceof f,k=keyFn?keyFn(a,t):i+":"+a.length+":"+A.join.call(a)
@@ -15,9 +13,9 @@ f.cached=c
 f.extend=function(){return t.extend.apply(t,arguments).cache(instance,keyFn,c)}
 f[P]=t[P]
 return f}
-F.extend=function(){var t=this,f=t.clone(),i=0
+F.extend=function(){var a,t=this,i=0,f=function(){return t.apply(this,arguments)}
 f[P]=Object.create(t[P])
-while(t=arguments[i++])Object.merge(f[P],t);
+while(a=arguments[i++])Object.merge(f[P],a);
 return f}
 F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a)?a:sl(arguments),this)}
 F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()

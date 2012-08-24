@@ -42,11 +42,6 @@
 
 	F.construct = function(a) {
 		return new(F.bind.apply(this, A.concat.apply([null], a)));
-	}  
-
-	F.clone = function() {
-		var a = this.toString().match(/\((.*)\)\s*{([\s\S]*)}$/);
-		return new Function(a[1].split(/[, ]+/), a[2]);
 	}
 
 	F.partial = function() {
@@ -65,7 +60,7 @@
 		}
 		f.origin = t;
 		f.cached = c;
-		f.extend = function(){
+		f.extend = function() {
 			return t.extend.apply(t, arguments).cache(instance, keyFn, c);
 		}
 		f[P] = t[P]; // prototype for better access on extending 
@@ -73,9 +68,11 @@
 	}
 
 	F.extend = function() {
-		var t = this, f = t.clone(), i = 0;
+		var a, t = this, i = 0, f = function() {
+			return t.apply(this, arguments)
+		};
 		f[P] = Object.create(t[P]);
-		while (t = arguments[i++]) Object.merge(f[P], t);
+		while (a = arguments[i++]) Object.merge(f[P], a);
 		return f;
 	}
 
