@@ -98,12 +98,13 @@ return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
 S.toAccuracy=N.toAccuracy=function(a){var x=(""+a).split("."),n=~~((this/a)+.5)*a
 return ""+(1 in x?n.toFixed(x[1].length):n)}
-N.words=S.words=function(steps,units,strings){var n=+this,i=0,s=strings||{"default":"{0} {1}"}
+N.words=S.words=function(steps,units,strings,overflow){var n=+this,i=0,s=strings||{"default":"{0} {1}"}
 while(n>steps[i])n/=steps[i++];
+if(i==steps.length&&overflow)return overflow(this)
 i=units[i]
-return(n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0,i)}
+return(n<2&&s[i]||s[i+"s"]||s["default"]).format((n+.5)|0,n<2&&i||i+"s")}
 S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
-S.humanTime=N.humanTime=N.words.partial([60,60,24],["sec","min","hour","day"])
+S.humanTime=N.humanTime=N.words.partial([60,60,24,7,30],["second","minute","hour","day","week","month"])
 S.utf8_encode=function(){return unescape(encodeURIComponent(this))}
 S.utf8_decode=function(){return decodeURIComponent(escape(this))}
 S.ip2int=function(){var t=(this+".0.0.0").split(".")
@@ -130,13 +131,8 @@ return format?d.format(format):d}
 D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()}
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
-D.pretty=function(format,custom){var d=(new Date-this+1)/1000,a=D.prettySteps,i=a.length
-if(d<a[0]){while(d>a[--i]);d/=a[i+1];
-return((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0,i)}
-return this.format(format)}
-D.prettySteps=[8640000,2592000,604800,86400,3600,60,1]
-D.prettyUnits=["month","week","day","hour","minute","second"]
-D.prettyStrings={"default":"{0} {1} ago","day":"Yesterday"}
+D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
+return d.humanTime({"default":"{0} {1} ago","day":"Yesterday"},function(){return t.format(format)})}
 I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
 w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
 r.open(method,url,!sync)

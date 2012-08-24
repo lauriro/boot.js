@@ -153,7 +153,7 @@
 	 * Returns a function identical to this function except that
 	 * it prints its arguments on entry and its return value on exit.
 	 * This is useful for debugging function-level programs.
-*/
+	 */
 
 	/** debug.trace
 	F.trace = function(n) {
@@ -303,18 +303,19 @@
 		return ""+(1 in x ? n.toFixed(x[1].length) : n);
 	}
 
-	N.words = S.words = function(steps, units, strings){
+	N.words = S.words = function(steps, units, strings, overflow){
 		var n = +this
 		, i = 0
 		, s = strings || {"default":"{0} {1}"};
 
 		while(n>steps[i])n/=steps[i++];
+		if (i == steps.length && overflow) return overflow(this)
 		i=units[i];
-		return (n<2&&s[i+"s"]||s[i]||s["default"]).format(n|0, i);
+		return (n<2&&s[i]||s[i+"s"]||s["default"]).format((n+.5)|0, n<2&&i||i+"s");
 	}
 
 	S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
-	S.humanTime = N.humanTime = N.words.partial([60,60,24],["sec","min","hour","day"])
+	S.humanTime = N.humanTime = N.words.partial([60,60,24,7,30],["second","minute","hour","day","week","month"])
 
 
 	//** String.utf8
@@ -468,23 +469,11 @@
 
 
 
-	//** Date.pretty convert dates to human-readable
-	D.pretty = function(format, custom) {
-		var d = (new Date() - this + 1) / 1000
-		, a = D.prettySteps
-		, i = a.length;
-
-		if (d<a[0]) {
-			while(d>a[--i]);d/=a[i+1];
-			return ((a=custom||D.prettyStrings)[(i=D.prettyUnits[i]+(d<2?"":"s"))]||a["default"]).format(d|0, i);
-		}
-		// use guard here
-		return this.format(format);
+	//** Date.timeAgo convert dates to human-readable
+	D.timeAgo = function(format, custom) {
+		var t = this, d = (new Date() - t + 1) / 1000
+		return d.humanTime({"default":"{0} {1} ago", "day":"Yesterday"}, function(){return t.format(format)})
 	}
-
-	D.prettySteps = [8640000, 2592000, 604800, 86400, 3600,   60,       1];
-	D.prettyUnits = [         "month", "week", "day", "hour", "minute", "second"];
-	D.prettyStrings={"default":"{0} {1} ago", "day":"Yesterday"};
 	//*/
 
 
@@ -739,36 +728,36 @@ test.done();
 }()
 //*/
 
-/** Tests for Date.pretty
+/** Tests for Date.timeAgo
 !function(){
-var test = new TestCase("Date.pretty")
+var test = new TestCase("Date.timeAgo")
 , curr = new Date();
 
-curr.setMilliseconds(0);
+//curr.setMilliseconds(0);
 
 curr.setTime( curr.getTime() - 1000 );
-test.compare( curr.pretty() , "1 second ago");
+test.compare( curr.timeAgo() , "1 second ago");
 
 curr.setTime( curr.getTime() - 1000 );
-test.compare( curr.pretty() , "2 seconds ago");
+test.compare( curr.timeAgo() , "2 seconds ago");
 
 curr.setTime( curr.getTime() - 58000 );
-test.compare( curr.pretty() , "1 minute ago");
+test.compare( curr.timeAgo() , "1 minute ago");
 
 curr.setTime( curr.getTime() - 60000 );
-test.compare( curr.pretty() , "2 minutes ago");
+test.compare( curr.timeAgo() , "2 minutes ago");
 
 curr.setTime( curr.getTime() - 3600000 );
-test.compare( curr.pretty() , "1 hour ago");
+test.compare( curr.timeAgo() , "1 hour ago");
 
 curr.setTime( curr.getTime() - 3600000 );
-test.compare( curr.pretty() , "2 hours ago");
+test.compare( curr.timeAgo() , "2 hours ago");
 
 curr.setTime( curr.getTime() - 22*3600000 );
-test.compare( curr.pretty() , "Yesterday");
+test.compare( curr.timeAgo() , "Yesterday");
 
 curr.setTime( curr.getTime() - 24*3600000 );
-test.compare( curr.pretty() , "2 days ago");
+test.compare( curr.timeAgo() , "2 days ago");
 
 test.done();
 }()
