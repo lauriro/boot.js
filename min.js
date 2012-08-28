@@ -98,11 +98,12 @@ return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
 S.safe=function(){return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
 S.toAccuracy=N.toAccuracy=function(a){var x=(""+a).split("."),n=~~((this/a)+.5)*a
 return ""+(1 in x?n.toFixed(x[1].length):n)}
-N.words=S.words=function(steps,units,strings,overflow){var n=+this,i=0,s=strings||{"default":"{0} {1}"}
+N.words=S.words=function(steps,units,strings,overflow){var n=+this,i=0,s=strings||{"default":"{0} {1}{2}"}
 while(n>steps[i])n/=steps[i++];
 if(i==steps.length&&overflow)return overflow(this)
 i=units[i]
-return(n<2&&s[i]||s[i+"s"]||s["default"]).format((n+.5)|0,n<2&&i||i+"s")}
+n=(n+.5)|0
+return(s[n<2?i:i+"s"]||s["default"]).format(n,i,n<2?"":"s")}
 S.humanSize=N.humanSize=N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
 S.humanTime=N.humanTime=N.words.partial([60,60,24,7,30],["second","minute","hour","day","week","month"])
 S.utf8_encode=function(){return unescape(encodeURIComponent(this))}
@@ -132,7 +133,7 @@ D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
 D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
-return d.humanTime({"default":"{0} {1} ago","day":"Yesterday"},function(){return t.format(format)})}
+return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}
 I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
 w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
 r.open(method,url,!sync)
@@ -164,7 +165,7 @@ while(i--)delete t[hooked[i]];
 while(v=hooks[++i])t[v[0]].apply(t,v[1]);
 t=hooks=hooked=null}
 return t}}
-!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,kbMaps=[],S=String[P],rendering=false
+!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 type in _e||(_e[type]={})
 return(_e[type][fn._fn_id||(fn._fn_id=++fn_id)]=type=="mousewheel"?function(e){if(!e)e=w.event
@@ -202,18 +203,6 @@ Event.pointerY=function(e){if("changedTouches"in e)e=e.changedTouches[0]
 return e.pageY||e.clientY+d.body.scrollTop||0}
 Event.pointer=function(e){var x=Event.pointerX(e),y=Event.pointerY(e)
 return{x:x,y:y,left:x,top:y}}
-function _key(code,char,i){var map=kbMaps[i]
-if(char&&char in map)map[char](char)
-else if("num"in map&&code>47&&code<58)map.num(code-48)
-else if("all"in map)map.all(code,char)
-else if("bubble"in map&&kbMaps[++i])_key(code,char,i)}
-function keyup(e){var code=e.keyCode||e.which
-_key(code,String.fromCharCode(code)||code,0)}
-Event.setKeyMap=function(map){kbMaps.unshift(map)
-kbMaps.length==1&&Event.add(document,"keyup",keyup)}
-Event.rmKeyMap=function(map){if(kbMaps.length>0){var index=kbMaps.indexOf(map)
-kbMaps.splice(index==-1?0:index,1)
-kbMaps.length==0&&Event.remove(document,"keyup",keyup)}}
 function touchHandler(e){Event.stop(e)
 var touch=e.changedTouches[0],ev=d.createEvent("MouseEvent")
 ev.initMouseEvent(
@@ -336,6 +325,23 @@ S.capitalize=function(){return this.charAt(0).toUpperCase()+this.slice(1)}
 S.upcase=S.toUpperCase
 S.downcase=S.toLowerCase
 S.size=function(){return this.length}}(this,document,"prototype")
+!function(){var is_down={},maps=[],keys={8:"Backspace",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",19:"Pause",20:"Capslock",27:"Esc",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"Left",38:"Up",39:"Right",40:"Down",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12"}
+function _key(code,char,i,is_input){var map=maps[i]||{},run=!is_input||map.enable_input
+if(run&&char&&char in map)map[char](char)
+else if(run&&"num"in map&&code>47&&code<58)map.num(code-48)
+else if(run&&"all"in map)map.all(code,char)
+else if("bubble"in map&&kbMaps[++i])_key(code,char,i,is_input)}
+function keydown(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code
+is_down[key]=true}
+function keyup(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code,el=e.target||e.srcElement
+if(el.nodeType==3)el=el.parentNode
+_key(code,key,0,el.tagName=='INPUT'||el.tagName=='TEXTAREA'||el.tagName=="SELECT")
+delete is_down[key]}
+Event.setKeyMap=maps.unshift.bind(maps)
+Event.rmKeyMap=function(map){var i=maps.indexOf(map||maps[0])
+if(i>-1)maps.splice(i,1)}
+Event.add(document,"keyup",keyup)
+Event.add(document,"keydown",keydown)}()
 !function(w,d,s){var ls=d.getElementsByTagName(s),tag=ls[ls.length-1]
 if(!("execScript"in w)){w.execScript=(function(o,Object){return(1,eval)("(Object)")===o})(Object,1)?eval:"d t a->s->d.body[a](d.createElement(s))[a](d.createTextNode(s))".fn()(d,s,"appendChild")}
 w.load=function(f,cb){if(!Array.isArray(f))f=[f]

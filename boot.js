@@ -306,12 +306,13 @@
 	N.words = S.words = function(steps, units, strings, overflow){
 		var n = +this
 		, i = 0
-		, s = strings || {"default":"{0} {1}"};
+		, s = strings || {"default":"{0} {1}{2}"};
 
 		while(n>steps[i])n/=steps[i++];
 		if (i == steps.length && overflow) return overflow(this)
 		i=units[i];
-		return (n<2&&s[i]||s[i+"s"]||s["default"]).format((n+.5)|0, n<2&&i||i+"s");
+		n=(n+.5)|0
+		return (s[n<2?i:i+"s"]||s["default"]).format(n, i, n<2?"":"s");
 	}
 
 	S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
@@ -472,7 +473,7 @@
 	//** Date.timeAgo convert dates to human-readable
 	D.timeAgo = function(format, custom) {
 		var t = this, d = (new Date() - t + 1) / 1000
-		return d.humanTime({"default":"{0} {1} ago", "day":"Yesterday"}, function(){return t.format(format)})
+		return d.humanTime({"default":"{0} {1}{2} ago", "day":"Yesterday"}, function(){return t.format(format)})
 	}
 	//*/
 
