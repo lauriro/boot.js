@@ -45,13 +45,14 @@
 	}
 
 	function sha1(data, asBytes) {
-		var A = 0x67452301
+		var a, b, c, d, e, t
+		, A = 0x67452301
 		, B = 0xefcdab89
 		, C = 0x98badcfe
 		, D = 0x10325476
 		, E = 0xc3d2e1f0
 		, bin = sha_init(data)
-		, i = 0, j, len = bin.length, a, b, c, d, e, t, w = []
+		, i = 0, j, len = bin.length, w = []
 
 		while (i < len) {
 			w = bin.slice(i, i+=(j=16))
@@ -63,22 +64,18 @@
 			e = E
 			j = 0
 			while (j<80) {
-				if (j<20) t=((b&c)|(~b&d))+0x5A827999
-				else if (j<40) t=(b^c^d)+0x6ED9EBA1
-				else if (j<60) t=((b&c)|(b&d)|(c&d))+0x8F1BBCDC
-				else t=(b^c^d)+0xCA62C1D6
-				t += l(a,5)+e+w[j++]
+				t = (j<20 ? ((b&c)|(~b&d))+0x5A827999 : j<40 ? (b^c^d)+0x6ED9EBA1 : j<60 ? ((b&c)|(b&d)|(c&d))+0x8F1BBCDC : (b^c^d)+0xCA62C1D6)+l(a,5)+e+w[j++]
 				e = d
 				d = c
 				c = l(b,30)
 				b = a
 				a = t>>>0
 			}
-			A = (a + A)>>>0
-			B = (b + B)>>>0
-			C = (c + C)>>>0
-			D = (d + D)>>>0
-			E = (e + E)>>>0
+			A += a
+			B += b
+			C += c
+			D += d
+			E += e
 		}
 		return sha_format(asBytes, [A, B, C, D, E]);
 	}
