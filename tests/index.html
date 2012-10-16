@@ -78,9 +78,16 @@ El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 	Event.stop(e);
 });
 
+El("div","popup").to(box).on("click",function(){
+	var win = window.open("", "")
+	setTimeout(function(){
+		win.location.href = 'http://www.google.ee'
+	}, 200)
+});
+
 load.path = "../"
 load("tests/test.js", function(){
-	var modules = ["el.js","fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "history.js", "jsonh.js"]
+	var modules = ["el.js","fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "history.js", "jsonh.js", "version_compare.js"]
 
 	load( modules, function(){
 
