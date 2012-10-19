@@ -12,21 +12,21 @@
 
 
 !function(w/* window */) {
-	var P = "prototype", A = Array[P], D = Date[P], F = Function[P], N = Number[P], S = String[P]
-	, sl
+	var sl, a, b, c
 	, xhrs = []
-	, a, b, c; // Reusable
+	, P = "prototype"
+	, A = Array[P], D = Date[P], F = Function[P], N = Number[P], S = String[P]
 
 	function I(o, n, s, x) {
-		o[n] = o[n] || new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n]);
+		o[n] = o[n] || new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null, x||[o, n])
 	}
 
 	function Nop(){}
 
 	// We need bind in beginning, other ECMAScript 5 stuff will come later
-	I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P]);
+	I(F, "bind", "var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c", [A.slice, P])
 
-	sl = F.call.bind(A.slice);
+	sl = F.call.bind(A.slice)
 
 
 	// instanceof not implemented in IE 5 MAC
@@ -41,12 +41,12 @@
 	// -------------------
 
 	F.construct = function(a) {
-		return new(F.bind.apply(this, A.concat.apply([null], a)));
+		return new(F.bind.apply(this, A.concat.apply([null], a)))
 	}
 
 	F.partial = function() {
-		var t = this, a = sl(arguments);
-		return function() {return t.apply(this, A.concat.apply(a, arguments))};
+		var t = this, a = sl(arguments)
+		return function() {return t.apply(this, A.concat.apply(a, arguments))}
 	}
 
 	// Run function once and return cached value or cached instance
@@ -54,98 +54,98 @@
 		var t = this, c = cache || {}, f = function() {
 			var a = arguments
 			, i = !!instance || this instanceof f
-			, k = keyFn ? keyFn(a, t) : i + ":" + a.length + ":" + A.join.call(a);
+			, k = keyFn ? keyFn(a, t) : i + ":" + a.length + ":" + A.join.call(a)
 
-			return k in c ? c[k] : (c[k] = i ? t.construct(a) : t.apply(this, a));
+			return k in c ? c[k] : (c[k] = i ? t.construct(a) : t.apply(this, a))
 		}
-		f.origin = t;
-		f.cached = c;
+		f.origin = t
+		f.cached = c
 		f.extend = function() {
-			return t.extend.apply(t, arguments).cache(instance, keyFn, c);
+			return t.extend.apply(t, arguments).cache(instance, keyFn, c)
 		}
-		f[P] = t[P]; // prototype for better access on extending 
-		return f;
+		f[P] = t[P] // prototype for better access on extending 
+		return f
 	}
 
 	F.extend = function() {
 		var a, t = this, i = 0, f = function() {
 			return t.apply(this, arguments)
-		};
-		f[P] = Object.create(t[P]);
-		while (a = arguments[i++]) Object.merge(f[P], a);
-		return f;
+		}
+		f[P] = Object.create(t[P])
+		while (a = arguments[i++]) Object.merge(f[P], a)
+		return f
 	}
 
 	F.chain = function(a) {
-		return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a) ? a : sl(arguments), this);
+		return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a) ? a : sl(arguments), this)
 	}
 
 	F.compose = function() {
-		var a = [this].concat(sl(arguments)), t = a.pop();
-		return t.chain(a);
+		var a = [this].concat(sl(arguments)), t = a.pop()
+		return t.chain(a)
 	}
 
 	F.guard = function(test, or) {
 		var t = this
 		, f = test.fn()
-		, o = (or||Nop).fn();
+		, o = (or||Nop).fn()
 
 		return function() {
-			return (f.apply(this, arguments) ? t : o).apply(this, arguments);
+			return (f.apply(this, arguments) ? t : o).apply(this, arguments)
 		}
 	}
 
 	// Time to live - Run *fun* if Function not called on time
 	F.ttl = function(ms, fun) {
-		var t = this, s = setTimeout(function(){ms=0;fun&&fun()}, ms);
+		var t = this, s = setTimeout(function(){ms=0;fun&&fun()}, ms)
 		return function() {
-			clearTimeout(s);
-			ms && t.apply(null, arguments);
+			clearTimeout(s)
+			ms && t.apply(null, arguments)
 		}
 	}
 
 	// Run Function once after last call
 	F.once = function(ms) {
-		var t = this, s, args;
+		var t = this, s, args
 		return function() {
-			clearTimeout(s);
-			args = arguments;
-			s = setTimeout(function(){t.apply(null, args)}, ms);
+			clearTimeout(s)
+			args = arguments
+			s = setTimeout(function(){t.apply(null, args)}, ms)
 		}
 	}
 
 	// Maximum call rate for Function
 	F.rate = function(ms) {
-		var t = this, n = 0;
+		var t = this, n = 0
 		return function() {
-			var d = +new Date();
+			var d = +new Date()
 			if (d > n) {
-				n = d + ms;
-				t.apply(null, arguments);
+				n = d + ms
+				t.apply(null, arguments)
 			}
 		}
 	}
 
 	F.byWords = function(i) {
-		var t = this;
-		i |= 0;
+		var t = this
+		i |= 0
 		return function() {
-			var s = this, r = s, a = arguments;
-			;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)});
-			return r;
+			var s = this, r = s, a = arguments
+			;(a[i]||"").replace(/\w+/g, function(w){a[i]=w;r=t.apply(s, a)})
+			return r
 		}
 	}
 
 	F.byKeyVal = function() {
-		var t = this;
+		var t = this
 		return function(o) {
-			var s = this, a = sl(arguments), r;
+			var s = this, a = sl(arguments), r
 			if (typeof o == "object") for (r in o) {
-				a[0] = r;
-				a[1] = o[r];
-				r = t.apply(s, a);
-			} else r = t.apply(s, a);
-			return r;
+				a[0] = r
+				a[1] = o[r]
+				r = t.apply(s, a)
+			} else r = t.apply(s, a)
+			return r
 		}
 	}
 
@@ -174,27 +174,27 @@
 
 	w.Fn = function(s) {
 		var a = ["_"]
-		, t = s.split("->");
+		, t = s.split("->")
 
 		if (t.length > 1) while (t.length) {
-			s = t.pop();
-			a = t.pop().match(/\w+/g)||"";
-			t.length && t.push("(function("+a+"){return("+s+")})");
+			s = t.pop()
+			a = t.pop().match(/\w+/g)||""
+			t.length && t.push("(function("+a+"){return("+s+")})")
 		}
-		return new Function(a, "return(" + s + ")");
-	}.cache();
+		return new Function(a, "return(" + s + ")")
+	}.cache()
 
 	Fn.Nop = Nop
 	Fn.This = F.fn = function() {return this}
 	Fn.True = function() {return true}
 	Fn.False = function() {return false}
 	Fn.Init = function() {
-		var t = this;
-		return "init" in t && t.init.apply(t, arguments) || t;
+		var t = this
+		return "init" in t && t.init.apply(t, arguments) || t
 	}
 
-	S.fn = function(){
-		return Fn(this);
+	S.fn = function() {
+		return Fn(this)
 	}
 
 
@@ -204,34 +204,34 @@
 
 	// ### Object.create ###
 	// ES5
-	I(a, "create" , "x[y]=a;return new x", [Nop, P]);
+	I(a, "create" , "x[y]=a;return new x", [Nop, P])
 	// ### Object.keys ###
 	// ES5
-	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c");
+	I(a, "keys"   , "c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
 	// Non-standard
-	I(a, "each"   , "if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)");
-	a.merge = function(main){
-		var o, i = 1, k;
+	I(a, "each"   , "if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
+	a.merge = function(main) {
+		var o, i = 1, k
 		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
-		return main;
+		return main
 	}
 
 
 
 	// Array extensions
 	// ----------------
-	a = Array;
+	a = Array
 
 	// ### Array.isArray ###
 	//
 	// Native in FF
 
-	I(a, "isArray", "return a instanceof Array");
+	I(a, "isArray", "return a instanceof Array")
 
 	// Non-standard
-	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b");
+	I(a, "from"   , "for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
 	/*
-	Array.flatten = function(arr){
+	Array.flatten = function(arr) {
 	for(var i=arr.length;i--;)
 	0 in arr[i] && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
 	return arr
@@ -239,55 +239,56 @@
 	flat([1,2,[3,4,[5,6]],7]);
 	*/
 
-	a = "var t=this,l=t.length,o=[],i=-1;";
-	c = "if(t[i]===a)return i;return -1";
-	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c);
-	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c);
+	a = "var t=this,l=t.length,o=[],i=-1;"
+	c = "if(t[i]===a)return i;return -1"
+	I(A, "indexOf",     a+"i+=b|0;while(++i<l)"+c)
+	I(A, "lastIndexOf", a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c)
 
-	b = a+"if(arguments.length<2)b=t";
-	c = "b=a.call(null,b,t[i],i,t);return b";
-	I(A, "reduce",      b+"[++i];while(++i<l)"+c);
-	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c);
+	b = a+"if(arguments.length<2)b=t"
+	c = "b=a.call(null,b,t[i],i,t);return b"
+	I(A, "reduce",      b+"[++i];while(++i<l)"+c)
+	I(A, "reduceRight", b+"[--l];i=l;while(i--)"+c)
 
-	b = a+"while(++i<l)if(i in t)";
-	I(A, "forEach",     b+"a.call(b,t[i],i,t)");
-	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0");
+	b = a+"while(++i<l)if(i in t)"
+	I(A, "forEach",     b+"a.call(b,t[i],i,t)")
+	I(A, "every",       b+"if(!a.call(b,t[i],i,t))return!1;return!0")
 
-	c = ";return o";
-	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c);
+	c = ";return o"
+	I(A, "map",         b+"o[i]=a.call(b,t[i],i,t)"+c)
 
-	b += "if(a.call(b,t[i],i,t))";
-	I(A, "filter",      b+"o.push(t[i])"+c);
-	I(A, "some",        b+"return!0;return!1");
+	b += "if(a.call(b,t[i],i,t))"
+	I(A, "filter",      b+"o.push(t[i])"+c)
+	I(A, "some",        b+"return!0;return!1")
 
 	// Non-standard
-	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl]);
-	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i");
+	// // IE < 9 bug: [1,2].splice(0).join("") == "" but should be "12"
+	I(A, "remove",   a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t", [sl])
+	I(A, "indexFor", a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
 
-	A.each = A.forEach;
-	A.fold = A.reduce;
-	A.foldr = A.reduceRight;
-	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)});
+	A.each = A.forEach
+	A.fold = A.reduce
+	A.foldr = A.reduceRight
+	A.unique = A.filter.partial(function(s,i,a){return i == a.lastIndexOf(s)})
 
 	!function(n) {
 		F[n] = S[n] = function() {
 			var a = arguments, l = a[0]
-			a[0] = this.fn();
-			return A[n].apply(l, a);
+			a[0] = this.fn()
+			return A[n].apply(l, a)
 		}
-	}.byWords()("every filter each map fold foldr some");
+	}.byWords()("every filter each map fold foldr some")
 
 
 
 	// String extensions
 	// -----------------
 
-	S.trim = S.trim || S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g, "");
-	S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()});
+	S.trim = S.trim || S.replace.partial(/^\s+|\s+$/g, "")
+	S.camelCase = S.replace.partial(/[ _-]+([a-z])/g, function(_, a){return a.toUpperCase()})
 
 	S.format = function(m) {
-		var a = typeof m == "object" ? m : arguments;
-		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]});
+		var a = typeof m == "object" ? m : arguments
+		return this.replace(/\{(\w+)\}/g, function(_, i){return a[i]})
 	}
 
 	S.safe = function() {
@@ -295,24 +296,24 @@
 		.replace(/&/g, "&amp;")
 		.replace(/</g, "&lt;")
 		.replace(/>/g, "&gt;")
-		.replace(/\"/g, "&quot;");
+		.replace(/\"/g, "&quot;")
 	}
 
 	S.toAccuracy = N.toAccuracy = function(a) {
-		var x = (""+a).split("."), n = ~~((this/a)+.5) * a;
-		return ""+(1 in x ? n.toFixed(x[1].length) : n);
+		var x = (""+a).split("."), n = ~~((this/a)+.5) * a
+		return ""+(1 in x ? n.toFixed(x[1].length) : n)
 	}
 
-	N.words = S.words = function(steps, units, strings, overflow){
+	N.words = S.words = function(steps, units, strings, overflow) {
 		var n = +this
 		, i = 0
-		, s = strings || {"default":"{0} {1}{2}"};
+		, s = strings || {"default":"{0} {1}{2}"}
 
-		while(n>steps[i])n/=steps[i++];
+		while(n>steps[i])n/=steps[i++]
 		if (i == steps.length && overflow) return overflow(this)
-		i=units[i];
+		i=units[i]
 		n=(n+.5)|0
-		return (s[n<2?i:i+"s"]||s["default"]).format(n, i, n<2?"":"s");
+		return (s[n<2?i:i+"s"]||s["default"]).format(n, i, n<2?"":"s")
 	}
 
 	S.humanSize = N.humanSize = N.words.partial([1024,1024,1024],["byte","KB","MB","GB"])
@@ -321,23 +322,23 @@
 
 	//** String.utf8
 	S.utf8_encode = function() {
-		return unescape( encodeURIComponent( this ) );
+		return unescape( encodeURIComponent( this ) )
 	}
 
 	S.utf8_decode = function() {
-		return decodeURIComponent( escape( this ) );
+		return decodeURIComponent( escape( this ) )
 	}
 	//*/
 
 	//** IP helpers
 	S.ip2int = function() {
-		var t = (this+".0.0.0").split(".");
-		return ((t[0] << 24) | (t[1] << 16) | (t[2] << 8 ) | (t[3]))>>>0;
+		var t = (this+".0.0.0").split(".")
+		return ((t[0] << 24) | (t[1] << 16) | (t[2] << 8 ) | (t[3]))>>>0
 	}
 
 	S.int2ip = N.int2ip = function() {
-		var t = +this;
-		return [t>>>24, (t>>>16)&0xFF, (t>>>8)&0xFF, t&0xFF].join(".");
+		var t = +this
+		return [t>>>24, (t>>>16)&0xFF, (t>>>8)&0xFF, t&0xFF].join(".")
 	}
 	//*/
 
@@ -391,7 +392,7 @@
 		, h = g + "Hours"
 		, m = g + "Minutes"
 		, s = g + "Seconds"
-		, S = g + "Milliseconds";
+		, S = g + "Milliseconds"
 
 		return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZw])/g,
 			function(a, b, c) {
@@ -422,49 +423,49 @@
 				     : a == "Z"    ? "GMT " + (-t.getTimezoneOffset()/60)
 				     : a == "w"    ? 1+Math.floor((t - new Date(t[Y](),0,4))/604800000)
 				     : b           ? c
-				     : a;
+				     : a
 			}
 		)
 	}
 
-	D.format.masks = {"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'};
-	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ");
-	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
+	D.format.masks = {"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'}
+	D.monthNames = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ")
+	D.dayNames = "Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ")
 
 
-	I(D, "toISOString", "return this.format('isoUtcDateTime')");
-	// D.toISOString = D.toISOString || D.format.partial('isoUtcDateTime');
+	I(D, "toISOString", "return this.format('isoUtcDateTime')")
+	// D.toISOString = D.toISOString || D.format.partial('isoUtcDateTime')
 
 
 	S.date = N.date = function(format) {
 		var t = this, d = new Date(), m, n = +t || ""+t; // n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
 		if (isNaN(n)) {
 			// Big endian date, starting with the year, eg. 2011-01-31
-			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3]);
+			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3])
 			// Little endian date, starting with the day, eg. 31.01.2011
-			else if (m = n.match(/(\d{2})\.(\d{2})\.(\d{4})/)) d.setFullYear(m[3], m[2]-1, m[1]);
+			else if (m = n.match(/(\d{2})\.(\d{2})\.(\d{4})/)) d.setFullYear(m[3], m[2]-1, m[1])
 			// Middle endian date, starting with the month, eg. 01/31/2011
-			else if (m = n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)) d.setFullYear(m[3], m[1]-1, m[2]);
+			else if (m = n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)) d.setFullYear(m[3], m[1]-1, m[2])
 			// Time
-			m = n.match(/(\d{1,2}):(\d{2}):?(\d{2})?\.?(\d{3})?/) || [0, 0, 0];
-			if (n.match(/pm/i) && m[1] < 12) m[1]+=12;
-			d.setHours(m[1], m[2], m[3]||0, m[4]||0);
+			m = n.match(/(\d{1,2}):(\d{2}):?(\d{2})?\.?(\d{3})?/) || [0, 0, 0]
+			if (n.match(/pm/i) && m[1] < 12) m[1]+=12
+			d.setHours(m[1], m[2], m[3]||0, m[4]||0)
 			// Timezone
-			n.indexOf("Z") && d.setTime(d-(d.getTimezoneOffset()*60000));
-		} else d.setTime( (n<4294967296?n*1000:n) );
-		return format?d.format(format):d;
+			n.indexOf("Z") && d.setTime(d-(d.getTimezoneOffset()*60000))
+		} else d.setTime( (n<4294967296?n*1000:n) )
+		return format?d.format(format):d
 	}
 
 	//** Date.daysInMonth
 	D.daysInMonth = function() {
-		return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate();
+		return (new Date(this.getFullYear(),this.getMonth()+1,0)).getDate()
 	}
 	//*/
 
 	//** Date.startOfWeek
 	D.startOfWeek = function() {
 		var t = this;
-		return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1);
+		return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1)
 	}
 	//*/
 
@@ -486,17 +487,17 @@
 
 
 	//** xhr
-	w.xhr = function(method, url, cb, sync){
-		var r = xhrs.shift() || new XMLHttpRequest();
-		r.open(method, url, !sync);
-		r.onreadystatechange = function(){
+	w.xhr = function(method, url, cb, sync) {
+		var r = xhrs.shift() || new XMLHttpRequest()
+		r.open(method, url, !sync)
+		r.onreadystatechange = function() {
 			if (r.readyState == 4) {
-				cb && cb( r.responseText, r);
-				r.onreadystatechange = cb = Nop;
-				xhrs.push(r);
+				cb && cb( r.responseText, r)
+				r.onreadystatechange = cb = Nop
+				xhrs.push(r)
 			}
 		}
-		return r;
+		return r
 	};
 	//*/
 
@@ -509,7 +510,7 @@
 		}
 	}
 
-}(this);
+}(this)
 
 
 

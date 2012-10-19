@@ -461,6 +461,19 @@
 		}
 	}
 
+	/*
+	String.liquid = function(str, data){
+
+		var a = str.replace(/\s+/g, " ")
+		.replace(/{{\s*((?:[^}]|}(?!}))+)\s*}}/g, function(_, a) {
+			return "',(" + a.replace(/([^|])\|\s*([^|\s:]+)(?:\s*\:([^|]+))?/g, "$1).$2($3") + "),'";
+		})  
+		return data ? new Function("d","with(d)return['"+a+"'].join('')")(data) : a
+	}
+	*/
+
+
+
 	El.liquid = function(str) {
 		var s = "var _=[];with(o||{}){_.push('"
 		  + str.replace(/\s+/g, " ")

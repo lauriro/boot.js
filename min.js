@@ -1,4 +1,4 @@
-!function(w){var P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P],sl,xhrs=[],a,b,c
+!function(w){var sl,a,b,c,xhrs=[],P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P]
 function I(o,n,s,x){o[n]=o[n]||new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])}
 function Nop(){}
 I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
@@ -15,7 +15,7 @@ f[P]=t[P]
 return f}
 F.extend=function(){var a,t=this,i=0,f=function(){return t.apply(this,arguments)}
 f[P]=Object.create(t[P])
-while(a=arguments[i++])Object.merge(f[P],a);
+while(a=arguments[i++])Object.merge(f[P],a)
 return f}
 F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a)?a:sl(arguments),this)}
 F.compose=function(){var a=[this].concat(sl(arguments)),t=a.pop()
@@ -91,7 +91,7 @@ A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 !function(n){F[n]=S[n]=function(){var a=arguments,l=a[0]
 a[0]=this.fn()
 return A[n].apply(l,a)}}.byWords()("every filter each map fold foldr some")
-S.trim=S.trim||S.replace.partial(/^[\s\r\n\u2028\u2029]+|[\s\r\n\u2028\u2029]+$/g,"")
+S.trim=S.trim||S.replace.partial(/^\s+|\s+$/g,"")
 S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.format=function(m){var a=typeof m=="object"?m:arguments
 return this.replace(/\{(\w+)\}/g,function(_,i){return a[i]})}
@@ -99,7 +99,7 @@ S.safe=function(){return this.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace
 S.toAccuracy=N.toAccuracy=function(a){var x=(""+a).split("."),n=~~((this/a)+.5)*a
 return ""+(1 in x?n.toFixed(x[1].length):n)}
 N.words=S.words=function(steps,units,strings,overflow){var n=+this,i=0,s=strings||{"default":"{0} {1}{2}"}
-while(n>steps[i])n/=steps[i++];
+while(n>steps[i])n/=steps[i++]
 if(i==steps.length&&overflow)return overflow(this)
 i=units[i]
 n=(n+.5)|0
@@ -116,7 +116,7 @@ function p2(n){return n>9?n:"0"+n}
 function p3(n){return(n>99?n:(n>9?"0":"00")+n)}
 D.format=function(_){var t=this,x=D.format.masks[_]||_||D.format.masks["default"],g="get"+(x.slice(0,4)=="UTC:"?(x=x.slice(4),"UTC"):""),Y=g+"FullYear",M=g+"Month",d=g+"Date",w=g+"Day",h=g+"Hours",m=g+"Minutes",s=g+"Seconds",S=g+"Milliseconds"
 return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|([HhmsS])\4?|[uUaAZw])/g,function(a,b,c){return a=="YY"?(""+t[Y]()).slice(2):a=="YYYY"?t[Y]():a=="M"?t[M]()+1:a=="MM"?p2(t[M]()+1):a=="MMM"?D.monthNames[t[M]()]:a=="MMMM"?D.monthNames[t[M]()+12]:a=="D"?t[d]():a=="DD"?p2(t[d]()):a=="DDD"?D.dayNames[t[w]()]:a=="DDDD"?D.dayNames[t[w]()+7]:a=="H"?(""+t[h]()%12||12):a=="HH"?p2(t[h]()%12||12):a=="h"?t[h]():a=="hh"?p2(t[h]()):a=="m"?t[m]():a=="mm"?p2(t[m]()):a=="s"?t[s]():a=="ss"?p2(t[s]()):a=="S"?t[S]():a=="SS"?p3(t[S]()):a=="u"?(""+(t/1000)>>>0):a=="U"?+t:a=="a"?(t[h]()>11?"pm":"am"):a=="A"?(t[h]()>11?"PM":"AM"):a=="Z"?"GMT "+(-t.getTimezoneOffset()/60):a=="w"?1+Math.floor((t-new Date(t[Y](),0,4))/604800000):b?c:a})}
-D.format.masks={"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'};
+D.format.masks={"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'}
 D.monthNames="Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ")
 D.dayNames="Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ")
 I(D,"toISOString","return this.format('isoUtcDateTime')")
