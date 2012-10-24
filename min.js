@@ -1,11 +1,51 @@
-!function(w){var sl,a,b,c,xhrs=[],P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P]
+!function(w){var a,b,c,xhrs=[],P="prototype",A=Array[P],O=Object
 function I(o,n,s,x){o[n]=o[n]||new Function("x","y","return function(a,b,c,d){"+s+"}").apply(null,x||[o,n])}
 function Nop(){}
-I(F,"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
-sl=F.call.bind(A.slice)
-F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
+I(Function[P],"bind","var t=this;b=x.call(arguments,1);c=function(){return t.apply(this instanceof c?this:a,b.concat.apply(b,arguments))};if(t[y])c[y]=t[y];return c",[A.slice,P])
+I(O,"create","x[y]=a;return new x",[Nop,P])
+I(O,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
+I(Array,"isArray","return a instanceof Array")
+a="var t=this,l=t.length,o=[],i=-1;"
+c="if(t[i]===a)return i;return -1"
+I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
+I(A,"lastIndexOf",a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c)
+b=a+"if(arguments.length<2)b=t"
+c="b=a.call(null,b,t[i],i,t);return b"
+I(A,"reduce",b+"[++i];while(++i<l)"+c)
+I(A,"reduceRight",b+"[--l];i=l;while(i--)"+c)
+b=a+"while(++i<l)if(i in t)"
+I(A,"forEach",b+"a.call(b,t[i],i,t)")
+I(A,"every",b+"if(!a.call(b,t[i],i,t))return!1;return!0")
+c=";return o"
+I(A,"map",b+"o[i]=a.call(b,t[i],i,t)"+c)
+b+="if(a.call(b,t[i],i,t))"
+I(A,"filter",b+"o.push(t[i])"+c)
+I(A,"some",b+"return!0;return!1")
+I(Date[P],"toISOString","return this.format('isoUtcDateTime')")
+I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
+w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
+r.open(method,url,!sync)
+r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
+r.onreadystatechange=cb=Nop
+xhrs.push(r)}}
+return r}
+if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:new Function("t","return new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
+!function(w){var a,b,c,fns={},P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P],O=Object,sl=F.call.bind(A.slice)
+function Nop(){}
 F.partial=function(){var t=this,a=sl(arguments)
 return function(){return t.apply(this,A.concat.apply(a,arguments))}}
+F.byWords=function(i){var t=this
+i|=0
+return function(){var s=this,r=s,a=arguments
+;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
+return r}}
+F.byKeyVal=function(){var t=this
+return function(o){var s=this,a=sl(arguments),r
+if(typeof o=="object")for(r in o){a[0]=r
+a[1]=o[r]
+r=t.apply(s,a)}else r=t.apply(s,a)
+return r}}
+F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
 F.cache=function(instance,keyFn,cache){var t=this,c=cache||{},f=function(){var a=arguments,i=!!instance||this instanceof f,k=keyFn?keyFn(a,t):i+":"+a.length+":"+A.join.call(a)
 return k in c?c[k]:(c[k]=i?t.construct(a):t.apply(this,a))}
 f.origin=t
@@ -33,57 +73,18 @@ F.rate=function(ms){var t=this,n=0
 return function(){var d=+new Date
 if(d>n){n=d+ms
 t.apply(null,arguments)}}}
-F.byWords=function(i){var t=this
-i|=0
-return function(){var s=this,r=s,a=arguments
-;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
-return r}}
-F.byKeyVal=function(){var t=this
-return function(o){var s=this,a=sl(arguments),r
-if(typeof o=="object")for(r in o){a[0]=r
-a[1]=o[r]
-r=t.apply(s,a)}else r=t.apply(s,a)
-return r}}
-w.Fn=function(s){var a=["_"],t=s.split("->")
-if(t.length>1)while(t.length){s=t.pop()
-a=t.pop().match(/\w+/g)||""
-t.length&&t.push("(function("+a+"){return("+s+")})")}
-return new Function(a,"return("+s+")")}.cache()
-Fn.Nop=Nop
-Fn.This=F.fn=function(){return this}
-Fn.True=function(){return!0}
-Fn.False=function(){return!1}
-Fn.Init=function(){var t=this
-return "init"in t&&t.init.apply(t,arguments)||t}
-S.fn=function(){return Fn(this)}
-a=Object
-I(a,"create","x[y]=a;return new x",[Nop,P])
-I(a,"keys","c=[];for(b in a)a.hasOwnProperty(b)&&c.push(b);return c")
-I(a,"each","if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)")
-a.merge=function(main){var o,i=1,k
+O.each=function(a,b,c,d){if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)}
+O.merge=function(main){var o,i=1,k
 while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
 return main}
-a=Array
-I(a,"isArray","return a instanceof Array")
-I(a,"from","for(b=[],c=a.length;c--;b.unshift(a[c]));return b")
-a="var t=this,l=t.length,o=[],i=-1;"
-c="if(t[i]===a)return i;return -1"
-I(A,"indexOf",a+"i+=b|0;while(++i<l)"+c)
-I(A,"lastIndexOf",a+"i=(b|0)||l;i>--l&&(i=l)||i<0&&(i+=l);++i;while(--i>-1)"+c)
-b=a+"if(arguments.length<2)b=t"
-c="b=a.call(null,b,t[i],i,t);return b"
-I(A,"reduce",b+"[++i];while(++i<l)"+c)
-I(A,"reduceRight",b+"[--l];i=l;while(i--)"+c)
-b=a+"while(++i<l)if(i in t)"
-I(A,"forEach",b+"a.call(b,t[i],i,t)")
-I(A,"every",b+"if(!a.call(b,t[i],i,t))return!1;return!0")
-c=";return o"
-I(A,"map",b+"o[i]=a.call(b,t[i],i,t)"+c)
-b+="if(a.call(b,t[i],i,t))"
-I(A,"filter",b+"o.push(t[i])"+c)
-I(A,"some",b+"return!0;return!1")
-I(A,"remove",a+"o=x(arguments);while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);return t",[sl])
-I(A,"indexFor",a+"i=b?0:l;while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1;return i")
+Array.from=function(a){for(var b=[],c=a.length;c--;b.unshift(a[c]));
+return b}
+A.remove=function(a,b,c,d){var t=this,l=t.length,o=sl(arguments),i=-1
+while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);
+return t}
+A.indexFor=function(a,b,c,d){var t=this,l=t.length,o=[],i=b?0:l
+while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1
+return i}
 A.each=A.forEach
 A.fold=A.reduce
 A.foldr=A.reduceRight
@@ -91,6 +92,20 @@ A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 !function(n){F[n]=S[n]=function(){var a=arguments,l=a[0]
 a[0]=this.fn()
 return A[n].apply(l,a)}}.byWords()("every filter each map fold foldr some")
+function Fn(s){if(s in fns)return fns[s]
+var a=["_"],t=s.split("->")
+if(t.length>1)while(t.length){s=t.pop()
+a=t.pop().match(/\w+/g)||""
+t.length&&t.push("(function("+a+"){return("+s+")})")}
+return fns[s]=new Function(a,"return("+s+")")}
+w.Fn=Fn
+Fn.Nop=Nop
+Fn.This=F.fn=function(){return this}
+Fn.True=function(){return!0}
+Fn.False=function(){return!1}
+Fn.Init=function(){var t=this
+return "init"in t&&t.init.apply(t,arguments)||t}
+S.fn=function(){return Fn(this)}
 S.trim=S.trim||S.replace.partial(/^\s+|\s+$/g,"")
 S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
 S.format=function(m){var a=typeof m=="object"?m:arguments
@@ -119,7 +134,6 @@ return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|(
 D.format.masks={"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'}
 D.monthNames="Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ")
 D.dayNames="Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ")
-I(D,"toISOString","return this.format('isoUtcDateTime')")
 S.date=N.date=function(format){var t=this,d=new Date,m,n=+t||""+t
 if(isNaN(n)){if(m=n.match(/(\d{4})-(\d{2})-(\d{2})/))d.setFullYear(m[1],m[2]-1,m[3])
 else if(m=n.match(/(\d{2})\.(\d{2})\.(\d{4})/))d.setFullYear(m[3],m[2]-1,m[1])
@@ -133,15 +147,7 @@ D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
 D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
-return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}
-I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
-w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
-r.open(method,url,!sync)
-r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
-r.onreadystatechange=cb=Nop
-xhrs.push(r)}}
-return r}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:Fn("t->new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
+return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}}(this)
 Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
 ;(e[ev]||(e[ev]=[])).push([fn,scope])
 return t}.byWords(),non:function(ev,fn){var t=this

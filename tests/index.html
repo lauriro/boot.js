@@ -105,7 +105,7 @@ load("tests/test.js", function(){
 
 	load( modules, function(){
 
-			TestCase.read( "boot.js" )
+			TestCase.read( ["browser_upgrade.js","core.js"] )
 			TestCase.read( modules )
 			var i = 0, test, count = 0, time = 0;
 			while (test = _tests[i++]) {
