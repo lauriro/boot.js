@@ -323,7 +323,7 @@
 
 	El.get = function(el) {
 		if (typeof el == "string") el = d.getElementById(el);
-		return "to" in el ? el : extend(el);
+		return el && "to" in el ? el : extend(el);
 	}
 
 	El.cache = function(n, el, custom) {
@@ -616,7 +616,7 @@
 }(this, document, "prototype");
 
 
-// keymap
+//** El.keymap
 !function() {
 	var is_down = {}
 	, maps = []
@@ -667,6 +667,9 @@
 	Event.add(document, "keyup", keyup);
 	Event.add(document, "keydown", keydown);
 }()
+//*/
+
+
 
 /** Tests for El
 !function(){

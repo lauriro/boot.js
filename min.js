@@ -55,6 +55,7 @@ f[P]=t[P]
 return f}
 F.extend=function(){var a,t=this,i=0,f=function(){return t.apply(this,arguments)}
 f[P]=Object.create(t[P])
+f[P].constructor=f
 while(a=arguments[i++])Object.merge(f[P],a)
 return f}
 F.chain=function(a){return "a b->->b.call(this,a.apply(this,arguments))".fold(Array.isArray(a)?a:sl(arguments),this)}
@@ -269,7 +270,7 @@ function extend(e,p,k){if(e){if(!p)p=El[P]
 for(k in p)e[k]=p[k]}
 return e}
 El.get=function(el){if(typeof el=="string")el=d.getElementById(el)
-return "to"in el?el:extend(el)}
+return el&&"to"in el?el:extend(el)}
 El.cache=function(n,el,custom){elCache[n]=typeof el=="string"?El(el):el
 if(custom){fnCache[n]=custom}}
 El.cache.el=elCache

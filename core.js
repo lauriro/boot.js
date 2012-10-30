@@ -83,6 +83,7 @@
 			return t.apply(this, arguments)
 		}
 		f[P] = Object.create(t[P])
+		f[P].constructor = f
 		while (a = arguments[i++]) Object.merge(f[P], a)
 		return f
 	}
