@@ -173,6 +173,12 @@
 		return main
 	}
 
+	O.zip = function(keys, vals) {
+		return keys.fold(function(_, key, i){
+			_[key] = vals[i]
+			return _
+		}, {})
+	}
 
 	// Non-standard
 	Array.from = function(a) {
@@ -717,6 +723,21 @@ test.compare(
 , "String.ip2int()");
 
 test.done();
+}()
+//*/
+
+
+
+/** Tests for lambda
+!function(){
+	var test = new TestCase("Object extensions")
+
+	test.compare(
+		JSON.stringify(Object.zip(["a","b"], [1, 2]))
+	, '{"a":1,"b":2}'
+	)
+
+	test.done()
 }()
 //*/
 

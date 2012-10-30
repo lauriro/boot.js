@@ -22,7 +22,6 @@ String.version_compare = function(){
 
 		for (;len > i;i++) {
 			diff = toNum(v1[i]) - toNum(v2[i])
-			console.log("compare", toNum(v1[i]), toNum(v2[i]))
 			if (diff != 0) {
 				diff = (diff > 0) - (diff < 0); // -1, 0, or +1
 				break

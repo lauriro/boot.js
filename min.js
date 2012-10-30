@@ -77,6 +77,8 @@ O.each=function(a,b,c,d){if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)
 O.merge=function(main){var o,i=1,k
 while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
 return main}
+O.zip=function(keys,vals){return keys.fold(function(_,key,i){_[key]=vals[i]
+return _},{})}
 Array.from=function(a){for(var b=[],c=a.length;c--;b.unshift(a[c]));
 return b}
 A.remove=function(a,b,c,d){var t=this,l=t.length,o=sl(arguments),i=-1
