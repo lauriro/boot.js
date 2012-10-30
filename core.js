@@ -27,6 +27,9 @@
 	// -------------------
 
 
+	F.construct = function(a) {
+		return new(F.bind.apply(this, A.concat.apply([null], a)))
+	}
 
 	F.partial = function() {
 		var t = this, a = sl(arguments)
@@ -54,10 +57,6 @@
 			} else r = t.apply(s, a)
 			return r
 		}
-	}
-
-	F.construct = function(a) {
-		return new(F.bind.apply(this, A.concat.apply([null], a)))
 	}
 
 	// Run function once and return cached value or cached instance
@@ -166,8 +165,9 @@
 	
 	// Non-standard
 	O.each = function(a, b, c, d) {
-		if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)
+		if (a) for (d in a) a.hasOwnProperty(d) && b.call(c, a[d], d, a)
 	}
+
 	O.merge = function(main) {
 		var o, i = 1, k
 		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
@@ -175,7 +175,7 @@
 	}
 
 	O.zip = function(keys, vals) {
-		return keys.fold(function(_, key, i){
+		return keys.fold(function(_, key, i) {
 			_[key] = vals[i]
 			return _
 		}, {})
@@ -196,22 +196,22 @@
 	*/
 	// Non-standard
 	// // IE < 9 bug: [1,2].splice(0).join("") == "" but should be "12"
-	A.remove = function(a, b, c, d) {
+	A.remove = function() {
 		var t = this
 		, l = t.length
 		, o = sl(arguments)
-		, i = -1
 
-		while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1);
+		while (l--) if (o.indexOf(t[l])>-1) t.splice(l, 1)
 		return t
 	}
-	A.indexFor = function(a, b, c, d) {
+
+	A.indexFor = function(a, b, c) {
 		var t = this
 		, l = t.length
 		, o = []
 		, i = b ? 0 : l
 
-		while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1
+		while (i<l) b.call(c, a, t[o=(i+l)>>1]) < 0 ? l=o : i=o+1
 		return i
 	}
 
@@ -448,15 +448,12 @@
 	}
 	//*/
 
-
-
 	//** Date.timeAgo convert dates to human-readable
 	D.timeAgo = function(format, custom) {
 		var t = this, d = (new Date() - t + 1) / 1000
 		return d.humanTime({"default":"{0} {1}{2} ago", "day":"Yesterday"}, function(){return t.format(format)})
 	}
 	//*/
-
 
 }(this)
 
