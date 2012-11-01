@@ -13,76 +13,83 @@
 
 Fn.Events = {
 	on: function(ev, fn, scope) {
-		var t = this, e = t._e || (t._e = {});
-		(e[ev] || (e[ev] = [])).push([fn, scope]);
-		return t;
+		var t = this
+		, e = t._e || (t._e = {})
+		;(e[ev] || (e[ev] = [])).push([fn, scope])
+		return t
 	}.byWords(),
 	non: function(ev, fn) {
-		var t = this;
+		var t = this
 		if (ev) {
 			if ("_e" in t && ev in t._e) {
 				if (fn) for (var a = t._e[ev], l = a.length; l--;) if (a[l][0] == fn) a.splice(l, 1)
-				else delete t._e[ev];
+				else delete t._e[ev]
 			}
-		} else delete t._e;
-		return t;
+		} else delete t._e
+		return t
 	}.byWords(),
 	once: function(ev, fn, scope) {
-		return this.on(ev, fn, scope).on(ev, this.non.partial(ev, fn));
+		return this.on(ev, fn, scope).on(ev, this.non.partial(ev, fn))
 	},
 	emit: function(ev) {
-		var t = this;
+		var t = this
 		if ("_e" in t && ev in t._e) {
-			for (var i=0, e=t._e[ev], a=e.slice.call(arguments, 1); ev=e[i++];) ev[0].apply(ev[1]||t, a);
+			for (var i=0, e=t._e[ev], a=e.slice.call(arguments, 1); ev=e[i++];) ev[0].apply(ev[1]||t, a)
 		}
-		return t;
+		return t
 	}
-};
+}
 
 Fn.Iter = Fn.Items = {
 	each: function(fn) {
-		var t = this;
-		t.items.forEach(fn, t);
-		return t;
+		var t = this
+		t.items.forEach(fn, t)
+		return t
 	},
 	map: function(fn) {
-		return this.items.map(fn, this);
+		return this.items.map(fn, this)
 	},
 	pluck: function(name) {
-		return this.items.map(function(item){return item.get(name)}, this);
+		return this.items.map(function(item){return item.get(name)}, this)
 	},
 	at: function(index, fn) {
-		var t = this, item = t.items[index];
-		return fn ? (item && fn.call(t, item), t) : item;
+		var t = this
+		, item = t.items[index]
+		return fn ? (item && fn.call(t, item), t) : item
 	},
 	first: function(fn) {
-		return this.at(0, fn);
+		return this.at(0, fn)
 	},
 	on_empty: function(fn) {
-		0 in this.items || fn();
-		return this;
+		0 in this.items || fn()
+		return this
 	}
-};
+}
 
 Fn.Lazy = {
 	wait: function(ignore) {
-		var t = this, k, hooks = [], hooked = [];
-		ignore = ignore || [];
+		var k
+		, t = this
+		, hooks = []
+		, hooked = []
+		ignore = ignore || []
 
-		for (k in t) if (typeof t[k] == "function" && ignore.indexOf(k) == -1) !function(k){
-			hooked.push(k);
+		for (k in t) if (typeof t[k] == "function" && ignore.indexOf(k) == -1) !function(k) {
+			hooked.push(k)
 			t[k] = function(){hooks.push([k, arguments]);return t}
-		}(k);
+		}(k)
 
 		t.resume = function() {
-			delete t.resume;
-			var i = hooked.length, v;
-			while (i--) delete t[hooked[i]];
+			delete t.resume
+			var v
+			, i = hooked.length
+
+			while (i--) delete t[hooked[i]]
 			// i == -1 from previous loop
-			while (v=hooks[++i]) t[v[0]].apply(t, v[1]);
-			t = hooks = hooked = null;
-		};
-		return t;
+			while (v=hooks[++i]) t[v[0]].apply(t, v[1])
+			t = hooks = hooked = null
+		}
+		return t
 	}
-};
+}
 

@@ -49,7 +49,7 @@
 	F.byKeyVal = function() {
 		var t = this
 		return function(o) {
-			var s = this, a = sl(arguments), r
+			var r, s = this, a = sl(arguments)
 			if (typeof o == "object") for (r in o) {
 				a[0] = r
 				a[1] = o[r]
@@ -117,7 +117,7 @@
 
 	// Run Function once after last call
 	F.once = function(ms) {
-		var t = this, s, args
+		var s, args, t = this
 		return function() {
 			clearTimeout(s)
 			args = arguments
@@ -146,16 +146,16 @@
 
 	/** debug.trace
 	F.trace = function(n) {
-		var t = this;
-		n = n || t;
+		var t = this
+		n = n || t
 		return "console" in w ?
 			function() {
-			console.info('[', n, 'apply(', this!=w && this, ',', arguments, ')');
-				var result = t.apply(this, arguments);
-				console.info(']', n, ' -> ', result);
-				return result;
+			console.info('[', n, 'apply(', this!=w && this, ',', arguments, ')')
+				var result = t.apply(this, arguments)
+				console.info(']', n, ' -> ', result)
+				return result
 		} :
-		t;
+		t
 	}
 	//*/
 
@@ -169,7 +169,7 @@
 	}
 
 	O.merge = function(main) {
-		var o, i = 1, k
+		var k, o, i = 1
 		while (o = arguments[i++]) for (k in o) if (o.hasOwnProperty(k)) main[k] = o[k]
 		return main
 	}
@@ -183,16 +183,16 @@
 
 	// Non-standard
 	Array.from = function(a) {
-		for(var b=[],c=a.length;c--;b.unshift(a[c]));
+		for(var b=[], c=a.length; c--; b.unshift(a[c]));
 		return b
 	}
 	/*
 	Array.flatten = function(arr) {
 	for(var i=arr.length;i--;)
-	0 in arr[i] && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])));
+	0 in arr[i] && A.splice.apply(arr, [i, 1].concat(Array.flatten(arr[i])))
 	return arr
-	};
-	flat([1,2,[3,4,[5,6]],7]);
+	}
+	flat([1,2,[3,4,[5,6]],7])
 	*/
 	// Non-standard
 	// // IE < 9 bug: [1,2].splice(0).join("") == "" but should be "12"
@@ -417,7 +417,11 @@
 
 
 	S.date = N.date = function(format) {
-		var t = this, d = new Date(), m, n = +t || ""+t; // n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
+		var m
+		, t = this
+		, d = new Date()
+		, n = +t || ""+t
+		// n = +t || Date.parse(t) || ""+t; // In Chrome Date.parse("01.02.2001") is Jan
 		if (isNaN(n)) {
 			// Big endian date, starting with the year, eg. 2011-01-31
 			if (m = n.match(/(\d{4})-(\d{2})-(\d{2})/)) d.setFullYear(m[1], m[2]-1, m[3])
@@ -443,7 +447,7 @@
 
 	//** Date.startOfWeek
 	D.startOfWeek = function() {
-		var t = this;
+		var t = this
 		return new Date(t.getFullYear(), t.getMonth(), t.getDate() - (t.getDay() || 7) +1)
 	}
 	//*/

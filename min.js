@@ -41,7 +41,7 @@ return function(){var s=this,r=s,a=arguments
 ;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
 F.byKeyVal=function(){var t=this
-return function(o){var s=this,a=sl(arguments),r
+return function(o){var r,s=this,a=sl(arguments)
 if(typeof o=="object")for(r in o){a[0]=r
 a[1]=o[r]
 r=t.apply(s,a)}else r=t.apply(s,a)
@@ -66,7 +66,7 @@ return function(){return(f.apply(this,arguments)?t:o).apply(this,arguments)}}
 F.ttl=function(ms,fun){var t=this,s=setTimeout(function(){ms=0;fun&&fun()},ms)
 return function(){clearTimeout(s)
 ms&&t.apply(null,arguments)}}
-F.once=function(ms){var t=this,s,args
+F.once=function(ms){var s,args,t=this
 return function(){clearTimeout(s)
 args=arguments
 s=setTimeout(function(){t.apply(null,args)},ms)}}
@@ -75,7 +75,7 @@ return function(){var d=+new Date
 if(d>n){n=d+ms
 t.apply(null,arguments)}}}
 O.each=function(a,b,c,d){if(a)for(d in a)a.hasOwnProperty(d)&&b.call(c,a[d],d,a)}
-O.merge=function(main){var o,i=1,k
+O.merge=function(main){var k,o,i=1
 while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
 return main}
 O.zip=function(keys,vals){return keys.fold(function(_,key,i){_[key]=vals[i]
@@ -137,7 +137,7 @@ return x.replace(/(")([^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|(YY(?:YY)?|M{1,4}|D{1,4}|(
 D.format.masks={"default":"DDD MMM DD YYYY hh:mm:ss","isoUtcDateTime":'UTC:YYYY-MM-DD"T"hh:mm:ss"Z"'}
 D.monthNames="Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec January February March April May June July August September October November December".split(" ")
 D.dayNames="Sun Mon Tue Wed Thu Fri Sat Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ")
-S.date=N.date=function(format){var t=this,d=new Date,m,n=+t||""+t
+S.date=N.date=function(format){var m,t=this,d=new Date,n=+t||""+t
 if(isNaN(n)){if(m=n.match(/(\d{4})-(\d{2})-(\d{2})/))d.setFullYear(m[1],m[2]-1,m[3])
 else if(m=n.match(/(\d{2})\.(\d{2})\.(\d{4})/))d.setFullYear(m[3],m[2]-1,m[1])
 else if(m=n.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/))d.setFullYear(m[3],m[1]-1,m[2])
@@ -154,7 +154,7 @@ return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){ret
 Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
 ;(e[ev]||(e[ev]=[])).push([fn,scope])
 return t}.byWords(),non:function(ev,fn){var t=this
-if(ev){if("_e"in t&&ev in t._e){if(fn)t._e[ev].remove(fn)
+if(ev){if("_e"in t&&ev in t._e){if(fn)for(var a=t._e[ev],l=a.length;l--;)if(a[l][0]==fn)a.splice(l,1)
 else delete t._e[ev]}}else delete t._e
 return t}.byWords(),once:function(ev,fn,scope){return this.on(ev,fn,scope).on(ev,this.non.partial(ev,fn))},emit:function(ev){var t=this
 if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
@@ -164,14 +164,14 @@ t.items.forEach(fn,t)
 return t},map:function(fn){return this.items.map(fn,this)},pluck:function(name){return this.items.map(function(item){return item.get(name)},this)},at:function(index,fn){var t=this,item=t.items[index]
 return fn?(item&&fn.call(t,item),t):item},first:function(fn){return this.at(0,fn)},on_empty:function(fn){0 in this.items||fn()
 return this}}
-Fn.Lazy={wait:function(ignore){var t=this,k,hooks=[],hooked=[]
+Fn.Lazy={wait:function(ignore){var k,t=this,hooks=[],hooked=[]
 ignore=ignore||[]
 for(k in t)if(typeof t[k]=="function"&&ignore.indexOf(k)==-1)!function(k){hooked.push(k)
 t[k]=function(){hooks.push([k,arguments]);return t}}(k)
 t.resume=function(){delete t.resume
-var i=hooked.length,v
-while(i--)delete t[hooked[i]];
-while(v=hooks[++i])t[v[0]].apply(t,v[1]);
+var v,i=hooked.length
+while(i--)delete t[hooked[i]]
+while(v=hooks[++i])t[v[0]].apply(t,v[1])
 t=hooks=hooked=null}
 return t}}
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
