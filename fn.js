@@ -21,7 +21,7 @@ Fn.Events = {
 		var t = this;
 		if (ev) {
 			if ("_e" in t && ev in t._e) {
-				if (fn) t._e[ev].remove(fn);
+				if (fn) for (var a = t._e[ev], l = a.length; l--;) if (a[l][0] == fn) a.splice(l, 1)
 				else delete t._e[ev];
 			}
 		} else delete t._e;
