@@ -45,14 +45,16 @@
 	}
 
 	function sha1(data, asBytes) {
-		var a, b, c, d, e, t
+		var a, b, c, d, e, t, j
+		, i = 0
+		, w = []
 		, A = 0x67452301
 		, B = 0xefcdab89
 		, C = 0x98badcfe
 		, D = 0x10325476
 		, E = 0xc3d2e1f0
 		, bin = sha_init(data)
-		, i = 0, j, len = bin.length, w = []
+		, len = bin.length
 
 		while (i < len) {
 			w = bin.slice(i, i+=(j=16))
@@ -86,7 +88,10 @@
 	}
 
 	function sha256(data, asBytes) {
-		var A = 0x6a09e667
+		var a, b, c, d, e, f, g, h, t1, t2, j
+		, i = 0
+		, w = []
+		, A = 0x6a09e667
 		, B = 0xbb67ae85
 		, C = 0x3c6ef372
 		, D = 0xa54ff53a
@@ -95,7 +100,7 @@
 		, G = 0x1f83d9ab
 		, H = 0x5be0cd19
 		, bin = sha_init(data)
-		, i = 0, j, len = bin.length, a, b, c, d, e, f, g, h, t1, t2, w = []
+		, len = bin.length
 		, map = [ 
 			0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5
 			, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174
@@ -112,8 +117,7 @@
 			while (j < 64) {
 				t1 = w[j-2]
 				t2 = w[j-15]
-				t1 = (r(t1, 17)^r(t1,19)^(t1>>>10)) + w[j-7] + (r(t2,7)^r(t2,18)^(t2>>>3)) + w[j-16]
-				w[j++] = t1
+				w[j] = (r(t1, 17)^r(t1,19)^(t1>>>10)) + w[j-7] + (r(t2,7)^r(t2,18)^(t2>>>3)) + w[++j-17] // j-16
 			}
 			a = A
 			b = B
@@ -136,14 +140,14 @@
 				b = a
 				a = (t1 + t2)>>>0
 			}
-			A = (a + A)>>>0
-			B = (b + B)>>>0
-			C = (c + C)>>>0
-			D = (d + D)>>>0
-			E = (e + E)>>>0
-			F = (f + F)>>>0
-			G = (g + G)>>>0
-			H = (h + H)>>>0
+			A += a
+			B += b
+			C += c
+			D += d
+			E += e
+			F += f
+			G += g
+			H += h
 		}
 		return sha_format(asBytes, [A, B, C, D, E, F, G, H]);
 	}
