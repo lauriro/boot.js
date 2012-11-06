@@ -11,7 +11,7 @@
 
 
 
-!function(S,nuls){
+!function(S, nuls) {
 	function l(x, n) { // rotate left
 		return (x<<n) | (x>>>(32-n))
 	}
@@ -26,22 +26,22 @@
 	}
 
 	function sha_init(data) {
-		if (typeof(data) == "string") data = s2i(data);
+		if (typeof(data) == "string") data = s2i(data)
 
-		var bin = [], i = 0, len = data.length;
-		while (i < len) bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++];
+		var bin = [], i = 0, len = data.length
+		while (i < len) bin[i >> 2] = data[i++]<<24|data[i++]<<16|data[i++]<<8|data[i++]
 
-		i = len << 3;
-		bin[len >> 2] |= 0x80 << (24 - (i & 31));
-		return bin.concat(nuls.slice( bin.length & 15 ), [0, i]);
+		i = len << 3
+		bin[len >> 2] |= 0x80 << (24 - (i & 31))
+		return bin.concat(nuls.slice( bin.length & 15 ), [0, i])
 	}
 	function sha_format(asBytes, a) {
 		if (asBytes) {
 			// convert to byte array
 			for (var out = [], i=0, len=a.length;i<len;i++) out.push( (a[i]>>>24)&0xff, (a[i]>>>16)&0xff, (a[i]>>>8)&0xff, a[i]&0xff );
-			return out;
+			return out
 		}
-		return a.map(i2s).join("");
+		return a.map(i2s).join("")
 	}
 
 	function sha1(data, asBytes) {
@@ -79,12 +79,12 @@
 			D += d
 			E += e
 		}
-		return sha_format(asBytes, [A, B, C, D, E]);
+		return sha_format(asBytes, [A, B, C, D, E])
 	}
 
 
 	S.sha1 = function(asBytes) {
-		return sha1(""+this, asBytes);
+		return sha1(""+this, asBytes)
 	}
 
 	function sha256(data, asBytes) {
@@ -149,29 +149,29 @@
 			G += g
 			H += h
 		}
-		return sha_format(asBytes, [A, B, C, D, E, F, G, H]);
+		return sha_format(asBytes, [A, B, C, D, E, F, G, H])
 	}
 
 	S.sha256 = function(asBytes) {
-		return sha256(""+this, asBytes);
+		return sha256(""+this, asBytes)
 	}
 
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt) {
-		var i = 0, ipad = [], opad = [];
-		key = (key.length > blocksize) ? hasher(key, true) : s2i(key);
+		var i = 0, ipad = [], opad = []
+		key = (key.length > blocksize) ? hasher(key, true) : s2i(key)
 		for(; i<blocksize; ipad[i]=key[i]^0x36, opad[i]=key[i++]^0x5c);
-		return hasher(opad.concat(hasher(ipad.concat(s2i(txt)),true)));
+		return hasher(opad.concat(hasher(ipad.concat(s2i(txt)),true)))
 	}
 
 	S.hmac_sha1 = function(key) {
-		return hmac(sha1, 64, key, this);
+		return hmac(sha1, 64, key, this)
 	}
 
 	S.hmac_sha256 = function(key) {
-		return hmac(sha256, 64, key, this);
+		return hmac(sha256, 64, key, this)
 	}
-  //*/
+	//*/
 
 }(String.prototype, [0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
 
