@@ -630,14 +630,14 @@
 		120:"F9", 121:"F10", 122:"F11", 123:"F12"
 	}
 
-	function _key(code, char, i, is_input) {
+	function _key(code, char, i, is_input, el) {
 		var map = maps[i] || {}
 		, run = !is_input || map.enable_input
 
 		if ( run && char && char in map ) map[char](char);
 		else if ( run && "num" in map && code > 47 && code < 58) map.num(code-48);
-		else if ( run && "all" in map ) map.all(code, char);
-		else if ( "bubble" in map && kbMaps[++i]) _key(code, char, i, is_input)
+		else if ( run && "all" in map ) map.all(code, char, el);
+		else if ( "bubble" in map && kbMaps[++i]) _key(code, char, i, is_input, el)
 	}
 
 
@@ -653,7 +653,7 @@
 		, key = keys[code] || String.fromCharCode(code) || code
 		, el = e.target || e.srcElement;
 		if (el.nodeType == 3) el = el.parentNode;
-		_key(code, key, 0, el.tagName == 'INPUT' || el.tagName == 'TEXTAREA' || el.tagName == "SELECT")
+		_key(code, key, 0, el.tagName == 'INPUT' || el.tagName == 'TEXTAREA' || el.tagName == "SELECT", el)
 		delete is_down[ key ]
 	}
 
