@@ -36,6 +36,21 @@ var Model = Fn.Init.extend(Fn.Events, {
 	}
 }).cache(true, function(a){return a[0]["id"]});
 
+Model.merge = function(cur, next, path, changed) {
+	path = path || ""
+	changed = changed || []
+
+	var key, val
+	for (key in next) if (next.hasOwnProperty(key) && cur[key] !== next[key]) {
+		val = next[key]
+		changed.push(path+key)
+		if (val === null) delete cur[key]
+		else if (typeof val == "object" && Object.keys(val).length && typeof cur[key] == "object") Model.merge(cur[key], val, path+key+".", changed)
+		else cur[key] = val
+	}
+	return changed
+}
+
 var List = Fn.Init.extend(Fn.Items, Fn.Events, {
 	init: function(name) {
 		var t = this;
