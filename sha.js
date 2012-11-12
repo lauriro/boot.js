@@ -15,28 +15,32 @@
 	function l(x, n) { // rotate left
 		return (x<<n) | (x>>>(32-n))
 	}
+	function r(x, n) { // rotate right
+		return (x>>>n) | (x<<(32-n))
+	}
 	function i2s(a) { // integer array to hex string
 		var i = a.length
 		while (i--) a[i] = ("0000000"+(a[i]>>>0).toString(16)).slice(-8)
 		return a.join("")
 	}
-	function s2B(s) { // string to byte array
-		var a = unescape(encodeURIComponent(s)).split(""), i = a.length
-		while (i--) a[i] = a[i].charCodeAt()
-		return a
-	}
-	function B2w(a) { // byte array ta integer array
-		var i = 0, bin = [], len = a.length
-		while (i < len) bin[i>>2] = a[i++]<<24|a[i++]<<16|a[i++]<<8|a[i++]
+	function s2i(s) { // string to integer array
+		s = unescape(encodeURIComponent(s))
+		var len = s.length
+		, i = 0
+		, bin = []
+
+		while (i < len) {
+			bin[i>>2] = s.charCodeAt(i)<<24|s.charCodeAt(i+1)<<16|s.charCodeAt(i+2)<<8|s.charCodeAt(i+3)
+			i+=4
+		}
+		bin.len = len
 		return bin
 	}
-
 	function sha_init(bin, len) {
 		if (typeof bin == "string") {
-			bin = s2B(bin)
-			len = bin.length
-			bin = B2w(bin)
-		} else if (!len) len = bin.length * 4
+			bin = s2i(bin)
+			len = bin.len
+		} else len = len || bin.length<<2
 
 		bin[len>>2] |= 0x80 << (24 - (31 & len<<3))
 		return bin.concat(nuls.slice( bin.length & 15 ), [0, len<<3])
@@ -86,9 +90,6 @@
 	}
 
 
-	function r(x, n) { // rotate right
-		return (x>>>n) | (x<<(32-n))
-	}
 
 	function sha256(data, raw, _len) {
 		var a, b, c, d, e, f, g, h, t1, t2, j
@@ -163,7 +164,7 @@
 	//** HMAC 
 	function hmac(hasher, blocksize, key, txt, raw) {
 		var i = 0, ipad = [], opad = [], txt_len
-		key = (key.length > 4*blocksize) ? hasher(key, "raw") : B2w(s2B(key))
+		key = (key.length > 4*blocksize) ? hasher(key, "raw") : s2i(key)
 	
 		while (i<blocksize) {
 			ipad[i]=key[i]^0x36363636
@@ -171,9 +172,8 @@
 		}
 
 		if (typeof txt == "string") {
-			txt = s2B(txt)
-			txt_len = txt.length
-			txt = B2w(txt)
+			txt = s2i(txt)
+			txt_len = txt.len
 		} else txt_len = txt.length * 4
 		i = hasher(opad.concat(hasher(ipad.concat(txt), 1, 64 + txt_len)), 1)
 		return raw ? i : i2s(i)
@@ -268,8 +268,8 @@ TestCase("SHA").compare(
 , "0c60c80f961f0e71f3a9b524af6012062fe037a6"
 , String.pbkdf2("password", "salt", 2)
 , "ea6c014dc72d6f8ccd1ed92ace1d41f0d8de8957"
-//, String.pbkdf2("password", "salt", 4096)
-//, "4b007901b765489abead49d926f721d065a429c1"
+, String.pbkdf2("password", "salt", 4096)
+, "4b007901b765489abead49d926f721d065a429c1"
 //, String.pbkdf2("pass\0word", "sa\0lt", 4096, 16)
 //, "56fa6aa75548099dcc37d7f03425e0c3"
 //, String.pbkdf2("passwordPASSWORDpassword", "saltSALTsaltSALTsaltSALTsaltSALTsalt", 4096, 25)
