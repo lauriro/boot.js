@@ -29,7 +29,7 @@ r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
 r.onreadystatechange=cb=Nop
 xhrs.push(r)}}
 return r}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:new Function("t","return new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt())|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
+if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:new Function("t","return new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt(0))|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
 !function(w){var a,b,c,fns={},P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P],O=Object,sl=F.call.bind(A.slice)
 function Nop(){}
 F.construct=function(a){return new(F.bind.apply(this,A.concat.apply([null],a)))}
