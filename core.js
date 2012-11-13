@@ -11,7 +11,7 @@
 
 
 
-!function(w/* window */) {
+!function(exports) {
 	var a, b, c
 	, fns = {}
 	, P = "prototype"
@@ -244,7 +244,7 @@
 		}
 		return fns[s] = new Function(a, "return(" + s + ")")
 	}
-	w.Fn = Fn
+	exports.Fn = Fn
 
 
 	Fn.Nop = Nop
@@ -459,8 +459,11 @@
 	}
 	//*/
 
+//** Node
+}(typeof exports != "undefined" ? exports : this)
+/*/
 }(this)
-
+//*/
 
 
 
