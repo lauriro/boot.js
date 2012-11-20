@@ -18,6 +18,7 @@
 	, A = Array[P], D = Date[P], F = Function[P], N = Number[P], S = String[P]
 	, O = Object
 	, sl = F.call.bind(A.slice)
+	, cs = []
 
 	function Nop(){}
 
@@ -28,7 +29,12 @@
 
 
 	F.construct = function(a) {
-		return new(F.bind.apply(this, A.concat.apply([null], a)))
+		/*
+		* bind version have bad performance and memory consumption
+		* return new(F.bind.apply(this, A.concat.apply([null], a)))
+		*/
+		var l = a.length
+		return l ? (cs[l] || (cs[l] = Fn("t a->new t(a["+Object.keys(sl(a)).join("],a[")+"])")))(this, a) : new this
 	}
 
 	F.partial = function() {
