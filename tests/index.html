@@ -17,7 +17,7 @@
 var a = {a:1,b:2,c:{cc:3}};
 var b = {a:1,b:3}
 
-Object.merge = function(main, a, str, changed) {
+Object.merge2 = function(main, a, str, changed) {
 
 	if (!str) str = "";
 	if (!changed) changed = [];
@@ -89,7 +89,6 @@ load.path = "../"
 load("tests/test.js", function(){
 	var modules = [
 	    "el.js"
-		, "fn.js"
 		, "rpc.js"
 		, "mvc.js"
 		, "sha.js"

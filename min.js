@@ -119,6 +119,29 @@ Fn.True=function(){return!0}
 Fn.False=function(){return!1}
 Fn.Init=function(){var t=this
 return "init"in t&&t.init.apply(t,arguments)||t}
+Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
+;(e[ev]||(e[ev]=[])).push([fn,scope])
+return t}.byWords(),non:function(ev,fn){var t=this
+if(ev){if("_e"in t&&ev in t._e){if(fn)for(var a=t._e[ev],l=a.length;l--;)if(a[l][0]==fn)a.splice(l,1)
+else delete t._e[ev]}}else delete t._e
+return t}.byWords(),once:function(ev,fn,scope){return this.on(ev,fn,scope).on(ev,this.non.partial(ev,fn))},emit:function(ev){var t=this
+if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
+return t}}
+Fn.Iter=Fn.Items={each:function(fn){var t=this
+t.items.forEach(fn,t)
+return t},map:function(fn){return this.items.map(fn,this)},pluck:function(name){return this.items.map(function(item){return item.get(name)},this)},at:function(index,fn){var t=this,item=t.items[index]
+return fn?(item&&fn.call(t,item),t):item},first:function(fn){return this.at(0,fn)},on_empty:function(fn){0 in this.items||fn()
+return this}}
+Fn.Lazy={wait:function(ignore){var k,t=this,hooks=[],hooked=[]
+ignore=ignore||[]
+for(k in t)if(typeof t[k]=="function"&&ignore.indexOf(k)==-1)!function(k){hooked.push(k)
+t[k]=function(){hooks.push([k,arguments]);return t}}(k)
+t.resume=function(){delete t.resume
+var v,i=hooked.length
+while(i--)delete t[hooked[i]]
+while(v=hooks[++i])t[v[0]].apply(t,v[1])
+t=hooks=hooked=null}
+return t}}
 S.fn=function(){return Fn(this)}
 S.trim=S.trim||S.replace.partial(/^\s+|\s+$/g,"")
 S.camelCase=S.replace.partial(/[ _-]+([a-z])/g,function(_,a){return a.toUpperCase()})
@@ -162,29 +185,6 @@ D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
 D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
 return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}}(typeof exports!="undefined"?exports:this)
-Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
-;(e[ev]||(e[ev]=[])).push([fn,scope])
-return t}.byWords(),non:function(ev,fn){var t=this
-if(ev){if("_e"in t&&ev in t._e){if(fn)for(var a=t._e[ev],l=a.length;l--;)if(a[l][0]==fn)a.splice(l,1)
-else delete t._e[ev]}}else delete t._e
-return t}.byWords(),once:function(ev,fn,scope){return this.on(ev,fn,scope).on(ev,this.non.partial(ev,fn))},emit:function(ev){var t=this
-if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
-return t}}
-Fn.Iter=Fn.Items={each:function(fn){var t=this
-t.items.forEach(fn,t)
-return t},map:function(fn){return this.items.map(fn,this)},pluck:function(name){return this.items.map(function(item){return item.get(name)},this)},at:function(index,fn){var t=this,item=t.items[index]
-return fn?(item&&fn.call(t,item),t):item},first:function(fn){return this.at(0,fn)},on_empty:function(fn){0 in this.items||fn()
-return this}}
-Fn.Lazy={wait:function(ignore){var k,t=this,hooks=[],hooked=[]
-ignore=ignore||[]
-for(k in t)if(typeof t[k]=="function"&&ignore.indexOf(k)==-1)!function(k){hooked.push(k)
-t[k]=function(){hooks.push([k,arguments]);return t}}(k)
-t.resume=function(){delete t.resume
-var v,i=hooked.length
-while(i--)delete t[hooked[i]]
-while(v=hooks[++i])t[v[0]].apply(t,v[1])
-t=hooks=hooked=null}
-return t}}
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 type in _e||(_e[type]={})
