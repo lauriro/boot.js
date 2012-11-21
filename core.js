@@ -2,6 +2,8 @@
 
 
 /**
+ * @version  0.7-dev
+ *
  * THE BEER-WARE LICENSE
  * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
  * can do whatever you want with this stuff at your own risk. If we meet some 
