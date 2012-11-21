@@ -17,7 +17,7 @@
 var a = {a:1,b:2,c:{cc:3}};
 var b = {a:1,b:3}
 
-Object.merge = function(main, a, str, changed) {
+Object.merge2 = function(main, a, str, changed) {
 
 	if (!str) str = "";
 	if (!changed) changed = [];
@@ -78,13 +78,33 @@ El("div","mousewheel").to(box).on("mousewheel",function(e, delta){
 	Event.stop(e);
 });
 
+El("div","popup").to(box).on("click",function(){
+	var win = window.open("", "")
+	setTimeout(function(){
+		win.location.href = 'http://www.google.ee'
+	}, 200)
+});
+
 load.path = "../"
 load("tests/test.js", function(){
-	var modules = ["el.js","fn.js","rpc.js","mvc.js","base64.js","sha.js","xml.js","succinct_trie.js","cookie.js", "history.js", "jsonh.js"]
+	var modules = [
+	    "el.js"
+		, "rpc.js"
+		, "mvc.js"
+		, "sha.js"
+		, "crc.js"
+		, "xml.js"
+		, "succinct_trie.js"
+		, "cookie.js"
+		, "history.js"
+		, "jsonh.js"
+		, "version_compare.js"
+		, "bitarray.js"
+		]
 
 	load( modules, function(){
 
-			TestCase.read( "boot.js" )
+			TestCase.read( ["browser_upgrade.js","core.js"] )
 			TestCase.read( modules )
 			var i = 0, test, count = 0, time = 0;
 			while (test = _tests[i++]) {

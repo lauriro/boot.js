@@ -17,7 +17,6 @@
 
 	var Event = w.Event || (w.Event={})
 	, fn_id = 0
-	, kbMaps = []
 	, S = String[P]
 	, rendering  = false;
 
@@ -115,33 +114,6 @@
 		return { x: x, y: y, left: x, top: y };
 	};
 
-	function keyup(e) {
-		var key = e.keyCode || e.which
-		  , map = kbMaps[0];
-
-		if ( key in map ) map[key](key);
-		else if ( "num" in map && key > 47 && key < 58) map.num(key-48);
-		else if ( "all" in map ) map.all(key);
-		else {
-			var i = 0;
-			while ("bubble" in map && (map = kbMaps[++i])) {
-				if ( key in map ) map[key](key);
-				else if ( "all" in map ) map.all(key);
-			}
-		}
-	}
-
-	Event.setKeyMap = function(map) {
-		kbMaps.unshift(map);
-		kbMaps.length == 1 && Event.add(document, "keyup", keyup);
-	}
-	Event.removeKeyMap = function(map) {
-		if (kbMaps.length > 0) {
-			var index = kbMaps.indexOf(map);
-			kbMaps.splice( index == -1 ? 0 : index, 1);
-			kbMaps.length == 0 && Event.remove(document, "keyup", keyup);
-		}
-	}
 	//*/
 
 
@@ -351,7 +323,7 @@
 
 	El.get = function(el) {
 		if (typeof el == "string") el = d.getElementById(el);
-		return "to" in el ? el : extend(el);
+		return el && "to" in el ? el : extend(el);
 	}
 
 	El.cache = function(n, el, custom) {
@@ -488,6 +460,19 @@
 			return (el.length == 1) ? el[0] : Array.from(el);
 		}
 	}
+
+	/*
+	String.liquid = function(str, data){
+
+		var a = str.replace(/\s+/g, " ")
+		.replace(/{{\s*((?:[^}]|}(?!}))+)\s*}}/g, function(_, a) {
+			return "',(" + a.replace(/([^|])\|\s*([^|\s:]+)(?:\s*\:([^|]+))?/g, "$1).$2($3") + "),'";
+		})  
+		return data ? new Function("d","with(d)return['"+a+"'].join('')")(data) : a
+	}
+	*/
+
+
 
 	El.liquid = function(str) {
 		var s = "var _=[];with(o||{}){_.push('"
@@ -629,6 +614,60 @@
 
 
 }(this, document, "prototype");
+
+
+//** El.keymap
+!function() {
+	var is_down = {}
+	, maps = []
+	, keys = {
+		8:"Backspace", 9:"Tab",
+		13:"Enter", 16:"Shift", 17:"Ctrl", 18:"Alt", 19:"Pause",
+		20:"Capslock", 27:"Esc",
+		33:"PageUp", 34:"PageDown", 35:"End", 36:"Home", 37:"Left", 38:"Up", 39:"Right",
+		40:"Down", 45:"Insert", 46:"Delete",
+		112:"F1", 113:"F2", 114:"F3", 115:"F4", 116:"F5", 117:"F6", 118:"F7", 119:"F8",
+		120:"F9", 121:"F10", 122:"F11", 123:"F12"
+	}
+
+	function _key(code, char, i, is_input, el) {
+		var map = maps[i] || {}
+		, run = !is_input || map.enable_input
+
+		if ( run && char && char in map ) map[char](char);
+		else if ( run && "num" in map && code > 47 && code < 58) map.num(code-48);
+		else if ( run && "all" in map ) map.all(code, char, el);
+		else if ( "bubble" in map && kbMaps[++i]) _key(code, char, i, is_input, el)
+	}
+
+
+	function keydown(e) {
+		var code = e.keyCode || e.which
+		, key = keys[code] || String.fromCharCode(code) || code
+
+		is_down[ key ] = true
+	}
+
+	function keyup(e) {
+		var code = e.keyCode || e.which
+		, key = keys[code] || String.fromCharCode(code) || code
+		, el = e.target || e.srcElement;
+		if (el.nodeType == 3) el = el.parentNode;
+		_key(code, key, 0, el.tagName == 'INPUT' || el.tagName == 'TEXTAREA' || el.tagName == "SELECT", el)
+		delete is_down[ key ]
+	}
+
+	Event.setKeyMap = maps.unshift.bind(maps)
+	
+	Event.rmKeyMap = function(map) {
+		var i = maps.indexOf(map||maps[0]);
+		if (i > -1) maps.splice(i, 1);
+	}
+
+	Event.add(document, "keyup", keyup);
+	Event.add(document, "keydown", keydown);
+}()
+//*/
 
 
 
