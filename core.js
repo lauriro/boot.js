@@ -2,7 +2,7 @@
 
 
 /**
- * @version  0.7
+ * @version  0.8-dev
  *
  * THE BEER-WARE LICENSE
  * <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
