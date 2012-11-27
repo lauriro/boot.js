@@ -10,17 +10,15 @@
  */
 
 
-
 !function(exports, Fn) {
 
-	function Model(data) {
-		var t = this
-		t.data = data
-		t.previous = {}
-		t.lists = []
-		"init" in t && t.init(data)
-	}
-	Model.prototype = Object.merge({
+	var Model = Fn.Init.extend(Fn.Events, {
+		init: function(data) {
+			var t = this
+			t.data = data
+			t.previous = {}
+			t.lists = []
+		},
 		set: function(args, silent) {
 			var t = this, d = t.data, changed = []
 			for (var arg in args) if ( args.hasOwnProperty(arg) ) {
@@ -40,11 +38,9 @@
 		toString: function() {
 			return "[Model:" + this.get("id") +"]"
 		}
-	}, Fn.Events)
+	}).cache(true, function(a){return a[0]["id"]})
 
-	exports.Model = Model.cache(true, function(a){return a[0]["id"]})
-
-	exports.Model.merge = function(cur, next, path, changed) {
+	Model.merge = function(cur, next, path, changed) {
 		path = path || ""
 		changed = changed || []
 
@@ -59,24 +55,22 @@
 		return changed
 	}
 
-	function List(name) {
-		var t = this
-		t.name = name
-		t.items = []
-		"init" in t && t.init(data)
-	}
-
-	List.prototype = Object.merge({
-		model: exports.Model,
-		add: function(item, pos) {
+	var List = Fn.Init.extend(Fn.Items, Fn.Events, {
+		init: function(name) {
 			var t = this
-			if (item instanceof t.model) item.set(item)
-			else item = new t.model(item)
-			if (item.lists.indexOf(t) > -1) return
+			t.name = name
+			t.items = []
+		},
+		model: Model,
+		add: function(data, pos) {
+			var t = this, item = data
+			item instanceof t.model || (item = t.model(data), item.set(data, true))
+			if (item.lists.indexOf(t) > -1) return false
 			item.lists.push(t)
 			pos = pos !== void 0 ? pos : t.items.indexFor(item, t.sortFn, t)
 			t.items.splice(pos , 0, item)
 			t.emit("add", item, pos)
+			return t
 		},
 		remove: function(item) {
 			var t = this, m = item.lists
@@ -88,11 +82,10 @@
 		toString: function() {
 			return "[List:" + this.name +"]"
 		}
-	}, Fn.Items, Fn.Events)
+	}).cache(true)
 
-	exports.List = List.cache(true)
 
-	exports.List.Filter = Fn.Init.extend({
+	List.Filter = Fn.Init.extend({
 		init: function(str) {
 			var t = this, slash = function(input) {
 				if ( /[^0-9]/.test(input) ) input = '"' + input + '"'
@@ -158,14 +151,14 @@
 		}
 	}).cache(true)
 
+	exports.Model = Model
+	exports.List = List
+
 //** Node
 }(typeof exports != "undefined" ? exports : this, this.Fn || require("./core.js").Fn)
 /*/
 }(this, Fn)
 //*/
-
-
-
 
 /** Tests
 !function(){
