@@ -191,7 +191,7 @@
 
 	// Non-standard
 	Array.from = function(a) {
-		for (var b=[], c=a.length; c--;) b[c] == a[c]
+		for (var b=[], c=a.length; c--;) b[c] = a[c]
 		return b
 	}
 	/*

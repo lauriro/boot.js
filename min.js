@@ -91,7 +91,7 @@ while(o=arguments[i++])for(k in o)if(o.hasOwnProperty(k))main[k]=o[k]
 return main}
 O.zip=function(keys,vals){return keys.fold(function(_,key,i){_[key]=vals[i]
 return _},{})}
-Array.from=function(a){for(var b=[],c=a.length;c--;)b[c]==a[c]
+Array.from=function(a){for(var b=[],c=a.length;c--;)b[c]=a[c]
 return b}
 A.remove=function(){var t=this,l=t.length,o=sl(arguments)
 while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1)
