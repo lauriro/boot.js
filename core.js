@@ -194,6 +194,17 @@
 		for (var b=[], c=a.length; c--;) b[c] = a[c]
 		return b
 	}
+	Array.indexFor = function(arr, el, fn) {
+		var o
+		, i = 0
+		, l = arr.length
+
+		if (fn && l > 0 && fn(el, arr[l-1]) < 1) {
+			while (i<l) fn(el, arr[o=(i+l)>>1]) < 0 ? l=o : i=o+1
+		}
+
+		return l
+	}
 	/*
 	Array.flatten = function(arr) {
 	for(var i=arr.length;i--;)
@@ -211,16 +222,6 @@
 
 		while (l--) if (o.indexOf(t[l])>-1) t.splice(l, 1)
 		return t
-	}
-
-	A.indexFor = function(a, b, c) {
-		var t = this
-		, l = t.length
-		, o = []
-		, i = b ? 0 : l
-
-		while (i<l) b.call(c, a, t[o=(i+l)>>1]) < 0 ? l=o : i=o+1
-		return i
 	}
 
 	A.each = A.forEach
@@ -583,14 +584,14 @@ test.compare(
 var sort = function(a,b){return a-b};
 
 test.compare(
-[1,3,5].indexFor(2), 3
-, [1,3,5].indexFor(0, sort), 0
-, [1,3,5].indexFor(1, sort), 1
-, [1,3,5].indexFor(2, sort), 1
-, [1,3,5].indexFor(3, sort), 2
-, [1,3,5].indexFor(4, sort), 2
-, [1,3,5].indexFor(5, sort), 3
-, [1,3,5].indexFor(6, sort), 3
+  Array.indexFor([1,3,5], 2), 3
+, Array.indexFor([1,3,5], 0, sort), 0
+, Array.indexFor([1,3,5], 1, sort), 1
+, Array.indexFor([1,3,5], 2, sort), 1
+, Array.indexFor([1,3,5], 3, sort), 2
+, Array.indexFor([1,3,5], 4, sort), 2
+, Array.indexFor([1,3,5], 5, sort), 3
+, Array.indexFor([1,3,5], 6, sort), 3
 , "Array.indexFor()");
 
 test.compare(

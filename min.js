@@ -93,12 +93,12 @@ O.zip=function(keys,vals){return keys.fold(function(_,key,i){_[key]=vals[i]
 return _},{})}
 Array.from=function(a){for(var b=[],c=a.length;c--;)b[c]=a[c]
 return b}
+Array.indexFor=function(arr,el,fn){var o,i=0,l=arr.length
+if(fn&&l>0&&fn(el,arr[l-1])<1){while(i<l)fn(el,arr[o=(i+l)>>1])<0?l=o:i=o+1}
+return l}
 A.remove=function(){var t=this,l=t.length,o=sl(arguments)
 while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1)
 return t}
-A.indexFor=function(a,b,c){var t=this,l=t.length,o=[],i=b?0:l
-while(i<l)b.call(c,a,t[o=(i+l)>>1])<0?l=o:i=o+1
-return i}
 A.each=A.forEach
 A.fold=A.reduce
 A.foldr=A.reduceRight
