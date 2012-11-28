@@ -35,7 +35,7 @@ return String.fromCharCode.apply(null,out)}}
 I(w,"XMLHttpRequest","return new ActiveXObject('MSXML2.XMLHTTP')")
 w.xhr=function(method,url,cb,sync){var r=xhrs.shift()||new XMLHttpRequest
 r.open(method,url,!sync)
-r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
+if(!sync)r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseText,r)
 r.onreadystatechange=cb=Nop
 xhrs.push(r)}}
 return r}

@@ -116,7 +116,7 @@
 	w.xhr = function(method, url, cb, sync) {
 		var r = xhrs.shift() || new XMLHttpRequest()
 		r.open(method, url, !sync)
-		r.onreadystatechange = function() {
+		if (!sync) r.onreadystatechange = function() {
 			if (r.readyState == 4) {
 				cb && cb( r.responseText, r)
 				r.onreadystatechange = cb = Nop
