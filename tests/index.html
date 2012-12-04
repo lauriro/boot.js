@@ -16,6 +16,7 @@
 <script type="text/javascript" src="../min.js">
 var a = {a:1,b:2,c:{cc:3}};
 var b = {a:1,b:3}
+var txt = "The quick brown fox jumps over the lazy dog"
 
 Object.merge2 = function(main, a, str, changed) {
 
@@ -47,6 +48,7 @@ function queryAll(selector){
 
 var focus = El("#focus").to(document.body)
 var box = El("#results").to(document.body)
+var fontbox = El("#fonts").to(document.body)
 var footer = El("#footer").to(document.body)
 
 //setInterval(function(){
@@ -117,6 +119,9 @@ load("tests/test.js", function(){
 		}
 	)
 });
+
+
+
 
 /*
 window.blur & window.focus for ie6+, chrome
