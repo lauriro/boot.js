@@ -49,7 +49,7 @@ return function(){return t.apply(this,A.concat.apply(a,arguments))}}
 F.byWords=function(i){var t=this
 i|=0
 return function(){var s=this,r=s,a=arguments
-;(a[i]||"").replace(/\w+/g,function(w){a[i]=w;r=t.apply(s,a)})
+;(a[i]||"").replace(/[\w-]+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
 F.byKeyVal=function(){var t=this
 return function(o){var r,s=this,a=sl(arguments)
