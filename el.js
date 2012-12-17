@@ -544,15 +544,20 @@
 						case "markdown":
 							//TODO:2011-11-09:lauriro:Write markdown support for haml
 						break;
+						case "html":
+							parent.innerHTML = El.T(m.slice(2).join(" "))
+						break;
 						default:
 							el = El.text( args ? all : text )
 					}
 				}
 
-				!el.haml_done && parent.append(el);
-				if (el.nodeType !== 3) {
-					parent = el;
-					stack.unshift(i)
+				if (el) {
+					!el.haml_done && parent.append(el);
+					if (el.nodeType !== 3) {
+						parent = el;
+						stack.unshift(i)
+					}
 				}
 			}
 			return "";
