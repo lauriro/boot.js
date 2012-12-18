@@ -49,7 +49,7 @@ return function(){return t.apply(this,A.concat.apply(a,arguments))}}
 F.byWords=function(i){var t=this
 i|=0
 return function(){var s=this,r=s,a=arguments
-;(a[i]||"").replace(/[\w-]+/g,function(w){a[i]=w;r=t.apply(s,a)})
+;(a[i]||"").replace(/[-\w]+/g,function(w){a[i]=w;r=t.apply(s,a)})
 return r}}
 F.byKeyVal=function(){var t=this
 return function(o){var r,s=this,a=sl(arguments)
@@ -243,7 +243,7 @@ var el=(elCache[n]||(elCache[n]=d.createElement(n))).cloneNode(true).set(pre)
 return n in fnCache&&fnCache[n](el,a)||el.set(a)},css_map={"float":"cssFloat"},a={append:function(e,b){var t=this
 if(e){if(typeof e=="string"||typeof e=="number")e=El.text(e)
 else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f=d.createDocumentFragment()
-while(i<len)t.append.call(f,e[i++]);
+while(i<len)t.append.call(f,e[i++])
 e=f}
 if("nodeType"in e)t.insertBefore(e,b?(b===true?t.firstChild:typeof b=="number"?t.childNodes[b]:b):null)
 "append_hook"in e&&e.append_hook()}
@@ -256,7 +256,7 @@ t.className=(" "+t.className+" ").replace(" "+n+" "," ").trim()
 return t}.byWords(),toggleClass:function(n,s){if(s===void 0)s=!this.hasClass(n)
 this[s?"addClass":"rmClass"](n)
 return s}.byWords(),empty:function(){var t=this,n
-while(n=t.firstChild)t.kill.call(n);
+while(n=t.firstChild)t.kill.call(n)
 return t},kill:function(){var t=this
 if(t.parentNode)t.parentNode.removeChild(t)
 Event.removeAll(t)
@@ -295,6 +295,7 @@ d.createElement=function(n){return extend(c(n))}
 try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
 @*/}
 w.El=El
+function This(){return this}
 function custom_init(el,data){if(!rendering){/*@cc_on el=El.get(el);@*/
 var template,node=el.firstChild
 if(template=el.getAttribute("data-template")){El.cache.fn[template].call(el,el,data)
@@ -308,7 +309,7 @@ if(str.indexOf("{{")<0&&str.indexOf("{%")<0&&t.el.childNodes.length==1){El.cache
 El.cache(t.id,t,t.parse.bind(t))}
 return parent}
 return t}
-template.prototype={cloneNode:Fn.This,set:Fn.This,parse:function(el,data){var t=this
+template.prototype={cloneNode:This,set:This,parse:function(el,data){var t=this
 t.el.innerHTML=t.fn(data)
 custom_init(t.el,data)
 el=t.el.childNodes
@@ -318,8 +319,8 @@ b="w in q)if(q.hasOwnProperty(w)){if(offset&&offset--)continue;i++;if(limit&&i>l
 m=""}else m="){"}
 return(a?"');"+a+"("+b.replace(/^\(|\)\s*$/g,"")+m:b=="else "?"')}else{":"')};")+"_.push('"})+"')}return _.join('')"
 return new Function("o",s)}
-El.haml=function(str){var root=El("div"),i,parent=root,stack=[-1]
-str.replace(/^( *)((?:[.#%][\w:\-]+)+)?(\{.*\})? ?(.*)$/igm,function(all,indent,name,args,text){if(all){var el,m
+El.haml=function(str){var i,root=El("div"),parent=root,stack=[-1]
+str.replace(/^( *)((?:[.#%][-\w:]+)+)?(\{.*\})? ?(.*)$/igm,function(all,indent,name,args,text){if(all){var el,m
 i=indent.length
 while(i<=stack[0]){stack.shift()
 parent=("haml_done"in parent)?parent.haml_done():parent.parentNode}
@@ -330,10 +331,12 @@ if(m=name.match(/^%(\w+)/))m[1]in fnCache&&el.setAttribute("data-template",m[1])
 switch(m[1]){case"template":el=new template(m[2],parent).el
 break
 case"markdown":break
+case"html":parent.innerHTML=El.T(m.slice(2).join(" "))
+break
 default:el=El.text(args?all:text)}}
-!el.haml_done&&parent.append(el)
-if(el.nodeType!==3){parent=el
-stack.unshift(i)}}
+if(el){!el.haml_done&&parent.append(el)
+if(el.nodeType==1){parent=el
+stack.unshift(i)}}}
 return ""})
 i=root.childNodes
 return i.length==1?i[0]:Array.from(i)}
