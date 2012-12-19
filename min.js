@@ -184,7 +184,7 @@ D.daysInMonth=function(){return(new Date(this.getFullYear(),this.getMonth()+1,0)
 D.startOfWeek=function(){var t=this
 return new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getDay()||7)+1)}
 D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
-return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}}(typeof exports!="undefined"?exports:this)
+return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}}(this)
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 type in _e||(_e[type]={})
@@ -236,11 +236,7 @@ Event.touch_as_mouse=function(el){Event.add(el,"touchstart",touchStart)}
 var elCache={},fnCache={},dv=d.defaultView,getStyle=(dv&&"getComputedStyle"in dv?function(el,a){return el.style[a]||dv.getComputedStyle(el,null)[a]||null}:function(el,a){if(a=="opacity"){var opacity=el.filters("alpha").opacity
 return isNaN(opacity)?1:(opacity?opacity/100:0)}
 a=a.camelCase()
-return el.style[a]||el.currentStyle[a]||null}),el_re=/([.#:])([-\w]+)/g,El=function(n,a){var pre={}
-n=n.replace(el_re,function(_,o,s){pre[o=="."?(o="class",(o in pre&&(s=pre[o]+" "+s)),o):o=="#"?"id":s]=s
-return ""})||"div"
-var el=(elCache[n]||(elCache[n]=d.createElement(n))).cloneNode(true).set(pre)
-return n in fnCache&&fnCache[n](el,a)||el.set(a)},css_map={"float":"cssFloat"},a={append:function(e,b){var t=this
+return el.style[a]||el.currentStyle[a]||null}),el_re=/([.#:])([-\w]+)/g,css_map={"float":"cssFloat"},a={append:function(e,b){var t=this
 if(e){if(typeof e=="string"||typeof e=="number")e=El.text(e)
 else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f=d.createDocumentFragment()
 while(i<len)t.append.call(f,e[i++])
@@ -274,12 +270,22 @@ if(k=="class"||k=="className")t.addClass(v)
 else if(typeof v=="string")t.setAttribute(k,v)
 else if(!v)t.removeAttribute(k)
 else t[k]=v}}
-return t},find:"querySelector"in d?function(sel){return this.querySelector(sel)}:function(sel){var rules=["_"],tag=sel.replace(el_re,function(_,o,s){rules.push(o=="."?"(' '+_.className+' ').indexOf(' "+s+" ')>-1":o=="#"?"_.id=='"+s+"'":"_."+s)
-return ""})||"*",fn=rules.join("&&").fn(),el,els=this.getElementsByTagName(tag),i=0
+return t},find:"querySelector"in d?function(sel){return this.querySelector(sel)}:function(sel){var el,i=0,rules=["_"],tag=sel.replace(el_re,function(_,o,s){rules.push(o=="."?"(' '+_.className+' ').indexOf(' "+s+" ')>-1":o=="#"?"_.id=='"+s+"'":"_."+s)
+return ""})||"*",els=this.getElementsByTagName(tag),fn=rules.join("&&").fn()
 while(el=els[i++])if(fn(el))return "to"in el?el:extend(el)}}
+function El(n,a){var el,pre={}
+n=n.replace(el_re,function(_,o,s){pre[o=="."?(o="class",(o in pre&&(s=pre[o]+" "+s)),o):o=="#"?"id":s]=s
+return ""})||"div"
+el=(elCache[n]||(elCache[n]=d.createElement(n))).cloneNode(true).set(pre)
+return n in fnCache&&fnCache[n](el,a)||el.set(a)}
 function extend(e,p,k){if(e){if(!p)p=El[P]
 for(k in p)e[k]=p[k]}
 return e}
+if(!(El[P]=extend((w.HTMLElement||w.Element||{})[P],a))){var c=d.createElement
+El[P]=a
+extend(d.body)
+d.createElement=function(n){return extend(c(n))}
+/*@cc_on try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}@*/}
 El.get=function(el){if(typeof el=="string")el=d.getElementById(el)
 return el&&"to"in el?el:extend(el)}
 El.cache=function(n,el,custom){elCache[n]=typeof el=="string"?El(el):el
@@ -287,13 +293,6 @@ if(custom){fnCache[n]=custom}}
 El.cache.el=elCache
 El.cache.fn=fnCache
 El.text=function(str){return d.createTextNode(str)}
-if(!(El[P]=extend((w.HTMLElement||w.Element||{})[P],a))){El[P]=a
-var c=d.createElement
-extend(d.body)
-d.createElement=function(n){return extend(c(n))}
-/*@cc_on
-try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}
-@*/}
 w.El=El
 function This(){return this}
 function custom_init(el,data){if(!rendering){/*@cc_on el=El.get(el);@*/
@@ -307,6 +306,7 @@ t.el=El("div")
 t.el.haml_done=function(){var str=t.el.innerHTML,fn=str.indexOf("data-template")>-1?custom_init:null
 if(str.indexOf("{{")<0&&str.indexOf("{%")<0&&t.el.childNodes.length==1){El.cache(t.id,t.el.firstChild,fn)}else{t.fn=El.liquid(str)
 El.cache(t.id,t,t.parse.bind(t))}
+t.el.haml_done=t.el=null
 return parent}
 return t}
 template.prototype={cloneNode:This,set:This,parse:function(el,data){var t=this

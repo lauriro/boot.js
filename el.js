@@ -24,9 +24,8 @@
 		var _e = el._e || (el._e={})
 		type in _e || (_e[type]={})
 		/*
-		var hash = {};
-		hash[fn] = 1;
-		JavaScript converts fn to a string via .toString(), we use unique id instead of fn source as a key.
+		* JavaScript converts fn to a string via .toString(),
+		* use unique id instead of fn source as a key.
 		*/
 		return (_e[type][ fn._fn_id || (fn._fn_id = ++fn_id) ] = type == "mousewheel" ? function(e) {
 				if (!e) e = w.event
@@ -172,17 +171,6 @@
 			}
 		)
 	, el_re = /([.#:])([-\w]+)/g
-	, El = function(n/*ame */, a/*rgs */) {
-		var pre = {}
-		n = n.replace(el_re, function(_, o, s) {
-			pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s
-			return ""
-		}) || "div"
-
-		var el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre)
-
-		return n in fnCache && fnCache[n](el, a) || el.set(a)
-	}
 	, css_map = {"float": "cssFloat"}
 	, a = {
 		append: function(e, b/*efore*/) {
@@ -294,31 +282,61 @@
 		},
 
 		find: "querySelector" in d ?
-			function(sel){
+			function(sel) {
 				// IE8 don't support :disabled
 				return this.querySelector(sel)
 			} :
 			function(sel) {
-				var rules = ["_"]
-					, tag = sel.replace(el_re, function(_, o, s) {
-							rules.push( o == "." ? "(' '+_.className+' ').indexOf(' "+s+" ')>-1" : o == "#" ? "_.id=='"+s+"'" : "_."+s )
-							return ""
-						}) || "*"
-					, fn = rules.join("&&").fn()
-					, el
-					, els = this.getElementsByTagName(tag)
-					, i = 0
+				var el
+				, i = 0
+				, rules = ["_"]
+				, tag = sel.replace(el_re, function(_, o, s) {
+						rules.push( o == "." ? "(' '+_.className+' ').indexOf(' "+s+" ')>-1" : o == "#" ? "_.id=='"+s+"'" : "_."+s )
+						return ""
+					}) || "*"
+				, els = this.getElementsByTagName(tag)
+				, fn = rules.join("&&").fn()
 
 				while (el = els[i++]) if (fn(el)) return "to" in el ? el : extend(el)
 			}
 	}
 
-	function extend(e,p,k){
-		if(e){
-			if(!p)p=El[P]
-			for(k in p)e[k]=p[k]
+	function El(n/*ame */, a/*rgs */) {
+		var el, pre = {}
+		n = n.replace(el_re, function(_, o, s) {
+			pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s
+			return ""
+		}) || "div"
+
+		el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre)
+
+		return n in fnCache && fnCache[n](el, a) || el.set(a)
+	}
+
+
+	function extend(e, p, k) {
+		if (e) {
+			if (!p) p = El[P]
+			for (k in p) e[k] = p[k]
 		}
 		return e
+	}
+
+	// IE8 supports Element
+	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {
+		// for IE 6-7
+		var c = d.createElement
+		
+		El[P] = a
+
+		extend(d.body)
+	
+		d.createElement = function(n) {return extend(c(n))}
+
+		// remove background image flickers on hover in IE6
+		// You can also use CSS
+		// html { filter: expression(document.execCommand("BackgroundImageCache", false, true)); }
+		/*@cc_on try{document.execCommand('BackgroundImageCache',false,true)}catch(e){} @*/
 	}
 
 	El.get = function(el) {
@@ -337,31 +355,6 @@
 	El.text = function(str) {
 		return d.createTextNode(str)
 	}
-	/**
-	El.each = function() {
-	
-	}
-	//*/
-
-	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {
-		// for IE 6-7, IE8 supports Element
-		El[P] = a
-		var c = d.createElement
-		  //, g = d.getElementById
-
-		extend(d.body)
-	
-		d.createElement = function(n/*ame */) {return extend(c(n))}
-		//d.getElementById = function(i){var e=g(i);return "append"in e ? e : extend(e)}
-	/*@cc_on
-		// remove background image flickers on hover in IE6
-		// You can also use CSS
-		// html { filter: expression(document.execCommand("BackgroundImageCache", false, true)); }
-		try{document.execCommand('BackgroundImageCache',false,true)}catch(e){};
-	@*/
-
-	}
-
 	w.El = El
 	//*/
 
@@ -405,6 +398,7 @@
 			for (; node; node = node.nextSibling) if (node.nodeType == 1) custom_init(node, data)
 		}
 	}
+
 	function template(id, parent) {
 		var t = this
 		t.id = id
@@ -419,8 +413,9 @@
 				t.fn = El.liquid(str)
 				El.cache(t.id, t, t.parse.bind(t))
 			}
+			t.el.haml_done = t.el = null
 			return parent
-		//	delete t.el.haml_done
+		//	delete 
 			
 		}
 		return t

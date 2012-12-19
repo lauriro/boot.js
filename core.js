@@ -556,11 +556,7 @@
 	}
 	//*/
 
-//** Node
-}(typeof exports != "undefined" ? exports : this)
-/*/
 }(this)
-//*/
 
 
 
