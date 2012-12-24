@@ -14,7 +14,7 @@
 			var junk
 			, t = this
 			, i = 0
-			, junks = path.split("/")
+			, junks = path.replace(/\/+$/, "").split("/")
 			, route = junks[0]
 			, last = junks.length - 1
 			, names = {}
@@ -80,17 +80,24 @@
 /** Tests
 !function(){
 	var x
+	, scope = {}
 	, test = new TestCase("Router")
 	, r = new Router()
 
 
 	r.add("/api/", function(){x = 1})
+	r.add("/api/v1", function(){x = 2})
+	r.add("/api/v2/*method", function(){x = 3})
 
 	r.route("/api/")
+	test.compare( x , 1 , "Router.route")
+	r.route("/api/v1/")
+	test.compare( x , 2)
+	r.route("/api/v2")
+	test.compare( x , 3)
+	r.route("/api/v2/hello", null, scope)
+	test.compare( x , 3)
 
-
-	test.compare( x , 1 , "Router.route");
-
-	test.done();
+	test.done()
 }()
 //*/
