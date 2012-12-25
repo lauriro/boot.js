@@ -22,14 +22,14 @@
 
 	function cacheEvent(el, type, fn, fix_fn) {
 		var _e = el._e || (el._e={})
-		type in _e || (_e[type]={})
+		_e[type] || (_e[type]={})
 		/*
 		* JavaScript converts fn to a string via .toString(),
 		* use unique id instead of fn source as a key.
 		*/
 		return (_e[type][ fn._fn_id || (fn._fn_id = ++fn_id) ] = type == "mousewheel" ? function(e) {
 				if (!e) e = w.event
-				var delta = "wheelDelta" in e ? e.wheelDelta/120 : -e.detail/3
+				var delta = e.wheelDelta ? e.wheelDelta/120 : -e.detail/3
 				delta != 0 && fn.call(el, e, delta)
 			} 
 			: fix_fn
@@ -38,7 +38,7 @@
 
 	function uncacheEvent(el, type, fn) {
 		var _e = el._e||{}
-		if (type in _e && "_fn_id" in fn && fn._fn_id in _e[type]) {
+		if (_e[type] && fn._fn_id && _e[type][fn._fn_id]) {
 			var _fn = _e[type][fn._fn_id]
 			delete _e[type][fn._fn_id]
 			return _fn
@@ -47,7 +47,7 @@
 	}
 
 	// The addEventListener method is supported in Internet Explorer from version 9.
-	if ("addEventListener" in w) {
+	if (w.addEventListener) {
 		Event.add = function(el, ev, fn) {
 			var _fn = cacheEvent(el, ev, fn, fn)
 			ev == "mousewheel" && el.addEventListener("DOMMouseScroll", _fn, false)
@@ -73,8 +73,8 @@
 		}
 	}
 	Event.stop = function(e) {
-		"stopPropagation" in e && e.stopPropagation()
-		"preventDefault" in e && e.preventDefault()
+		e.stopPropagation && e.stopPropagation()
+		e.preventDefault && e.preventDefault()
 		e.cancelBubble = e.cancel = true
 		return e.returnValue = false
 	}
@@ -101,11 +101,11 @@
 	// http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
 
 	Event.pointerX = function(e) {
-		if ("changedTouches" in e) e = e.changedTouches[0]
+		if (e.changedTouches) e = e.changedTouches[0]
 		return e.pageX || e.clientX + d.body.scrollLeft || 0
 	}
 	Event.pointerY = function(e) {
-		if ("changedTouches" in e) e = e.changedTouches[0]
+		if (e.changedTouches) e = e.changedTouches[0]
 		return e.pageY || e.clientY + d.body.scrollTop || 0
 	}
 	Event.pointer = function(e) {
@@ -157,7 +157,7 @@
 	var elCache = {}
 	, fnCache = {}
 	, dv = d.defaultView
-	, getStyle = ( dv && "getComputedStyle" in dv ?
+	, getStyle = ( dv && dv.getComputedStyle ?
 			function(el, a) {
 				return el.style[a] || dv.getComputedStyle(el,null)[a] || null
 			} :
@@ -185,8 +185,8 @@
 					e = f
 				}
 
-				if ("nodeType" in e) t.insertBefore(e, b ? (b===true ? t.firstChild : typeof b == "number" ? t.childNodes[b] : b) : null)
-				"append_hook" in e && e.append_hook()
+				if (e.nodeType) t.insertBefore(e, b ? (b===true ? t.firstChild : typeof b == "number" ? t.childNodes[b] : b) : null)
+				e.append_hook && e.append_hook()
 				//"child_hook" in t && t.child_hook()
 			}
 			return t
@@ -234,8 +234,8 @@
 			var t = this
 			if (t.parentNode) t.parentNode.removeChild(t)
 			Event.removeAll(t)
-			if ("empty" in t) t.empty()
-			if ("kill_hook" in t) t.kill_hook()
+			t.empty && t.empty()
+			t.kill_hook && t.kill_hook()
 			return t
 		},
 
@@ -259,7 +259,7 @@
 		set: function(args) {
 			var t = this, k = typeof args, v
 			if (args) {
-				if (k == "string" || k == "number" || "nodeType" in args || "length" in args) t.append(args)
+				if (k == "string" || k == "number" || args.nodeType || "length" in args) t.append(args)
 				else for (k in args) 
 				/** hasOwnProperty
 				if (args.hasOwnProperty(arg)) 
@@ -281,7 +281,7 @@
 			return t
 		},
 
-		find: "querySelector" in d ?
+		find: d.querySelector ?
 			function(sel) {
 				// IE8 don't support :disabled
 				return this.querySelector(sel)
@@ -297,20 +297,20 @@
 				, els = this.getElementsByTagName(tag)
 				, fn = rules.join("&&").fn()
 
-				while (el = els[i++]) if (fn(el)) return "to" in el ? el : extend(el)
+				while (el = els[i++]) if (fn(el)) return el.to ? el : extend(el)
 			}
 	}
 
 	function El(n/*ame */, a/*rgs */) {
 		var el, pre = {}
 		n = n.replace(el_re, function(_, o, s) {
-			pre[ o == "." ? (o = "class", (o in pre && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s
+			pre[ o == "." ? (o = "class", (pre[o] && (s = pre[o]+" "+s)), o) : o == "#" ? "id" : s ] = s
 			return ""
 		}) || "div"
 
 		el = (elCache[n] || (elCache[n] = d.createElement(n))).cloneNode(true).set(pre)
 
-		return n in fnCache && fnCache[n](el, a) || el.set(a)
+		return fnCache[n] && fnCache[n](el, a) || el.set(a)
 	}
 
 
@@ -341,7 +341,7 @@
 
 	El.get = function(el) {
 		if (typeof el == "string") el = d.getElementById(el)
-		return el && "to" in el ? el : extend(el)
+		return el && el.to ? el : extend(el)
 	}
 
 	El.cache = function(n, el, custom) {
@@ -527,7 +527,7 @@
 				i = indent.length
 				while (i <= stack[0]) {
 					stack.shift()
-					parent = ("haml_done" in parent) ? parent.haml_done() : parent.parentNode
+					parent = (parent.haml_done) ? parent.haml_done() : parent.parentNode
 				}
 
 				if (name) {
@@ -639,10 +639,10 @@
 		var map = maps[i] || {}
 		, run = !is_input || map.enable_input
 
-		if ( run && char && char in map ) map[char](char)
-		else if ( run && "num" in map && code > 47 && code < 58) map.num(code-48)
-		else if ( run && "all" in map ) map.all(code, char, el)
-		else if ( "bubble" in map && kbMaps[++i]) _key(code, char, i, is_input, el)
+		if ( run && char && map[char] ) map[char](char)
+		else if ( run && map.num && code > 47 && code < 58) map.num(code-48)
+		else if ( run && map.all ) map.all(code, char, el)
+		else if ( map.bubble && kbMaps[++i]) _key(code, char, i, is_input, el)
 	}
 
 

@@ -77,7 +77,7 @@
 	I(Date[P], "toISOString", "return this.format('isoUtcDateTime')")
 
 	//** base64
-	if (!("atob" in w)) {
+	if (!w.atob) {
 		var ba = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("")
 		, bm = {"=":0}
 		
@@ -128,7 +128,7 @@
 	//*/
 
 
-	if (!("JSON" in w)) {
+	if (!w.JSON) {
 		w.JSON = {
 			map: {"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},
 			parse: new Function("t", "return new Function('return('+t+')')()"),

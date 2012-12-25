@@ -1,7 +1,7 @@
 
 
 
-!function(exports){
+!function(exports) {
 
 	function Router() {
 		this.map = { "": { cb: function(){} } }
@@ -42,7 +42,7 @@
 			, map = this.map
 
 			// Fast case
-			if (route in map) {
+			if (map[route]) {
 				key = route
 				route = ""
 			} else {

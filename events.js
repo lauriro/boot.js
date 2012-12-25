@@ -12,7 +12,7 @@
 			var t = this
 			, e = t._events || (t._events = {})
 
-			if (name in e) {
+			if (e[name]) {
 				// Keep listeners in reversed order
 				if (typeof e[name] == "function") e[name] = [fn, e[name]]
 				else e[name].unshift(fn)
@@ -21,7 +21,7 @@
 		},
 		non: function(name, fn) {
 			var e, l, t = this
-			if ("_events" in t) {
+			if (t._events) {
 				if (name) {
 					if (e = t._events[name]) {
 						if (!fn || e == fn || (e[0] == fn && e.length == 1)) {
@@ -41,7 +41,7 @@
 		},
 		emit: function(name) {
 			var e, i, t = this
-			if (e = "_events" in t && t._events[name]) {
+			if (e = t._events && t._events[name]) {
 				if (typeof e == "function") {
 					switch (arguments.length) {
 						// fast cases

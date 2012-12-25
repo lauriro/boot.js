@@ -242,7 +242,7 @@
 
 	// THANKS: Oliver Steele - String lambdas [http://osteele.com/javascripts/functional]
 	function Fn(s) {
-		if (s in fns) return fns[s]
+		if (fns[s]) return fns[s]
 		var a = ["_"]
 		, t = s.split("->")
 
@@ -262,7 +262,7 @@
 	Fn.False = function() {return false}
 	Fn.Init = function() {
 		var t = this
-		return "init" in t && t.init.apply(t, arguments) || t
+		return t.init && t.init.apply(t, arguments) || t
 	}
 
 	//** Fn.Events
@@ -276,7 +276,7 @@
 		non: function(ev, fn) {
 			var t = this
 			if (ev) {
-				if ("_e" in t && ev in t._e) {
+				if (t._e && t._e[ev]) {
 					if (fn) for (var a = t._e[ev], l = a.length; l--;) if (a[l][0] == fn) a.splice(l, 1)
 					else delete t._e[ev]
 				}
@@ -288,7 +288,7 @@
 		},
 		emit: function(ev) {
 			var t = this
-			if ("_e" in t && ev in t._e) {
+			if (t._e && t._e[ev]) {
 				for (var i=0, e=t._e[ev], a=e.slice.call(arguments, 1); ev=e[i++];) ev[0].apply(ev[1]||t, a)
 			}
 			return t

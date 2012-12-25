@@ -22,7 +22,7 @@ b+="if(a.call(b,t[i],i,t))"
 I(A,"filter",b+"o.push(t[i])"+c)
 I(A,"some",b+"return!0;return!1")
 I(Date[P],"toISOString","return this.format('isoUtcDateTime')")
-if(!("atob"in w)){var ba="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split(""),bm={"=":0}
+if(!w.atob){var ba="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split(""),bm={"=":0}
 for(i=64;bm[ba[--i]]=i;);
 w.btoa=function(s){for(var out=[],b,i=0,len=s.length;i<len;){b=s.charCodeAt(i++)<<16|s.charCodeAt(i++)<<8|s.charCodeAt(i++)
 out.push(ba[b>>18&0x3f],ba[b>>12&0x3f],ba[b>>6&0x3f],ba[b&0x3f])}
@@ -39,7 +39,7 @@ if(!sync)r.onreadystatechange=function(){if(r.readyState==4){cb&&cb(r.responseTe
 r.onreadystatechange=cb=Nop
 xhrs.push(r)}}
 return r}
-if(!("JSON"in w)){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:new Function("t","return new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt(0))|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
+if(!w.JSON){w.JSON={map:{"\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t",'"':'\\"',"\\":"\\\\"},parse:new Function("t","return new Function('return('+t+')')()"),stringify:new Function("o","if(o==null)return'null';if(o instanceof Date)return'\"'+o.toISOString()+'\"';var i,s=[],c;if(Array.isArray(o)){for(i=o.length;i--;s[i]=JSON.stringify(o[i]));return'['+s.join()+']'}c=typeof o;if(c=='string'){for(i=o.length;c=o.charAt(--i);s[i]=JSON.map[c]||(c<' '?'\\\\u00'+((c=c.charCodeAt(0))|4)+(c%16).toString(16):c));return'\"'+s.join('')+'\"'}if(c=='object'){for(i in o)o.hasOwnProperty(i)&&s.push(JSON.stringify(i)+':'+JSON.stringify(o[i]));return'{'+s.join()+'}'}return''+o")}}}(this)
 !function(exports){var a,b,c,fns={},P="prototype",A=Array[P],D=Date[P],F=Function[P],N=Number[P],S=String[P],O=Object,sl=F.call.bind(A.slice),cs=[]
 function Nop(){}
 F.construct=function(a){var l=a.length
@@ -106,7 +106,7 @@ A.unique=A.filter.partial(function(s,i,a){return i==a.lastIndexOf(s)})
 !function(n){F[n]=S[n]=function(){var a=arguments,l=a[0]
 a[0]=this.fn()
 return A[n].apply(l,a)}}.byWords()("every filter each map fold foldr some")
-function Fn(s){if(s in fns)return fns[s]
+function Fn(s){if(fns[s])return fns[s]
 var a=["_"],t=s.split("->")
 if(t.length>1)while(t.length){s=t.pop()
 a=t.pop().match(/\w+/g)||""
@@ -118,14 +118,14 @@ Fn.This=F.fn=function(){return this}
 Fn.True=function(){return!0}
 Fn.False=function(){return!1}
 Fn.Init=function(){var t=this
-return "init"in t&&t.init.apply(t,arguments)||t}
+return t.init&&t.init.apply(t,arguments)||t}
 Fn.Events={on:function(ev,fn,scope){var t=this,e=t._e||(t._e={})
 ;(e[ev]||(e[ev]=[])).push([fn,scope])
 return t}.byWords(),non:function(ev,fn){var t=this
-if(ev){if("_e"in t&&ev in t._e){if(fn)for(var a=t._e[ev],l=a.length;l--;)if(a[l][0]==fn)a.splice(l,1)
+if(ev){if(t._e&&t._e[ev]){if(fn)for(var a=t._e[ev],l=a.length;l--;)if(a[l][0]==fn)a.splice(l,1)
 else delete t._e[ev]}}else delete t._e
 return t}.byWords(),once:function(ev,fn,scope){return this.on(ev,fn,scope).on(ev,this.non.partial(ev,fn))},emit:function(ev){var t=this
-if("_e"in t&&ev in t._e){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
+if(t._e&&t._e[ev]){for(var i=0,e=t._e[ev],a=e.slice.call(arguments,1);ev=e[i++];)ev[0].apply(ev[1]||t,a)}
 return t}}
 Fn.Iter=Fn.Items={each:function(fn){var t=this
 t.items.forEach(fn,t)
@@ -187,16 +187,16 @@ D.timeAgo=function(format,custom){var t=this,d=(new Date-t+1)/1000
 return d.humanTime({"default":"{0} {1}{2} ago","day":"Yesterday"},function(){return t.format(format)})}}(this)
 !function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
-type in _e||(_e[type]={})
+_e[type]||(_e[type]={})
 return(_e[type][fn._fn_id||(fn._fn_id=++fn_id)]=type=="mousewheel"?function(e){if(!e)e=w.event
-var delta="wheelDelta"in e?e.wheelDelta/120 : -e.detail/3
+var delta=e.wheelDelta?e.wheelDelta/120 : -e.detail/3
 delta!=0&&fn.call(el,e,delta)}:fix_fn)}
 function uncacheEvent(el,type,fn){var _e=el._e||{}
-if(type in _e&&"_fn_id"in fn&&fn._fn_id in _e[type]){var _fn=_e[type][fn._fn_id]
+if(_e[type]&&fn._fn_id&&_e[type][fn._fn_id]){var _fn=_e[type][fn._fn_id]
 delete _e[type][fn._fn_id]
 return _fn}
 return fn}
-if("addEventListener"in w){Event.add=function(el,ev,fn){var _fn=cacheEvent(el,ev,fn,fn)
+if(w.addEventListener){Event.add=function(el,ev,fn){var _fn=cacheEvent(el,ev,fn,fn)
 ev=="mousewheel"&&el.addEventListener("DOMMouseScroll",_fn,false)
 el.addEventListener(ev,_fn,false)
 return Event}
@@ -207,8 +207,8 @@ return Event}}else{Event.add=function(el,ev,fn){el.attachEvent("on"+ev,cacheEven
 return Event}
 Event.remove=function(el,ev,fn){el.detachEvent("on"+ev,uncacheEvent(el,ev,fn))
 return Event}}
-Event.stop=function(e){"stopPropagation"in e&&e.stopPropagation()
-"preventDefault"in e&&e.preventDefault()
+Event.stop=function(e){e.stopPropagation&&e.stopPropagation()
+e.preventDefault&&e.preventDefault()
 e.cancelBubble=e.cancel=true
 return e.returnValue=false}
 Event.removeAll=function(el,ev){var _e=el._e||{}
@@ -217,9 +217,9 @@ if(!ev||ev==t){var fnList=_e[t]
 for(var fn in fnList)
 Event.remove(el,t,fnList[fn])
 delete _e[t]}}
-Event.pointerX=function(e){if("changedTouches"in e)e=e.changedTouches[0]
+Event.pointerX=function(e){if(e.changedTouches)e=e.changedTouches[0]
 return e.pageX||e.clientX+d.body.scrollLeft||0}
-Event.pointerY=function(e){if("changedTouches"in e)e=e.changedTouches[0]
+Event.pointerY=function(e){if(e.changedTouches)e=e.changedTouches[0]
 return e.pageY||e.clientY+d.body.scrollTop||0}
 Event.pointer=function(e){var x=Event.pointerX(e),y=Event.pointerY(e)
 return{x:x,y:y,left:x,top:y}}
@@ -233,7 +233,7 @@ touchHandler(e)}}
 function touchEnd(e){Event.remove(d,"touchend",touchEnd).remove(d,"touchcancel",touchEnd).remove(d,"touchmove",touchHandler)
 touchHandler(e)}
 Event.touch_as_mouse=function(el){Event.add(el,"touchstart",touchStart)}
-var elCache={},fnCache={},dv=d.defaultView,getStyle=(dv&&"getComputedStyle"in dv?function(el,a){return el.style[a]||dv.getComputedStyle(el,null)[a]||null}:function(el,a){if(a=="opacity"){var opacity=el.filters("alpha").opacity
+var elCache={},fnCache={},dv=d.defaultView,getStyle=(dv&&dv.getComputedStyle?function(el,a){return el.style[a]||dv.getComputedStyle(el,null)[a]||null}:function(el,a){if(a=="opacity"){var opacity=el.filters("alpha").opacity
 return isNaN(opacity)?1:(opacity?opacity/100:0)}
 a=a.camelCase()
 return el.style[a]||el.currentStyle[a]||null}),el_re=/([.#:])([-\w]+)/g,css_map={"float":"cssFloat"},a={append:function(e,b){var t=this
@@ -241,8 +241,8 @@ if(e){if(typeof e=="string"||typeof e=="number")e=El.text(e)
 else if(!("nodeType"in e)&&"length"in e){var len=e.length,i=0,f=d.createDocumentFragment()
 while(i<len)t.append.call(f,e[i++])
 e=f}
-if("nodeType"in e)t.insertBefore(e,b?(b===true?t.firstChild:typeof b=="number"?t.childNodes[b]:b):null)
-"append_hook"in e&&e.append_hook()}
+if(e.nodeType)t.insertBefore(e,b?(b===true?t.firstChild:typeof b=="number"?t.childNodes[b]:b):null)
+e.append_hook&&e.append_hook()}
 return t},after:function(e,b){e.parentNode.append(this,b?e:e.nextSibling)
 return this},to:function(e,b){e.append(this,b)
 return this},hasClass:function(n){return(" "+this.className+" ").indexOf(" "+n+" ")>-1},addClass:function(n){var t=this
@@ -256,28 +256,28 @@ while(n=t.firstChild)t.kill.call(n)
 return t},kill:function(){var t=this
 if(t.parentNode)t.parentNode.removeChild(t)
 Event.removeAll(t)
-if("empty"in t)t.empty()
-if("kill_hook"in t)t.kill_hook()
+t.empty&&t.empty()
+t.kill_hook&&t.kill_hook()
 return t},css:function(atr,val){var t=this
 if(val)t.style[(css_map[atr]||atr).camelCase()]=val
 else return getStyle(t,atr)
 return t}.byKeyVal(),on:function(w,fn){Event.add(this,w,fn)
 return this}.byWords(),non:function(w,fn){Event.remove(this,w,fn)
 return this}.byWords(),set:function(args){var t=this,k=typeof args,v
-if(args){if(k=="string"||k=="number"||"nodeType"in args||"length"in args)t.append(args)
+if(args){if(k=="string"||k=="number"||args.nodeType||"length"in args)t.append(args)
 else for(k in args){v=args[k]
 if(k=="class"||k=="className")t.addClass(v)
 else if(typeof v=="string")t.setAttribute(k,v)
 else if(!v)t.removeAttribute(k)
 else t[k]=v}}
-return t},find:"querySelector"in d?function(sel){return this.querySelector(sel)}:function(sel){var el,i=0,rules=["_"],tag=sel.replace(el_re,function(_,o,s){rules.push(o=="."?"(' '+_.className+' ').indexOf(' "+s+" ')>-1":o=="#"?"_.id=='"+s+"'":"_."+s)
+return t},find:d.querySelector?function(sel){return this.querySelector(sel)}:function(sel){var el,i=0,rules=["_"],tag=sel.replace(el_re,function(_,o,s){rules.push(o=="."?"(' '+_.className+' ').indexOf(' "+s+" ')>-1":o=="#"?"_.id=='"+s+"'":"_."+s)
 return ""})||"*",els=this.getElementsByTagName(tag),fn=rules.join("&&").fn()
-while(el=els[i++])if(fn(el))return "to"in el?el:extend(el)}}
+while(el=els[i++])if(fn(el))return el.to?el:extend(el)}}
 function El(n,a){var el,pre={}
-n=n.replace(el_re,function(_,o,s){pre[o=="."?(o="class",(o in pre&&(s=pre[o]+" "+s)),o):o=="#"?"id":s]=s
+n=n.replace(el_re,function(_,o,s){pre[o=="."?(o="class",(pre[o]&&(s=pre[o]+" "+s)),o):o=="#"?"id":s]=s
 return ""})||"div"
 el=(elCache[n]||(elCache[n]=d.createElement(n))).cloneNode(true).set(pre)
-return n in fnCache&&fnCache[n](el,a)||el.set(a)}
+return fnCache[n]&&fnCache[n](el,a)||el.set(a)}
 function extend(e,p,k){if(e){if(!p)p=El[P]
 for(k in p)e[k]=p[k]}
 return e}
@@ -287,7 +287,7 @@ extend(d.body)
 d.createElement=function(n){return extend(c(n))}
 /*@cc_on try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}@*/}
 El.get=function(el){if(typeof el=="string")el=d.getElementById(el)
-return el&&"to"in el?el:extend(el)}
+return el&&el.to?el:extend(el)}
 El.cache=function(n,el,custom){elCache[n]=typeof el=="string"?El(el):el
 if(custom){fnCache[n]=custom}}
 El.cache.el=elCache
@@ -323,7 +323,7 @@ El.haml=function(str){var i,root=El("div"),parent=root,stack=[-1]
 str.replace(/^( *)((?:[.#%][-\w:]+)+)?(\{.*\})? ?(.*)$/igm,function(all,indent,name,args,text){if(all){var el,m
 i=indent.length
 while(i<=stack[0]){stack.shift()
-parent=("haml_done"in parent)?parent.haml_done():parent.parentNode}
+parent=(parent.haml_done)?parent.haml_done():parent.parentNode}
 if(name){args=args?JSON.parse(args):{}
 el=El(name.replace(/^[^%]/,"%div$&").substr(1),args)
 if(text)el.append(text.replace(/'/g,"\\'"))
@@ -350,10 +350,10 @@ S.downcase=S.toLowerCase
 S.size=function(){return this.length}}(this,document,"prototype")
 !function(){var is_down={},maps=[],keys={8:"Backspace",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",19:"Pause",20:"Capslock",27:"Esc",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"Left",38:"Up",39:"Right",40:"Down",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12"}
 function _key(code,char,i,is_input,el){var map=maps[i]||{},run=!is_input||map.enable_input
-if(run&&char&&char in map)map[char](char)
-else if(run&&"num"in map&&code>47&&code<58)map.num(code-48)
-else if(run&&"all"in map)map.all(code,char,el)
-else if("bubble"in map&&kbMaps[++i])_key(code,char,i,is_input,el)}
+if(run&&char&&map[char])map[char](char)
+else if(run&&map.num&&code>47&&code<58)map.num(code-48)
+else if(run&&map.all)map.all(code,char,el)
+else if(map.bubble&&kbMaps[++i])_key(code,char,i,is_input,el)}
 function keydown(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code
 is_down[key]=true}
 function keyup(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code,el=e.target||e.srcElement
