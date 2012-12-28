@@ -97,7 +97,7 @@ Array.indexFor=function(arr,el,fn){var o,i=0,l=arr.length
 if(fn&&l>0&&fn(el,arr[l-1])<1){while(i<l)fn(el,arr[o=(i+l)>>1])<0?l=o:i=o+1}
 return l}
 A.remove=function(){var t=this,l=t.length,o=sl(arguments)
-while(l--)if(o.indexOf(t[l])>-1)t.splice(l,1)
+while(l--)if(~o.indexOf(t[l]))t.splice(l,1)
 return t}
 A.each=A.forEach
 A.fold=A.reduce

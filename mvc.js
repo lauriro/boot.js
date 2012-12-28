@@ -95,7 +95,7 @@
 
 					// Extract id=1*
 
-					if (junk.indexOf("*") !== -1) {
+					if (~junk.indexOf("*")) {
 						return '(""+i.' + junk.split(".").join("\\.").split("*").join(".*").replace("=",").search(/") + "/i)>-1" + sep
 					}
 
@@ -121,12 +121,12 @@
 
 					// Extract id=1
 					var pos = junk.indexOf("=")
-					if (pos !== -1) {
+					if (~pos) {
 						return "''+i." + junk.substr(0,pos) + "==''+" + slash( junk.substr(pos+1) ) + sep
 					}
 
 					// Extract required fields /collection[id&name]
-					if (junk.indexOf(".") > -1)
+					if (~junk.indexOf("."))
 						return slash(junk)+'.split(".").fold(function(a,b){return a && b in a && a[b]}, i)'
 					return slash(junk) + " in i" + sep
 				}
@@ -141,7 +141,7 @@
 		str: "all",
 		subset: function(target) {
 			// TODO:2011-11-07:lauriro:Find better way to compare filters.
-			return target.str == "all" || this.str.indexOf(target.str) !== -1
+			return target.str == "all" || ~this.str.indexOf(target.str)
 		},
 		toString: function() {
 			return "[Filter: " + this.str +"]"

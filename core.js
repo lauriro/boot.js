@@ -220,7 +220,7 @@
 		, l = t.length
 		, o = sl(arguments)
 
-		while (l--) if (o.indexOf(t[l])>-1) t.splice(l, 1)
+		while (l--) if (~o.indexOf(t[l])) t.splice(l, 1)
 		return t
 	}
 
