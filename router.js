@@ -55,7 +55,6 @@
 			path = junks[0]
 
 			while (true) {
-				route = path
 				path += "/" + junks[++i]
 
 				if (!map.hasOwnProperty(path)) {
@@ -68,6 +67,7 @@
 						break
 					}
 				}
+				route = path
 			}
 			path = junks.slice(i).join("/")
 		}
@@ -99,6 +99,9 @@
 	r.add("/api/", function(){x = 1})
 	r.add("/api/v1", function(){x = 2})
 	r.add("/api/v2/:method?", function(){x = 3})
+
+	r.route("apv2")
+	test.compare( x , 0)
 
 	r.route("/api/")
 	test.compare( x , 1 , "Router.route")
