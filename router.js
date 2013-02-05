@@ -12,7 +12,7 @@
 */
 
 
-!function(exports) {
+!function(root) {
 
 	function Router() {
 		this.map = { "": { cb: function(){} } }
@@ -87,7 +87,7 @@
 		, route: RouterRoute
 		}
 
-	exports.Router = Router
+	root.Router = Router
 }(this)
 
 

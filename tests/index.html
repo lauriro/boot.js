@@ -90,7 +90,7 @@ El("div","popup").to(box).on("click",function(){
 load.path = "../"
 load("tests/test.js", function(){
 	var modules = [
-	    "el.js"
+	    "dateFormat.js"
 		, "rpc.js"
 		, "mvc.js"
 		, "router.js"
@@ -107,7 +107,7 @@ load("tests/test.js", function(){
 
 	load( modules, function(){
 
-			TestCase.read( ["browser_upgrade.js","core.js"] )
+			TestCase.read( ["browser_upgrade.js", "core.js", "el.js"] )
 			TestCase.read( modules )
 			var i = 0, test, count = 0, time = 0;
 			while (test = _tests[i++]) {
