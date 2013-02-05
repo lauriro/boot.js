@@ -322,21 +322,26 @@
 		return e
 	}
 
-	// IE8 supports Element
+	d.head = d.head || d.getElementsByTagName("head")[0]
+
+	/**
+	 * For IE 6-7
+	 * IE8 exposes Element
+	 */
 	if (!(El[P] = extend( (w.HTMLElement || w.Element || {})[P] , a))) {
-		// for IE 6-7
 		var c = d.createElement
 		
 		El[P] = a
 
+		extend(d.head)
 		extend(d.body)
 	
 		d.createElement = function(n) {return extend(c(n))}
 
 		// remove background image flickers on hover in IE6
-		// You can also use CSS
-		// html { filter: expression(document.execCommand("BackgroundImageCache", false, true)); }
 		/*@cc_on try{document.execCommand('BackgroundImageCache',false,true)}catch(e){} @*/
+		// You could also use CSS
+		// html { filter: expression(document.execCommand("BackgroundImageCache", false, true)); }
 	}
 
 	El.get = function(el) {
@@ -357,8 +362,6 @@
 	}
 	w.El = El
 	//*/
-
-
 
 
 
