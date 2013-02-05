@@ -1,10 +1,23 @@
 
 
-min:
+all:
 	@../js-min/js-min.sh browser_upgrade.js core.js el.js load.js > min.js
+	@wc -c min.js
+	@gzip -c min.js | wc -c
 
-# Now call Google Closure Compiler to produce a minified version
-# $ curl -d output_info=compiled_code -d output_format=text -d compilation_level=ADVANCED_OPTIMIZATIONS --data-urlencode js_code@min.js "http://closure-compiler.appspot.com/compile" > min2.js
+
+# Call Google Closure Compiler to produce a minified version
+min:
+	@curl -s \
+		    --data-urlencode 'output_info=compiled_code' \
+				--data-urlencode 'output_format=text' \
+				--data-urlencode 'js_code@min.js' \
+				'http://closure-compiler.appspot.com/compile' > min2.js
+	@curl -s \
+		    --data-urlencode 'output_info=errors' \
+				--data-urlencode 'output_format=text' \
+				--data-urlencode 'js_code@min.js' \
+				'http://closure-compiler.appspot.com/compile' > error.log
 
 
 

@@ -638,14 +638,14 @@
 		120:"F9", 121:"F10", 122:"F11", 123:"F12"
 	}
 
-	function _key(code, char, i, is_input, el) {
+	function _key(code, chr, i, is_input, el) {
 		var map = maps[i] || {}
 		, run = !is_input || map.enable_input
 
-		if ( run && char && map[char] ) map[char](char)
+		if ( run && chr && map[chr] ) map[chr](chr)
 		else if ( run && map.num && code > 47 && code < 58) map.num(code-48)
-		else if ( run && map.all ) map.all(code, char, el)
-		else if ( map.bubble && kbMaps[++i]) _key(code, char, i, is_input, el)
+		else if ( run && map.all ) map.all(code, chr, el)
+		else if ( map.bubble && kbMaps[++i]) _key(code, chr, i, is_input, el)
 	}
 
 

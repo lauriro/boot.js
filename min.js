@@ -260,8 +260,10 @@ return fnCache[n]&&fnCache[n](el,a)||el.set(a)}
 function extend(e,p,k){if(e){if(!p)p=El[P]
 for(k in p)e[k]=p[k]}
 return e}
+d.head=d.head||d.getElementsByTagName("head")[0]
 if(!(El[P]=extend((w.HTMLElement||w.Element||{})[P],a))){var c=d.createElement
 El[P]=a
+extend(d.head)
 extend(d.body)
 d.createElement=function(n){return extend(c(n))}
 /*@cc_on try{document.execCommand('BackgroundImageCache',false,true)}catch(e){}@*/}
@@ -328,11 +330,11 @@ S.upcase=S.toUpperCase
 S.downcase=S.toLowerCase
 S.size=function(){return this.length}}(this,document,"prototype")
 !function(){var is_down={},maps=[],keys={8:"Backspace",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",19:"Pause",20:"Capslock",27:"Esc",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"Left",38:"Up",39:"Right",40:"Down",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12"}
-function _key(code,char,i,is_input,el){var map=maps[i]||{},run=!is_input||map.enable_input
-if(run&&char&&map[char])map[char](char)
+function _key(code,chr,i,is_input,el){var map=maps[i]||{},run=!is_input||map.enable_input
+if(run&&chr&&map[chr])map[chr](chr)
 else if(run&&map.num&&code>47&&code<58)map.num(code-48)
-else if(run&&map.all)map.all(code,char,el)
-else if(map.bubble&&kbMaps[++i])_key(code,char,i,is_input,el)}
+else if(run&&map.all)map.all(code,chr,el)
+else if(map.bubble&&kbMaps[++i])_key(code,chr,i,is_input,el)}
 function keydown(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code
 is_down[key]=true}
 function keyup(e){var code=e.keyCode||e.which,key=keys[code]||String.fromCharCode(code)||code,el=e.target||e.srcElement
