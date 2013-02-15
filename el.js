@@ -19,6 +19,7 @@
 	, fn_id = 0
 	, S = String[P]
 	, rendering  = false
+	, wheelDiff = 120
 
 	function cacheEvent(el, type, fn, fix_fn) {
 		var _e = el._e || (el._e={})
@@ -29,8 +30,15 @@
 		*/
 		return (_e[type][ fn._fn_id || (fn._fn_id = ++fn_id) ] = type == "mousewheel" ? function(e) {
 				if (!e) e = w.event
-				var delta = e.wheelDelta ? e.wheelDelta/120 : -e.detail/3
-				delta != 0 && fn.call(el, e, delta)
+				var delta = e.wheelDelta ? e.wheelDelta/wheelDiff : -e.detail/wheelDiff
+				if (delta != 0) {
+					if (delta < 1 && delta > -1) {
+						var diff = (delta < 0 ? -1 : 1)/delta
+						delta *= diff
+						wheelDiff /= diff
+					}
+					fn.call(el, e, delta)
+				}
 			} 
 			: fix_fn
 		)
@@ -416,7 +424,7 @@
 				t.fn = El.liquid(str)
 				El.cache(t.id, t, t.parse.bind(t))
 			}
-			t.el.haml_done = t.el = null
+			t.el.haml_done = null
 			return parent
 		//	delete 
 			
