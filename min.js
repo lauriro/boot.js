@@ -164,12 +164,15 @@ S.ip2int=function(){var t=(this+".0.0.0").split(".")
 return((t[0]<<24)|(t[1]<<16)|(t[2]<<8)|(t[3]))>>>0}
 S.int2ip=N.int2ip=function(){var t=+this
 return[t>>>24,(t>>>16)&0xFF,(t>>>8)&0xFF,t&0xFF].join(".")}}(this)
-!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false
+!function(w,d,P){var Event=w.Event||(w.Event={}),fn_id=0,S=String[P],rendering=false,wheelDiff=120
 function cacheEvent(el,type,fn,fix_fn){var _e=el._e||(el._e={})
 _e[type]||(_e[type]={})
 return(_e[type][fn._fn_id||(fn._fn_id=++fn_id)]=type=="mousewheel"?function(e){if(!e)e=w.event
-var delta=e.wheelDelta?e.wheelDelta/120 : -e.detail/3
-delta!=0&&fn.call(el,e,delta)}:fix_fn)}
+var delta=e.wheelDelta?e.wheelDelta/wheelDiff : -e.detail/wheelDiff
+if(delta!=0){if(delta<1&&delta>-1){var diff=(delta<0?-1:1)/delta
+delta*=diff
+wheelDiff/=diff}
+fn.call(el,e,delta)}}:fix_fn)}
 function uncacheEvent(el,type,fn){var _e=el._e||{}
 if(_e[type]&&fn._fn_id&&_e[type][fn._fn_id]){var _fn=_e[type][fn._fn_id]
 delete _e[type][fn._fn_id]
@@ -287,7 +290,7 @@ t.el=El("div")
 t.el.haml_done=function(){var str=t.el.innerHTML,fn=str.indexOf("data-template")>-1?custom_init:null
 if(str.indexOf("{{")<0&&str.indexOf("{%")<0&&t.el.childNodes.length==1){El.cache(t.id,t.el.firstChild,fn)}else{t.fn=El.liquid(str)
 El.cache(t.id,t,t.parse.bind(t))}
-t.el.haml_done=t.el=null
+t.el.haml_done=null
 return parent}
 return t}
 template.prototype={cloneNode:This,set:This,parse:function(el,data){var t=this
